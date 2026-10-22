@@ -1,0 +1,49 @@
+# Contratos de arquitectura: se verifican en CI con `lint-imports`
+[importlinter]
+root_packages =
+    shared
+    identity
+    market
+    forecasting
+    decision
+    advisor
+    orchestration
+
+[importlinter:contract:hexagonal-layers]
+name = Capas hexagonales: infrastructure -> application -> domain
+type = layers
+layers =
+    infrastructure
+    application
+    domain
+containers =
+    identity
+    market
+    forecasting
+    decision
+    advisor
+    orchestration
+
+[importlinter:contract:independent-modules]
+name = Los módulos no se importan entre sí (solo hablan mediante AgentMessage)
+type = independence
+modules =
+    identity
+    market
+    forecasting
+    decision
+    advisor
+    orchestration
+
+[importlinter:contract:shared-kernel]
+name = El kernel compartido no depende de ningún módulo
+type = forbidden
+source_modules =
+    shared
+forbidden_modules =
+    identity
+    market
+    forecasting
+    decision
+    advisor
+    orchestration
