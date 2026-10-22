@@ -1,0 +1,14 @@
+# Documentación
+
+- [Arquitectura](arquitectura.md)
+- [Metáfora del sistema](metafora.md)
+- [Tarjetas CRC](tarjetas-crc.md)
+- [Estándar de código](estandar-de-codigo.md)
+- [Operación](operacion.md)
+- Decisiones: [0001](decisiones/0001-monolito-modular-hexagonal.md) · [0002](decisiones/0002-agentes-con-supervisor.md) · [0003](decisiones/0003-medicion-fuera-de-la-app.md) · [0004](decisiones/0004-llm-con-respaldo.md) · [0005](decisiones/0005-elm-con-modelo-base.md) · [0006](decisiones/0006-varias-fuentes-y-sse.md) · [0007](decisiones/0007-regla-de-venta-explicable.md)
+- XP: [tareas T01–T37](xp/tareas.md) · [trazabilidad](xp/trazabilidad.md) · [iteraciones](xp/iteraciones.md)
+  - [Iteración 0](xp/iteracion-0/README.md) · [spike de fuentes del precio mundial](xp/iteracion-0/spike.md)
+  - [Iteración 1](xp/iteracion-1/README.md)
+  - [Iteración 2](xp/iteracion-2/README.md) · [evaluación de modelos](xp/iteracion-2/evaluacion-modelos.md) · [accesibilidad](xp/iteracion-2/accesibilidad.md)
+  - [Iteración 3](xp/iteracion-3/README.md) · [prueba retrospectiva de la regla de venta](xp/iteracion-3/prueba-retrospectiva.md) · [reporte de pruebas (Word)](xp/iteracion-3/Reporte_de_pruebas_Cafe_Jaen.docx)
+- Usuario final: [manual de usuario (Word)](manual/Manual_de_usuario_Cafe_Jaen.docx) · [guía de inducción (Word)](manual/Guia_de_induccion_Cafe_Jaen.docx)
