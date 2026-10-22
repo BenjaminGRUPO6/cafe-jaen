@@ -1,0 +1,21 @@
+# El líder de cada módulo revisa sus cambios (propiedad colectiva: no bloquea a nadie)
+# Reemplazar por los usuarios reales de GitHub
+/backend/src/market/          @usuario-A
+/backend/src/forecasting/     @usuario-A
+/frontend/src/features/prices/   @usuario-A
+/frontend/src/features/forecast/ @usuario-A
+/frontend/src/features/offers/   @usuario-A
+
+/backend/src/identity/        @usuario-B
+/backend/src/orchestration/   @usuario-B
+/backend/src/advisor/         @usuario-B
+/frontend/src/shared/         @usuario-B
+/frontend/src/features/auth/     @usuario-B
+/frontend/src/features/advisor/  @usuario-B
+/.github/                     @usuario-B
+
+# Zonas compartidas: siempre ambos
+/backend/src/shared/          @usuario-A @usuario-B
+/backend/src/main.py          @usuario-A @usuario-B
+/backend/migrations/          @usuario-A @usuario-B
+/docs/                        @usuario-A @usuario-B

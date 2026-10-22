@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.import_linter_cache/
+
+# Node
+node_modules/
+dist/
+dev-dist/
+
+# Entorno y datos locales (nunca versionar secretos)
+.env
+*.db
+
+# Editor / SO
+.vscode/
+.idea/
+.DS_Store
+
+# TypeScript
+*.tsbuildinfo
