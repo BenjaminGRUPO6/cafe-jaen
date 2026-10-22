@@ -1,0 +1,330 @@
+/* Letra grande, alto contraste y botones amplios: pensado para usar en la chacra (HU09) */
+:root {
+  --coffee: #3e2723;
+  --coffee-light: #6d4c41;
+  --cream: #faf7f5;
+  --green: #2e7d32;
+  --red: #c62828;
+  --gray: #5f5f5f;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  font-size: 18px;
+  color: #1b1b1b;
+  background: var(--cream);
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+input,
+textarea,
+button {
+  font-family: inherit; /* los formularios usan la misma letra legible */
+}
+h1 {
+  font-size: 1.4rem;
+  color: var(--coffee);
+  margin: 0 0 1rem;
+}
+
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: var(--coffee);
+  color: #fff;
+}
+.header__title {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+.content {
+  flex: 1;
+  padding: 1rem;
+  padding-bottom: 6rem;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: #fff;
+  border-top: 1px solid #ddd;
+}
+.bottom-nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0;
+  color: var(--gray);
+  text-decoration: none;
+  font-size: 0.9rem; /* 16 px: ningún texto por debajo de 16 px (PA-09-1) */
+}
+.bottom-nav__item span {
+  font-size: 1.4rem;
+}
+.bottom-nav__item.active {
+  color: var(--coffee);
+  font-weight: 700;
+}
+
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  margin-bottom: 1rem;
+}
+.price {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: var(--coffee);
+  margin: 0.25rem 0;
+}
+.muted {
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+.up {
+  color: var(--green);
+  font-weight: 700;
+}
+.down {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-weight: 600;
+}
+.form input,
+.form textarea {
+  font-size: 1.1rem;
+  padding: 0.75rem;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+}
+.checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.6rem !important;
+}
+.checkbox input {
+  width: 1.6rem;
+  height: 1.6rem;
+}
+
+.button {
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 0.9rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--coffee);
+  color: #fff;
+  cursor: pointer;
+}
+.button:disabled {
+  opacity: 0.5;
+}
+.button--secondary {
+  background: #fff;
+  color: var(--coffee);
+  border: 2px solid var(--coffee);
+}
+.link-button {
+  background: none;
+  border: 0;
+  color: inherit;
+  font-size: 1rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.segmented .button {
+  /* Si las palabras no entran en una fila, los botones pasan a la siguiente (nada se corta) */
+  flex: 1 1 auto;
+  padding-left: 0.6rem;
+  padding-right: 0.6rem;
+}
+
+.status {
+  text-align: center;
+  padding: 1rem;
+}
+.status--error {
+  color: var(--red);
+}
+.banner {
+  background: #fff3cd;
+  color: #5d4300;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th,
+.table td {
+  padding: 0.5rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.bubble {
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  max-width: 90%;
+}
+.bubble--user {
+  align-self: flex-end;
+  background: var(--coffee-light);
+  color: #fff;
+}
+.bubble--advisor {
+  align-self: flex-start;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.chip {
+  background: #fff;
+  border: 1px solid var(--coffee-light);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+/* Pantalla de bolsa (HU03) y recomendación de venta (HU05) */
+.button--block {
+  display: block;
+  width: 100%;
+  text-align: center;
+  text-decoration: none;
+  margin-top: 0.5rem;
+}
+.board__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.header__link {
+  margin-right: 1rem;
+  color: #fff;
+}
+.form select {
+  font-size: 1.1rem;
+  padding: 0.75rem;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+}
+.observations {
+  list-style: none;
+  padding: 0.5rem 1.25rem;
+}
+.observations li {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #eee;
+}
+.observations li:last-child {
+  border-bottom: 0;
+}
+.card__title {
+  font-size: 1.1rem;
+  color: var(--coffee);
+  margin: 0 0 0.5rem;
+}
+.price--secondary {
+  font-size: 2rem;
+}
+.live-badge {
+  white-space: nowrap;
+  background: var(--red);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+}
+.live-badge::before {
+  content: "● ";
+}
+.market-state {
+  display: inline-block;
+  border: 2px solid var(--gray);
+  color: var(--gray);
+  border-radius: 999px;
+  padding: 0.2rem 0.8rem;
+  font-weight: 600;
+}
+.market-state--open {
+  border-color: var(--green);
+  color: var(--green);
+}
+.verdict {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gray);
+  margin: 0 0 0.5rem;
+}
+.verdict--sell {
+  color: var(--green);
+}
+.verdict--wait {
+  color: #1565c0;
+}

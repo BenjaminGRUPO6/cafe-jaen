@@ -1,0 +1,106 @@
+// Todos los textos que ve el caficultor, en un solo lugar y en español sencillo.
+export const texts = {
+  appName: "Café Jaén",
+  nav: {
+    live: "Precio",
+    chart: "Gráfico",
+    decision: "¿Vendo?",
+    forecast: "Pronóstico",
+    advisor: "Asesor",
+  },
+  common: {
+    loading: "Cargando…",
+    retry: "Intentar de nuevo",
+    perQuintal: "por quintal (46 kg)",
+    source: "Fuente",
+    logout: "Salir",
+    offline: (when: string) => `Sin conexión — precio de las ${when}`,
+    genericError: "No pudimos conectar. Revisa tu señal e intenta de nuevo.",
+  },
+  auth: {
+    loginTitle: "Ingresar",
+    registerTitle: "Crear mi cuenta",
+    phone: "Número de celular",
+    password: "Contraseña (mínimo 8 caracteres)",
+    invitationCode: "Código de invitación",
+    login: "Ingresar",
+    register: "Crear cuenta",
+    goToRegister: "¿Primera vez? Crea tu cuenta con tu código",
+    goToLogin: "Ya tengo cuenta",
+    consentTitle: "Consentimiento informado",
+    consentText:
+      "Esta aplicación es parte de una investigación de la Universidad Privada Antenor Orrego. " +
+      "Solo guardamos tu número de celular y tu uso de la aplicación, de forma confidencial y " +
+      "según la Ley N.° 29733 de Protección de Datos Personales. Puedes dejar de participar cuando quieras.",
+    consentAccept: "He leído y acepto participar",
+  },
+  live: {
+    title: "Precio del café en la bolsa",
+    market: "Bolsa de Nueva York · café arábica",
+    liveBadge: "En vivo",
+    open: "Bolsa abierta",
+    closed: "Bolsa cerrada: último precio registrado",
+    quotedAt: (time: string, date: string) =>
+      `Cotización de las ${time} del ${date} (hora de Lima)`,
+    up: "Subió",
+    down: "Bajó",
+    sincePreviousClose: "desde el cierre anterior",
+    stale: "El precio no se ha actualizado en los últimos minutos: puede estar atrasado.",
+    delayNote: "Las fuentes gratuitas publican la bolsa con algunos minutos de retraso.",
+    askDecision: "¿Vendo ahora o espero?",
+  },
+  local: {
+    title: "Precio estimado en Jaén",
+    coffeeTypes: { convencional: "Convencional", organico: "Orgánico", especial: "Especial" },
+    ratio: (pct: string) => `${pct} de la bolsa`,
+    basis: (n: number, from: string, to: string) =>
+      `Calculado con ${n} ${n === 1 ? "precio" : "precios"} de cooperativas ` +
+      (from === to ? `(del ${from}).` : `(del ${from} al ${to}).`),
+    fewData: "Todavía hay pocos precios anotados: tómalo como una idea aproximada.",
+    note: "Es lo que suelen pagar las cooperativas por quintal de pergamino, según la bolsa de hoy.",
+    empty: "Todavía no hay precios de cooperativas anotados.",
+  },
+  admin: {
+    nav: "Equipo",
+    title: "Precios de las cooperativas",
+    intro:
+      "Pregunta a la cooperativa «¿a cuánto está el quintal ahora?» y anótalo aquí. La app guarda el precio de la bolsa de este momento y calcula el porcentaje.",
+    cooperative: "Cooperativa",
+    coffeeType: "Tipo de café",
+    paid: "Precio que paga hoy (S/ por quintal de pergamino)",
+    save: "Guardar precio",
+    saved: (pct: string) => `Guardado: equivale al ${pct} de la bolsa.`,
+    recent: "Anotados en los últimos 30 días",
+    paidShort: "pagó",
+    exchange: "bolsa",
+  },
+  chart: {
+    title: "Gráfico del precio",
+    periods: { today: "Hoy", "30": "30 días", "90": "90 días" },
+    empty: "Todavía no hay precios para este periodo.",
+  },
+  forecast: {
+    title: "Pronóstico a 7 días",
+    day: "Día",
+    expected: "Esperado",
+    range: "Rango",
+  },
+  decision: {
+    title: "¿Vendo ahora o espero?",
+    basedOn: "Según el precio de la bolsa, su tendencia y el pronóstico a 7 días.",
+    target: (date: string, price: string) => `Precio esperado para el ${date}: ${price}`,
+    hitRate: (pct: string) =>
+      `En la prueba con datos pasados, esta regla acertó el ${pct} de las veces.`,
+    refresh: "Volver a calcular",
+  },
+  advisor: {
+    title: "Pregúntale al asesor",
+    placeholder: "Ej.: ¿A cuánto está el quintal hoy?",
+    send: "Preguntar",
+    examples: [
+      "¿A cuánto está el quintal hoy?",
+      "¿Vendo ahora o espero?",
+      "¿Va a subir la próxima semana?",
+    ],
+  },
+};

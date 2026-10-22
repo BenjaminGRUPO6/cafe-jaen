@@ -1,0 +1,16 @@
+# pre-commit install  → revisa cada commit antes de que llegue al CI
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.1
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: import-linter
+        name: arquitectura hexagonal (import-linter)
+        entry: bash -c "cd backend && PYTHONPATH=src lint-imports"
+        language: system
+        pass_filenames: false
+        files: ^backend/src/
