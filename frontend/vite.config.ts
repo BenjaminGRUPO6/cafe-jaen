@@ -15,14 +15,16 @@ export default defineConfig({
         lang: "es",
         start_url: "/",
         display: "standalone",
-        background_color: "#faf7f5",
-        theme_color: "#3e2723",
+        background_color: "#f4f4ef",
+        theme_color: "#f4f4ef",
         icons: [
           { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
           { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
         ],
       },
       workbox: {
+        // La letra viaja dentro de la app: se ve igual aunque no haya señal
+        globPatterns: ["**/*.{js,css,html,png,svg,webmanifest,woff2}"],
         runtimeCaching: [
           {
             // Primero la red; si no hay señal, la última respuesta guardada.

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ApiError } from "../../shared/api/client";
 import { useAuth } from "../../shared/auth/AuthContext";
+import { Brand } from "../../shared/components/Brand";
 import { StatusMessage } from "../../shared/components/StatusMessage";
 import { texts } from "../../shared/texts/es";
 
@@ -23,7 +24,11 @@ export function LoginPage() {
   };
 
   return (
-    <main className="content">
+    <main className="content auth">
+      <div className="auth__hero tile tile--grano">
+        <Brand />
+        <p className="auth__tagline">{texts.auth.tagline}</p>
+      </div>
       <h1>{texts.auth.loginTitle}</h1>
       <form className="form card" onSubmit={onSubmit}>
         <label>

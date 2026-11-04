@@ -5,7 +5,7 @@ export const texts = {
     live: "Precio",
     chart: "Gráfico",
     decision: "¿Vendo?",
-    forecast: "Pronóstico",
+    forecast: "7 días",
     advisor: "Asesor",
   },
   common: {
@@ -27,6 +27,7 @@ export const texts = {
     register: "Crear cuenta",
     goToRegister: "¿Primera vez? Crea tu cuenta con tu código",
     goToLogin: "Ya tengo cuenta",
+    tagline: "El precio del café, al momento.",
     consentTitle: "Consentimiento informado",
     consentText:
       "Esta aplicación es parte de una investigación de la Universidad Privada Antenor Orrego. " +
@@ -48,6 +49,12 @@ export const texts = {
     stale: "El precio no se ha actualizado en los últimos minutos: puede estar atrasado.",
     delayNote: "Las fuentes gratuitas publican la bolsa con algunos minutos de retraso.",
     askDecision: "¿Vendo ahora o espero?",
+    decisionHint: "Recomendación con números",
+    forecastTile: "Pronóstico a 7 días",
+    forecastHint: "Bolsa y Jaén, día por día",
+    openShort: "Bolsa abierta",
+    closedShort: "Bolsa cerrada",
+    quotedShort: (time: string) => `Cotización de las ${time}`,
   },
   local: {
     title: "Precio estimado en Jaén",
@@ -59,6 +66,7 @@ export const texts = {
     fewData: "Todavía hay pocos precios anotados: tómalo como una idea aproximada.",
     note: "Es lo que suelen pagar las cooperativas por quintal de pergamino, según la bolsa de hoy.",
     empty: "Todavía no hay precios de cooperativas anotados.",
+    unit: "por quintal de pergamino",
   },
   admin: {
     nav: "Equipo",
@@ -78,12 +86,19 @@ export const texts = {
     title: "Gráfico del precio",
     periods: { today: "Hoy", "30": "30 días", "90": "90 días" },
     empty: "Todavía no hay precios para este periodo.",
+    high: "Máximo",
+    low: "Mínimo",
+    change: "Variación",
   },
   forecast: {
     title: "Pronóstico a 7 días",
-    day: "Día",
-    expected: "Esperado",
-    range: "Rango",
+    exchange: "Bolsa",
+    jaen: "en Jaén",
+    localNote: (pct: string, type: string) =>
+      `En Jaén = pronóstico de la bolsa × ${pct}, lo que pagan hoy las cooperativas por café ${type}.`,
+    noLocal: "Todavía no hay precios de cooperativas: solo se muestra la bolsa.",
+    rangeHint: "La barra amarilla es el rango probable; el punto, el valor esperado.",
+    range: (low: string, high: string) => `rango ${low}–${high}`,
   },
   decision: {
     title: "¿Vendo ahora o espero?",

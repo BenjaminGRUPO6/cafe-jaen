@@ -1,15 +1,17 @@
 import { Link, Outlet } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { PageTransition } from "../motion/PageTransition";
 import { texts } from "../texts/es";
 import { BottomNav } from "./BottomNav";
+import { Brand } from "./Brand";
 
 export function Layout() {
   const { logout, isAdmin } = useAuth();
   return (
     <div className="layout">
       <header className="header">
-        <span className="header__title">☕ {texts.appName}</span>
-        <span>
+        <Brand />
+        <span className="header__actions">
           {isAdmin && (
             <Link to="/equipo" className="link-button header__link">
               {texts.admin.nav}
@@ -21,7 +23,9 @@ export function Layout() {
         </span>
       </header>
       <main className="content">
-        <Outlet />
+        <PageTransition>
+          <Outlet />
+        </PageTransition>
       </main>
       <BottomNav />
     </div>

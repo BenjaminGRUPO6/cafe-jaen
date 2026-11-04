@@ -1,20 +1,43 @@
-/* Letra grande, alto contraste y botones amplios: pensado para usar en la chacra (HU09) */
+/*
+ * Diseño «Cosecha» (v2): bloques de color vivos, letra grande y alto contraste para usar el
+ * celular en la chacra (HU09, HU15). Cada color tiene un solo significado (ver docs/paleta.md).
+ */
+@import "@fontsource-variable/atkinson-hyperlegible-next";
+@import "@fontsource-variable/bricolage-grotesque";
+
 :root {
-  --coffee: #3e2723;
-  --coffee-light: #6d4c41;
-  --cream: #faf7f5;
-  --green: #2e7d32;
-  --red: #c62828;
-  --gray: #5f5f5f;
+  /* Paleta */
+  --espresso: #1a1208; /* texto, barra inferior, botones */
+  --grano: #ffc531; /* precio de la bolsa (lo más importante) */
+  --brote: #c6f36b; /* precio estimado en Jaén, «Vender ahora» */
+  --hoja: #087443; /* sube, bolsa abierta */
+  --hoja-clara: #e2f7c4;
+  --cereza: #c62a20; /* baja, en vivo, errores */
+  --cereza-clara: #ffe1dc;
+  --cielo: #2456d6; /* «Esperar», foco del teclado */
+  --cielo-clara: #dde7ff;
+  --niebla: #f4f4ef; /* fondo */
+  --papel: #ffffff; /* superficies */
+  --corteza: #5f574d; /* texto secundario */
+  --linea: #e3e1d8; /* bordes */
+
+  --display: "Bricolage Grotesque Variable", "Atkinson Hyperlegible Next Variable", sans-serif;
+  --radio-xl: 28px;
+  --radio: 20px;
+  --radio-chico: 14px;
+
   font-family:
+    "Atkinson Hyperlegible Next Variable",
     system-ui,
     -apple-system,
     "Segoe UI",
     Roboto,
     sans-serif;
   font-size: 18px;
-  color: #1b1b1b;
-  background: var(--cream);
+  line-height: 1.45;
+  color: var(--espresso);
+  background: var(--niebla);
+  -webkit-font-smoothing: antialiased;
 }
 
 * {
@@ -22,18 +45,41 @@
 }
 body {
   margin: 0;
+  background: var(--niebla);
 }
 input,
 textarea,
+select,
 button {
   font-family: inherit; /* los formularios usan la misma letra legible */
+  color: inherit;
+}
+p {
+  margin: 0 0 0.6rem;
 }
 h1 {
-  font-size: 1.4rem;
-  color: var(--coffee);
-  margin: 0 0 1rem;
+  font-family: var(--display);
+  font-size: 1.9rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin: 0.25rem 0 1.1rem;
+}
+h2 {
+  font-family: var(--display);
+  font-weight: 750;
+  letter-spacing: -0.01em;
+}
+a {
+  color: var(--espresso);
+}
+:focus-visible {
+  outline: 3px solid var(--cielo);
+  outline-offset: 3px;
+  border-radius: 8px;
 }
 
+/* ---------- Estructura ---------- */
 .layout {
   min-height: 100vh;
   display: flex;
@@ -43,94 +89,374 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 1rem;
-  background: var(--coffee);
-  color: #fff;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem 1rem 0.25rem;
 }
-.header__title {
-  font-weight: 700;
-  font-size: 1.2rem;
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.25rem;
+  letter-spacing: -0.02em;
+  color: var(--espresso);
+  text-decoration: none;
+}
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: var(--grano);
+}
+.brand__mark svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.header__actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
 .content {
   flex: 1;
   padding: 1rem;
-  padding-bottom: 6rem;
-  max-width: 640px;
+  padding-bottom: 8rem;
+  max-width: 560px;
   width: 100%;
   margin: 0 auto;
 }
 
+/* ---------- Barra inferior flotante ---------- */
 .bottom-nav {
   position: fixed;
-  bottom: 0;
   left: 0;
   right: 0;
+  bottom: calc(0.6rem + env(safe-area-inset-bottom));
   display: flex;
-  background: #fff;
-  border-top: 1px solid #ddd;
+  justify-content: center;
+  padding: 0 0.5rem;
+  z-index: 10;
+  pointer-events: none;
+}
+.bottom-nav__inner {
+  pointer-events: auto;
+  display: flex;
+  width: 100%;
+  max-width: 540px;
+  padding: 0.3rem;
+  background: var(--espresso);
+  border-radius: 999px;
+  box-shadow: 0 12px 30px -12px rgba(26, 18, 8, 0.55);
 }
 .bottom-nav__item {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  padding: 0.5rem 0;
-  color: var(--gray);
+  gap: 0.1rem;
+  padding: 0.45rem 0 0.4rem;
+  color: #d8d1c4;
   text-decoration: none;
   font-size: 0.9rem; /* 16 px: ningún texto por debajo de 16 px (PA-09-1) */
+  border-radius: 999px;
 }
-.bottom-nav__item span {
-  font-size: 1.4rem;
+.bottom-nav__item svg {
+  width: 1.45rem;
+  height: 1.45rem;
+  position: relative;
+  z-index: 1;
+}
+.bottom-nav__label {
+  position: relative;
+  z-index: 1;
 }
 .bottom-nav__item.active {
-  color: var(--coffee);
-  font-weight: 700;
+  color: var(--espresso);
+  font-weight: 760;
+}
+.bottom-nav__pill {
+  position: absolute;
+  inset: 0;
+  background: var(--grano);
+  border-radius: 999px;
+}
+
+/* ---------- Bloques (bento) ---------- */
+.bento {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+.tile {
+  grid-column: span 2;
+  border-radius: var(--radio-xl);
+  padding: 1.25rem;
+  background: var(--papel);
+  position: relative;
+  overflow: hidden;
+}
+.tile--half {
+  grid-column: span 1;
+}
+.tile--grano {
+  background: var(--grano);
+}
+.tile--brote {
+  background: var(--brote);
+}
+.tile--espresso {
+  background: var(--espresso);
+  color: var(--papel);
+}
+.tile--cielo {
+  background: var(--cielo-clara);
+}
+.tile__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+.tile__title {
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
+}
+.tile__label {
+  font-size: 0.95rem;
+  font-weight: 650;
+  opacity: 0.85;
+}
+/* Bloques que llevan a otra pantalla */
+.tile-link {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  min-height: 9.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+.tile-link__icon {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: var(--grano);
+  color: var(--espresso);
+}
+.tile--espresso .tile-link__icon {
+  background: var(--grano);
+}
+.tile:not(.tile--espresso) .tile-link__icon {
+  background: var(--niebla);
+}
+.tile-link__icon svg {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.tile-link__title {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.2rem;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.2rem;
+}
+.tile-link__hint {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin: 0;
 }
 
 .card {
-  background: #fff;
-  border-radius: 12px;
+  background: var(--papel);
+  border-radius: var(--radio);
   padding: 1.25rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   margin-bottom: 1rem;
 }
-.price {
-  font-size: 2.6rem;
-  font-weight: 800;
-  color: var(--coffee);
-  margin: 0.25rem 0;
+.card__title {
+  font-size: 1.15rem;
+  margin: 0 0 0.75rem;
 }
 .muted {
-  color: var(--gray);
+  color: var(--corteza);
   font-size: 0.9rem;
 }
+.tile--grano .muted,
+.tile--brote .muted {
+  color: #3d362c;
+}
 .up {
-  color: var(--green);
+  color: var(--hoja);
   font-weight: 700;
 }
 .down {
-  color: var(--red);
+  color: var(--cereza);
   font-weight: 700;
 }
+.nowrap {
+  white-space: nowrap;
+}
+.footnote {
+  color: var(--corteza);
+  font-size: 0.9rem;
+  margin: 1rem 0.25rem 0;
+}
 
+/* ---------- Precio de la bolsa (HU03) ---------- */
+.price {
+  font-family: var(--display);
+  font-size: clamp(3.3rem, 16vw, 5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  margin: 0.4rem 0 0.35rem;
+}
+.price--secondary {
+  font-size: clamp(2.4rem, 11vw, 3.2rem);
+  margin: 0.25rem 0 0.4rem;
+}
+.price-unit {
+  font-size: 1rem;
+  font-weight: 650;
+  margin-bottom: 0.9rem;
+}
+.price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+.price-wrap {
+  position: relative;
+}
+.price-flash {
+  position: absolute;
+  inset: 0.1rem -0.5rem;
+  border-radius: 16px;
+}
+.price-flash--up {
+  background: rgba(255, 255, 255, 0.55);
+}
+.price-flash--down {
+  background: rgba(198, 42, 32, 0.16);
+}
+.price-wrap .price {
+  position: relative;
+}
+
+/* Números que ruedan cuando cambia el precio */
+.ticker {
+  display: inline-flex;
+  font-variant-numeric: tabular-nums;
+}
+.ticker__digit {
+  display: inline-block;
+  height: 1em;
+  overflow: hidden;
+  position: relative;
+}
+.ticker__column {
+  display: flex;
+  flex-direction: column;
+}
+.ticker__column span {
+  height: 1em;
+  line-height: 1;
+}
+.ticker__static {
+  white-space: pre;
+}
+
+/* Pastillas de estado */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-weight: 760;
+  font-size: 0.95rem;
+  background: var(--papel);
+  white-space: nowrap;
+  margin: 0;
+}
+.pill--up {
+  color: var(--hoja);
+}
+.pill--down {
+  color: var(--cereza);
+}
+.pill--wrap {
+  white-space: normal;
+  line-height: 1.25;
+}
+.pill--quiet {
+  background: rgba(26, 18, 8, 0.08);
+  font-weight: 650;
+}
+.pill__dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--cereza);
+}
+.pill--open .pill__dot {
+  background: var(--hoja);
+}
+
+/* Línea del día dentro del bloque del precio */
+.sparkline {
+  display: block;
+  width: 100%;
+  height: 64px;
+  margin-top: 1rem;
+}
+
+/* ---------- Formularios ---------- */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 .form label {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  font-weight: 600;
+  gap: 0.35rem;
+  font-weight: 650;
 }
 .form input,
-.form textarea {
+.form textarea,
+.form select {
   font-size: 1.1rem;
-  padding: 0.75rem;
-  border: 2px solid #ccc;
-  border-radius: 10px;
+  padding: 0.85rem 1rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
+  background: var(--papel);
+}
+.form input:focus,
+.form textarea:focus,
+.form select:focus {
+  border-color: var(--espresso);
+  outline: none;
+}
+.form fieldset {
+  border: 0;
+  margin: 0;
+  background: var(--niebla);
+}
+.form legend {
+  font-weight: 760;
+  padding: 0;
+  margin-bottom: 0.4rem;
 }
 .checkbox {
   flex-direction: row !important;
@@ -140,74 +466,276 @@ h1 {
 .checkbox input {
   width: 1.6rem;
   height: 1.6rem;
+  accent-color: var(--espresso);
 }
 
+/* ---------- Botones ---------- */
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   font-size: 1.1rem;
-  font-weight: 700;
-  padding: 0.9rem;
+  font-weight: 800;
+  padding: 1rem 1.25rem;
   border: 0;
-  border-radius: 10px;
-  background: var(--coffee);
-  color: #fff;
+  border-radius: 999px;
+  background: var(--espresso);
+  color: var(--papel);
   cursor: pointer;
 }
 .button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
 }
 .button--secondary {
-  background: #fff;
-  color: var(--coffee);
-  border: 2px solid var(--coffee);
+  background: transparent;
+  color: var(--espresso);
+  border: 2px solid var(--espresso);
+}
+.button--block {
+  display: flex;
+  width: 100%;
+  text-decoration: none;
+  margin-top: 0.75rem;
+}
+.button svg {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 .link-button {
   background: none;
   border: 0;
-  color: inherit;
+  padding: 0;
+  color: var(--corteza);
   font-size: 1rem;
   text-decoration: underline;
+  text-underline-offset: 3px;
   cursor: pointer;
 }
+.header__link {
+  color: var(--corteza);
+}
 
+/* Control segmentado: la pastilla se desliza a la opción elegida */
 .segmented {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  padding: 0.3rem;
   margin-bottom: 1rem;
+  background: var(--papel);
+  border-radius: 24px; /* si las opciones pasan a dos filas, el contorno sigue viéndose bien */
 }
-.segmented .button {
-  /* Si las palabras no entran en una fila, los botones pasan a la siguiente (nada se corta) */
+.tile .segmented {
+  background: rgba(26, 18, 8, 0.08);
+}
+.segmented__option {
+  position: relative;
   flex: 1 1 auto;
-  padding-left: 0.6rem;
-  padding-right: 0.6rem;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.65rem 0.75rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--corteza);
+  cursor: pointer;
+}
+.tile .segmented__option {
+  color: #3d362c;
+}
+.segmented__option[aria-pressed="true"] {
+  color: var(--papel) !important;
+}
+.segmented__pill {
+  position: absolute;
+  inset: 0;
+  background: var(--espresso);
+  border-radius: 999px;
+}
+.segmented__label {
+  position: relative;
+  z-index: 1;
 }
 
+/* ---------- Mensajes ---------- */
 .status {
   text-align: center;
-  padding: 1rem;
+  padding: 1.5rem 1rem;
+  color: var(--corteza);
 }
 .status--error {
-  color: var(--red);
+  color: var(--cereza);
+}
+.skeleton {
+  display: grid;
+  gap: 0.75rem;
+}
+.skeleton__block {
+  height: 7rem;
+  border-radius: var(--radio-xl);
+  background: linear-gradient(90deg, #ebeae3 0%, #f8f7f2 50%, #ebeae3 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+.skeleton__block--short {
+  height: 4rem;
+}
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
 }
 .banner {
-  background: #fff3cd;
-  color: #5d4300;
-  padding: 0.6rem 1rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  background: rgba(26, 18, 8, 0.07);
+  color: var(--espresso);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radio-chico);
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+}
+.banner--warning {
+  background: var(--grano);
 }
 
-.table {
-  width: 100%;
-  border-collapse: collapse;
+/* ---------- Gráfico (HU04) ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
 }
-.table th,
-.table td {
-  padding: 0.5rem;
-  border-bottom: 1px solid #eee;
-  text-align: left;
+.stat {
+  background: var(--papel);
+  border-radius: var(--radio-chico);
+  padding: 0.75rem;
+}
+.stat__label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--corteza);
+}
+.stat__value {
+  display: block;
+  white-space: nowrap;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
+}
+.chart-card {
+  height: 300px;
+  padding: 1rem 0.5rem 0.5rem 0;
 }
 
+/* ---------- Pronóstico (HU06) ---------- */
+.forecast {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.forecast__row {
+  display: grid;
+  grid-template-columns: 3.4rem 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--linea);
+}
+.forecast__row:last-child {
+  border-bottom: 0;
+}
+.forecast__day {
+  font-weight: 700;
+  line-height: 1.15;
+}
+.forecast__day small {
+  display: block;
+  font-weight: 400;
+  color: var(--corteza);
+  font-size: 0.9rem;
+}
+.forecast__values {
+  display: grid;
+  gap: 0.3rem;
+}
+.forecast__range {
+  position: relative;
+  height: 0.6rem;
+  border-radius: 999px;
+  background: var(--niebla);
+}
+.forecast__band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: var(--grano);
+}
+.forecast__dot {
+  position: absolute;
+  top: 50%;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin: -0.425rem 0 0 -0.425rem;
+  border-radius: 50%;
+  background: var(--espresso);
+  border: 2px solid var(--papel);
+}
+.forecast__exchange {
+  font-size: 0.9rem;
+  color: var(--corteza);
+}
+.forecast__local {
+  text-align: right;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 1.15rem;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.forecast__local small {
+  display: block;
+  font-family: inherit;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: var(--corteza);
+  letter-spacing: 0;
+}
+
+/* ---------- ¿Vendo ahora o espero? (HU05) ---------- */
+.verdict {
+  font-family: var(--display);
+  font-size: clamp(2.4rem, 12vw, 3.2rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  margin: 0.75rem 0 0.9rem;
+}
+.verdict-icon {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  height: 3.4rem;
+  border-radius: 50%;
+  background: var(--espresso);
+  color: var(--papel);
+}
+.verdict-icon svg {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+.tile--cielo .verdict {
+  color: var(--cielo);
+}
+.tile--cielo .verdict-icon {
+  background: var(--cielo);
+}
+
+/* ---------- Asesor (HU08) ---------- */
 .chat {
   display: flex;
   flex-direction: column;
@@ -215,19 +743,32 @@ h1 {
   margin-bottom: 1rem;
 }
 .bubble {
-  padding: 0.75rem 1rem;
-  border-radius: 14px;
-  max-width: 90%;
+  padding: 0.8rem 1.05rem;
+  border-radius: 22px;
+  max-width: 88%;
+  margin: 0;
 }
 .bubble--user {
   align-self: flex-end;
-  background: var(--coffee-light);
-  color: #fff;
+  background: var(--espresso);
+  color: var(--papel);
+  border-bottom-right-radius: 6px;
 }
 .bubble--advisor {
   align-self: flex-start;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--papel);
+  border-bottom-left-radius: 6px;
+}
+.typing {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 1rem 1.1rem;
+}
+.typing span {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--corteza);
 }
 .chips {
   display: flex;
@@ -236,95 +777,56 @@ h1 {
   margin-bottom: 1rem;
 }
 .chip {
-  background: #fff;
-  border: 1px solid var(--coffee-light);
+  background: var(--brote);
+  border: 0;
   border-radius: 999px;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  font-weight: 650;
   cursor: pointer;
 }
 
-.nowrap {
-  white-space: nowrap;
-}
-
-/* Pantalla de bolsa (HU03) y recomendación de venta (HU05) */
-.button--block {
-  display: block;
-  width: 100%;
-  text-align: center;
-  text-decoration: none;
-  margin-top: 0.5rem;
-}
-.board__top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.5rem;
-}
-.header__link {
-  margin-right: 1rem;
-  color: #fff;
-}
-.form select {
-  font-size: 1.1rem;
-  padding: 0.75rem;
-  border: 2px solid #ccc;
-  border-radius: 10px;
-  background: #fff;
-}
+/* ---------- Equipo (HU12) ---------- */
 .observations {
   list-style: none;
   padding: 0.5rem 1.25rem;
 }
 .observations li {
-  padding: 0.6rem 0;
-  border-bottom: 1px solid #eee;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--linea);
 }
 .observations li:last-child {
   border-bottom: 0;
 }
-.card__title {
-  font-size: 1.1rem;
-  color: var(--coffee);
-  margin: 0 0 0.5rem;
+
+/* ---------- Ingreso y registro ---------- */
+.auth {
+  max-width: 480px;
+  padding-top: 1.5rem;
+  padding-bottom: 3rem;
 }
-.price--secondary {
-  font-size: 2rem;
+.auth__hero {
+  margin-bottom: 1rem;
 }
-.live-badge {
-  white-space: nowrap;
-  background: var(--red);
-  color: #fff;
-  font-weight: 700;
-  font-size: 0.9rem;
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
+.auth__hero .brand {
+  margin-bottom: 1.25rem;
 }
-.live-badge::before {
-  content: "● ";
-}
-.market-state {
-  display: inline-block;
-  border: 2px solid var(--gray);
-  color: var(--gray);
-  border-radius: 999px;
-  padding: 0.2rem 0.8rem;
-  font-weight: 600;
-}
-.market-state--open {
-  border-color: var(--green);
-  color: var(--green);
-}
-.verdict {
-  font-size: 1.6rem;
+.auth__tagline {
+  font-family: var(--display);
   font-weight: 800;
-  color: var(--gray);
-  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 9vw, 2.6rem);
+  letter-spacing: -0.03em;
+  line-height: 1;
+  margin: 0;
 }
-.verdict--sell {
-  color: var(--green);
+.auth h1 {
+  font-size: 1.4rem;
+  margin-top: 1.5rem;
 }
-.verdict--wait {
-  color: #1565c0;
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
 }
