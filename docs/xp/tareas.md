@@ -1,4 +1,4 @@
-# Tareas de ingeniería (T01–T37)
+# Tareas de ingeniería (T01–T42)
 
 Cada tarea tiene un commit propio en el historial de Git (`git log --oneline`).
 
@@ -41,5 +41,10 @@ Cada tarea tiene un commit propio en el historial de Git (`git log --oneline`).
 | T35 | It3 | HU12 | Modelo LocalPriceObservation y estimador por mediana de porcentajes (TDD) | 1 | Chavez C., J. X. | market/domain/local_price.py · tests/unit/market/test_local_price.py |
 | T36 | It3 | HU12 | Rol administrador, caso de uso RecordLocalPrice y endpoints /admin/local-prices | 1 | Reyes G., L. B. | identity (rol admin, scripts/create_admin.py) · market/application/record_local_price.py · /admin/local-prices · migración 0003 |
 | T37 | It3 | HU12 | Pantalla «Equipo» para anotar precios y tarjeta «Precio estimado en Jaén» con filtro por tipo | 1 | Reyes G., L. B. | features/admin/AdminPage.tsx · features/live/LocalEstimateCard.tsx · features/auth/RequireAdmin.tsx |
+| T38 | It2 | HU06 | Pronóstico estimado en Jaén por tipo de café en la pantalla «7 días» (alineado con la TPP) | 1 | Chavez C., J. X. | features/forecast/localForecast.ts · ForecastPage.tsx · decisiones/0009 |
+| T39 | It3 | HU15 | Sistema de diseño v2: paleta «Cosecha», tipografías, bloques (bento) y barra inferior flotante | 1 | Reyes G., L. B. | shared/styles.css · docs/paleta.md · shared/components/Brand.tsx |
+| T40 | It3 | HU15 | Animaciones con Framer Motion: precio que rueda, línea del día, pastillas, veredicto, rangos, chat y carga | 1 | Chavez C., J. X. | shared/motion/ (Ticker, Sparkline, Reveal, Segmented, PageTransition) · pantallas |
+| T41 | It3 | HU16 | dev.py multiplataforma (setup, demo, start, test, check, admin, reset), SQLite por defecto y demo con cooperativas | 1 | Reyes G., L. B. | dev.py · settings.py (SQLite) · scripts/seed_demo_data.py · decisiones/0008 |
+| T42 | It3 | HU16 | Dependabot, versiones fijadas (.python-version, .nvmrc) y README con arquitectura y paso a paso | 0.5 | Chavez C., J. X. | .github/dependabot.yml · .python-version · frontend/.nvmrc · README.md |
 
-**Total:** 38 puntos ≈ 152 horas.
+**Total:** 42.5 puntos ≈ 170 horas.

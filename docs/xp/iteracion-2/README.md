@@ -2,14 +2,14 @@
 
 **Objetivo:** El caficultor ve el gráfico tipo bolsa, el pronóstico a 7 días, conversa con el asesor y usa la app sin señal.
 
-**Entrega:** etiqueta `v0.2` · **Puntos planificados:** 11 (44 h)
+**Entrega:** etiqueta `v0.2` · **Puntos planificados:** 12 (48 h)
 
 ## Historias
 
 | HU | Historia | Prioridad | Pts | Responsable |
 |---|---|---|---|---|
 | HU04 | Gráfico tipo bolsa | Media | 2 | Reyes G., L. B. |
-| HU06 | Pronóstico del precio a 7 días | Alta | 3 | Chavez C., J. X. |
+| HU06 | Pronóstico del precio a 7 días (bolsa y Jaén) | Alta | 4 | Chavez C., J. X. |
 | HU08 | Asesor conversacional | Alta | 4 | Reyes G., L. B. |
 | HU09 | Interfaz sencilla y sin conexión | Media | 2 | Reyes G., L. B. |
 
@@ -22,6 +22,7 @@
 | T19 | HU06 | Dataset histórico y evaluación de modelos (ELM vs. modelo base) | Investigación | 1 | Chavez C., J. X. | Terminada | scripts/evaluate_forecast_models.py · docs/xp/iteracion-2/evaluacion-modelos.md · decisiones/0005 |
 | T20 | HU06 | Modelos ELM y base + Agente Predictor con job diario | Desarrollo | 1 | Chavez C., J. X. | Terminada | forecasting/ (modelos, GenerateForecast, ForecasterAgent) · migración 0002 |
 | T21 | HU06 | Endpoint GET /forecast y vista del pronóstico | Desarrollo | 1 | Chavez C., J. X. | Terminada | forecasting/infrastructure/api/ · features/forecast/ForecastPage.tsx |
+| T38 | HU06 | Pronóstico estimado en Jaén por tipo de café en la pantalla «7 días» (alineado con la TPP) | Desarrollo | 1 | Chavez C., J. X. | Terminada | features/forecast/localForecast.ts · ForecastPage.tsx · decisiones/0009 |
 | T22 | HU08 | Puerto LanguageModel + adaptador del proveedor LLM y modelo por palabras clave | Desarrollo | 1 | Reyes G., L. B. | Terminada | advisor/domain/ports/language_model.py · infrastructure/llm/ |
 | T23 | HU08 | Agente Asesor con herramientas y salvaguarda de números | Desarrollo | 2 | Reyes G., L. B. | Terminada | advisor/domain/ · advisor/application/ · decisiones/0004 |
 | T24 | HU08 | Batería de 20 pruebas de aceptación y pantalla de chat | Pruebas | 1 | Reyes G., L. B. | Terminada | tests/acceptance/test_advisor_battery.py · features/advisor/AdvisorPage.tsx |
@@ -38,6 +39,7 @@
 | PA-06-1 | Ejecutar el script de evaluación | Tabla con MAPE y RMSE del ELM y del modelo base; modelo elegido documentado | Pendiente · requiere datos reales | scripts/evaluate_forecast_models.py · docs/xp/iteracion-2/evaluacion-modelos.md |
 | PA-06-2 | Ejecutar el ciclo diario tras el cierre | Se genera un pronóstico nuevo a 7 días con su rango | Aprobada (automatizada en CI) | integration::test_daily_cycle_collects_and_forecasts |
 | PA-06-3 | Abrir la vista del pronóstico | Muestra valor esperado, rango y el aviso «pronóstico referencial» | Pendiente · la ejecuta el Cliente | Pantalla «Pronóstico» (ver manual de usuario) |
+| PA-06-4 | Pronóstico de la bolsa S/ 1500 y cooperativas convencionales al 72 % | El día muestra S/ 1080,00 en Jaén; al elegir otro tipo usa su porcentaje; sin precios de cooperativas solo muestra la bolsa | Aprobada (automatizada en CI) | frontend/src/features/forecast/localForecast.test.ts |
 | PA-08-1 | Preguntar «¿a cuánto está el café hoy?» | Responde en menos de 5 s con el mismo precio, hora y fuente de la pantalla en vivo | Aprobada (automatizada en CI) | integration::test_advisor_answers_with_the_same_price_as_home · p95 32 ms en carga |
 | PA-08-2 | Ejecutar la batería de 20 preguntas de prueba | 0 precios inventados; todas las respuestas citan la fuente | Aprobada (automatizada en CI) | acceptance/test_advisor_battery.py (20 preguntas, modelo por palabras clave) |
 | PA-08-3 | Preguntar «¿quién ganó el partido de ayer?» | Responde «no tengo esa información» | Aprobada (automatizada en CI) | test_answer_question.py::test_off_topic_question_gets_no_information |
@@ -49,7 +51,7 @@
 
 | Dato | Valor |
 |---|---|
-| Puntos planificados | 11 |
+| Puntos planificados | 12 |
 | Puntos terminados (velocidad real) | |
 | Horas reales — Chavez C., J. X. | |
 | Horas reales — Reyes G., L. B. | |

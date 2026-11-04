@@ -58,6 +58,28 @@ los últimos 30 días y `GetLivePrice` entrega `local_estimates` = bolsa en vivo
 el estimado se mueve con la bolsa y llega al celular por el mismo flujo en vivo. Las rutas del
 equipo exigen el rol en el token (`build_require_admin`); el front-end solo oculta la pantalla.
 
+## Pronóstico estimado en Jaén (HU06 + HU12)
+
+La pantalla «7 días» muestra el pronóstico de la bolsa y, al lado, el **estimado en Jaén** =
+pronóstico × porcentaje que pagan las cooperativas por el tipo de café elegido. Es el precio que
+el caficultor predice en la ficha de la TPP ([decisión 0009](decisiones/0009-pronostico-en-jaen.md)).
+Se calcula en el front-end con dos respuestas existentes, sin que `forecasting` y `market` se
+conozcan.
+
+## Front-end
+
+PWA en React + Vite organizada por pantallas (`src/features/`) y piezas compartidas
+(`src/shared/`: cliente de la API y flujo en vivo, autenticación, textos en español, hooks y
+animaciones con **Framer Motion** en `shared/motion/`). El diseño y la paleta están en
+[paleta.md](paleta.md).
+
+## Herramientas de desarrollo
+
+`python dev.py setup | demo | start | test | check | admin | reset` funciona igual en Windows,
+macOS y Linux; en local la base de datos es SQLite y en producción PostgreSQL
+([decisión 0008](decisiones/0008-herramientas-simples.md)). Dependabot propone cada semana las
+actualizaciones de dependencias y la CI las valida.
+
 ## Cómo se comunican los agentes
 
 ![Sistema multiagente](img/sistema-multiagente.png)
