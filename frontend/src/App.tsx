@@ -1,3 +1,4 @@
+import { MotionConfig } from "framer-motion";
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AdminPage } from "./features/admin/AdminPage";
@@ -21,42 +22,45 @@ const ChartPage = lazy(() =>
 // Las rutas están en español porque el caficultor las ve en la barra del navegador
 export function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/ingresar" element={<LoginPage />} />
-          <Route path="/registro" element={<RegisterPage />} />
-          <Route
-            element={
-              <RequireAuth>
-                <Layout />
-              </RequireAuth>
-            }
-          >
-            <Route path="/" element={<LivePricePage />} />
+    // Si el celular pide «reducir movimiento», las animaciones se desactivan
+    <MotionConfig reducedMotion="user">
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/ingresar" element={<LoginPage />} />
+            <Route path="/registro" element={<RegisterPage />} />
             <Route
-              path="/grafico"
               element={
-                <Suspense fallback={<StatusMessage loading />}>
-                  <ChartPage />
-                </Suspense>
+                <RequireAuth>
+                  <Layout />
+                </RequireAuth>
               }
-            />
-            <Route path="/vender" element={<DecisionPage />} />
-            <Route path="/pronostico" element={<ForecastPage />} />
-            <Route path="/asesor" element={<AdvisorPage />} />
-            <Route
-              path="/equipo"
-              element={
-                <RequireAdmin>
-                  <AdminPage />
-                </RequireAdmin>
-              }
-            />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+            >
+              <Route path="/" element={<LivePricePage />} />
+              <Route
+                path="/grafico"
+                element={
+                  <Suspense fallback={<StatusMessage loading />}>
+                    <ChartPage />
+                  </Suspense>
+                }
+              />
+              <Route path="/vender" element={<DecisionPage />} />
+              <Route path="/pronostico" element={<ForecastPage />} />
+              <Route path="/asesor" element={<AdvisorPage />} />
+              <Route
+                path="/equipo"
+                element={
+                  <RequireAdmin>
+                    <AdminPage />
+                  </RequireAdmin>
+                }
+              />
+            </Route>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </MotionConfig>
   );
 }

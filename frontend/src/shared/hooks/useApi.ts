@@ -35,8 +35,10 @@ export function useApi<T>(path: string): ApiState<T> {
   }, [path, key]);
 
   const isCurrent = result?.key === key;
+  // Al «volver a calcular» se mantiene el dato anterior de la misma ruta mientras llega el nuevo
+  const samePath = result?.key.startsWith(`${path}#`) ?? false;
   return {
-    data: isCurrent ? result.data : null,
+    data: isCurrent || samePath ? (result?.data ?? null) : null,
     error: isCurrent ? result.error : null,
     loading: !isCurrent,
     reload: () => setAttempt((n) => n + 1),

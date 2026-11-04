@@ -1,50 +1,42 @@
-import { useState } from "react";
-import type { CoffeeType, LocalEstimate } from "../../shared/api/types";
+import type { LocalEstimate } from "../../shared/api/types";
 import { formatDate, formatPercent, formatSoles } from "../../shared/format";
-import { readStored, writeStored } from "../../shared/storage";
+import { useCoffeeType } from "../../shared/hooks/useCoffeeType";
+import { Segmented } from "../../shared/motion/Segmented";
+import { Ticker } from "../../shared/motion/Ticker";
 import { texts } from "../../shared/texts/es";
-
-const KEY = "cafe-jaen.coffee-type";
 
 /** HU12: precio estimado en Jaén con filtro por tipo de café (se recuerda la última elección). */
 export function LocalEstimateCard({ estimates }: { estimates: LocalEstimate[] }) {
-  const [chosen, setChosen] = useState<CoffeeType>(
-    () => (readStored(KEY) as CoffeeType | null) ?? "convencional",
-  );
+  const [chosen, choose] = useCoffeeType();
   if (estimates.length === 0) {
     return (
-      <article className="card">
-        <h2 className="card__title">{texts.local.title}</h2>
+      <article>
+        <h2 className="tile__title">{texts.local.title}</h2>
         <p className="muted">{texts.local.empty}</p>
       </article>
     );
   }
   const estimate = estimates.find((e) => e.coffee_type === chosen) ?? estimates[0];
-  const choose = (type: CoffeeType) => {
-    setChosen(type);
-    writeStored(KEY, type);
-  };
 
   return (
-    <article className="card">
-      <h2 className="card__title">{texts.local.title}</h2>
+    <article>
+      <h2 className="tile__title">{texts.local.title}</h2>
       {estimates.length > 1 && (
-        <div className="segmented" role="group" aria-label={texts.local.title}>
-          {estimates.map((e) => (
-            <button
-              key={e.coffee_type}
-              className={`button ${e.coffee_type === estimate.coffee_type ? "" : "button--secondary"}`}
-              onClick={() => choose(e.coffee_type)}
-            >
-              {texts.local.coffeeTypes[e.coffee_type]}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          label={texts.local.title}
+          value={estimate.coffee_type}
+          onChange={choose}
+          options={estimates.map((e) => ({
+            value: e.coffee_type,
+            label: texts.local.coffeeTypes[e.coffee_type],
+          }))}
+        />
       )}
-      <p className="price price--secondary">≈ {formatSoles(estimate.estimated_soles)}</p>
-      <p>
-        {texts.common.perQuintal} · {texts.local.ratio(formatPercent(estimate.ratio_pct))} ·{" "}
-        {texts.local.coffeeTypes[estimate.coffee_type]}
+      <p className="price price--secondary">
+        <Ticker value={`≈ ${formatSoles(estimate.estimated_soles)}`} />
+      </p>
+      <p className="price-unit">
+        {texts.local.unit} · {texts.local.ratio(formatPercent(estimate.ratio_pct))}
       </p>
       {estimate.few_data && <p className="banner">{texts.local.fewData}</p>}
       <p className="muted">
