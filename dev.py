@@ -75,8 +75,32 @@ def ensure_env_file() -> None:
     print("✓ Se creó backend/.env (SQLite local y un JWT_SECRET aleatorio)")
 
 
+MIN_NODE = (20, 0)
+
+
+def check_node_version() -> None:
+    """Las herramientas del front-end (Vite 6, Vitest 3, ESLint 9) funcionan desde Node 20;
+    con una versión menor npm puede omitir binarios nativos y el front-end no arranca."""
+    require("node", "Instala Node.js 22 LTS desde https://nodejs.org")
+    raw = subprocess.run(
+        ["node", "--version"], check=True, capture_output=True, text=True
+    ).stdout.strip()
+    parts = tuple(int(x) for x in raw.lstrip("v").split(".")[:2])
+    if parts < MIN_NODE:
+        sys.exit(
+            f"✗ Tienes Node {raw}; se necesita Node 20 o superior. "
+            "Instala Node 22 LTS desde https://nodejs.org, abre una terminal nueva "
+            "y vuelve a ejecutar: python dev.py setup"
+        )
+
+
 def cmd_setup(_: argparse.Namespace) -> None:
     require(npm(), "Instala Node.js 22 LTS desde https://nodejs.org")
+    check_node_version()
+    # Reinstala desde cero si quedó una instalación incompleta de una versión anterior de Node
+    node_modules = FRONTEND / "node_modules"
+    if node_modules.exists():
+        shutil.rmtree(node_modules)
     if not VENV.exists():
         run([sys.executable, "-m", "venv", str(VENV)], ROOT)
     run([venv_bin("python"), "-m", "pip", "install", "--upgrade", "pip"], BACKEND)
@@ -100,6 +124,7 @@ def cmd_demo(_: argparse.Namespace) -> None:
 
 
 def cmd_start(args: argparse.Namespace) -> None:
+    check_node_version()
     ensure_env_file()
     migrate()
     api_env = {**os.environ, "PYTHONPATH": "src", **({} if args.real else DEMO_ENV)}

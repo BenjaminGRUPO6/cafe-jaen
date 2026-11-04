@@ -221,7 +221,7 @@ market/
 | Datos | SQLAlchemy + Alembic; **SQLite** en local, **PostgreSQL** en producción | Sin instalar nada para desarrollar |
 | Pronóstico | NumPy (ELM y modelo base) | Liviano y explicable |
 | Planificador | APScheduler | Cada minuto y ciclo diario |
-| Frontend | React 19, Vite, TypeScript, Recharts | PWA instalable y rápida en 3G |
+| Frontend | React 19, Vite 6, TypeScript, Recharts, Framer Motion | PWA instalable y rápida en 3G; Vite 6 corre desde Node 20 |
 | Diseño | Framer Motion, Bricolage Grotesque, Atkinson Hyperlegible Next | Interfaz viva y legible al sol ([paleta](docs/paleta.md)) |
 | Calidad | pytest, Vitest, ruff, mypy, import-linter, ESLint, Prettier | Las mismas revisiones en local y en la CI |
 | Mantenimiento | `dev.py`, GitHub Actions, Dependabot | Un comando para todo y actualizaciones semanales validadas |
@@ -239,7 +239,7 @@ market/
 | Programa | Versión | Descarga |
 |---|---|---|
 | Python | 3.11 o más nuevo (recomendado 3.12) | https://www.python.org/downloads/ (en Windows marca «Add python.exe to PATH») |
-| Node.js | 22 LTS | https://nodejs.org |
+| Node.js | 20 o 22 (probado con 22.11 y 22.22) | https://nodejs.org |
 | Git | cualquiera reciente | https://git-scm.com |
 
 Comprueba en una terminal (PowerShell, Terminal o la de VS Code):
@@ -311,6 +311,8 @@ En macOS/Linux también existen atajos con `make` (`make start`, `make check`, `
 |---|---|
 | `python` no se reconoce (Windows) | Reinstala Python marcando «Add python.exe to PATH» o usa `py dev.py …` |
 | `npm` no se reconoce | Instala Node.js 22 LTS y abre una terminal nueva |
+| `Cannot find native binding` | Instalación incompleta de `node_modules`: vuelve a ejecutar `python dev.py setup` (la borra y la reinstala) |
+| Aviso `npm warn EBADENGINE eslint-visitor-keys` | Es solo un aviso de una herramienta de revisión de código; no afecta a la app |
 | El puerto 8000 o 5173 está ocupado | Cierra la otra app que lo usa, o reinicia la computadora |
 | «Código no válido» al registrarte | Cada código sirve una sola vez: ejecuta `python dev.py reset` y `python dev.py demo` |
 | No aparece el «Precio estimado en Jaén» | Ejecuta `python dev.py demo` (carga cooperativas de ejemplo) o anótalas con una cuenta del equipo |
