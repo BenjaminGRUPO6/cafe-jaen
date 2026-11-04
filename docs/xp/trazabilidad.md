@@ -1,4 +1,4 @@
-# Trazabilidad: historia → código → pruebas (v3.0)
+# Trazabilidad: historia → código → pruebas (v4.0)
 
 | HU | Backend | Front-end | Pruebas (PA del backlog) |
 |---|---|---|---|
@@ -7,12 +7,14 @@
 | HU03 Precio en vivo tipo bolsa | `market/domain/quintal_price.py`, `live_price.py`, `market/application/get_live_price.py`, `agents/analyst_agent.py`, `infrastructure/api/market_router.py` (SSE) | `features/live/LivePricePage.tsx`, `shared/api/stream.ts`, `shared/hooks/useLivePrice.ts` | `unit/market/test_quintal_price.py` (PA-03-1), `test_price_queries.py` (PA-03-2), `integration::test_stream_sends_live_price_as_server_sent_event` y `stream.test.ts` (PA-03-3); PA-03-4 manual |
 | HU04 Gráfico tipo bolsa | `market/application/get_price_history.py` | `features/live/ChartPage.tsx` | `unit/market/test_price_queries.py` (PA-04-3), `integration/test_api_flow.py`; PA-04-1 y 04-2 manuales |
 | HU05 ¿Vendo ahora o espero? | `decision/*` (`SellingDecision`, `GetSellingAdvice`, `StrategistAgent`, `backtest.py`), `scripts/backtest_selling_rule.py` | `features/decision/DecisionPage.tsx` | `unit/decision/test_selling_decision.py` (PA-05-1 a 4), `test_strategist_agent.py` (PA-05-4), `integration::test_selling_advice_after_daily_cycle` |
-| HU06 Pronóstico | `forecasting/*` (ELM, modelo base, `generate_forecast.py`), `scripts/evaluate_forecast_models.py` | `features/forecast/ForecastPage.tsx` | `scripts/evaluate_forecast_models.py` (PA-06-1), `unit/forecasting/*` (PA-06-2), `integration/test_api_flow.py` |
+| HU06 Pronóstico (bolsa y Jaén) | `forecasting/*` (ELM, modelo base, `generate_forecast.py`), `scripts/evaluate_forecast_models.py` | `features/forecast/ForecastPage.tsx`, `features/forecast/localForecast.ts` (T38) | `scripts/evaluate_forecast_models.py` (PA-06-1), `unit/forecasting/*` (PA-06-2), `integration/test_api_flow.py`, `localForecast.test.ts` (PA-06-4) |
 | HU07 Supervisor | `orchestration/application/dispatch_request.py`, `run_daily_cycle.py`, `infrastructure/langgraph/*`, `shared/domain/agent_message.py` | — | `unit/orchestration/test_supervisor.py` (PA-07-1 a 4) |
 | HU08 Asesor | `advisor/*` (herramientas: precio en vivo, gráfico, pronóstico, recomendación) | `features/advisor/AdvisorPage.tsx` | `unit/advisor/*` (PA-08-1, PA-08-3), `acceptance/test_advisor_battery.py` (PA-08-2) |
 | HU09 Interfaz y sin conexión | — | `shared/styles.css`, `vite.config.ts` (PWA), `features/live/lastPriceCache.ts` | `features/live/lastPriceCache.test.ts` (PA-09-2); PA-09-1 y 09-3 manuales |
 | HU10 Producción | `Dockerfile`, `docker-compose.yml`, `migrations/` (0001–0003) | build de Vite | `tests/load/locustfile.py` (PA-10-3); PA-10-1 y 10-2 al desplegar |
 | HU12 Precio estimado en Jaén | `market/domain/local_price.py`, `market/application/record_local_price.py`, `get_live_price.py` (`local_estimates`), `market_router.py` (`/admin/local-prices`), `identity` (rol admin), `shared/infrastructure/api/dependencies.py` (`build_require_admin`), `scripts/create_admin.py`, migración 0003 | `features/live/LocalEstimateCard.tsx`, `features/admin/AdminPage.tsx`, `features/auth/RequireAdmin.tsx` | `unit/market/test_local_price.py` (PA-12-2, PA-12-3), `integration::test_only_the_team_can_record_cooperative_prices` (PA-12-1), `test_jwt_token_service.py`, `roleFromToken.test.ts`; PA-12-4 manual |
+| HU15 Interfaz dinámica | — | `shared/styles.css`, `shared/motion/*` (Ticker, Sparkline, Reveal, Segmented, PageTransition), `shared/components/Brand.tsx`, todas las pantallas | `shared/motion/Ticker.test.tsx` (PA-15-4); PA-15-1 a 15-3: [paleta.md](../paleta.md) y capturas |
+| HU16 Ejecución local en un paso | `dev.py`, `shared/infrastructure/settings.py` (SQLite), `scripts/seed_demo_data.py`, `.github/dependabot.yml` | — | `python dev.py check` y CI (PA-16-3); PA-16-1 y 16-2: README |
 | HU11 Manual e inducción | — | `docs/manual/` | PA-11-1 y 11-2: con el Cliente |
 
 Estado de cada prueba de aceptación: ver la sección «Pruebas de aceptación» de cada `iteracion-N/README.md`.

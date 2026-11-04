@@ -1,0 +1,22 @@
+# Actualizaciones automáticas: cada semana se abre un PR por dependencia desactualizada.
+# La CI revisa cada PR; si queda en verde, se puede aceptar con confianza.
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # Las herramientas de desarrollo se actualizan juntas en un solo PR
+      dev-tools:
+        dependency-type: development
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

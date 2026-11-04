@@ -35,8 +35,11 @@
 
 ## Sin internet (desarrollo y demostraciones)
 
-`make demo` carga datos SINTÉTICOS y `make api-demo` levanta la API con la fuente `demo` y la
-bolsa «abierta» todo el día, para ver el precio moverse en vivo. **Nunca** usar en el experimento.
+`python dev.py demo` carga datos SINTÉTICOS (incluidos precios de cooperativas de ejemplo) y
+`python dev.py start` levanta la API con la fuente `demo` y la bolsa «abierta» todo el día, junto
+con la app, para ver el precio moverse en vivo. **Nunca** usar en el experimento: allí se usa
+`DATABASE_URL` de PostgreSQL y las fuentes reales (`python dev.py start --real` o el despliegue
+con Docker).
 
 ## Durante el experimento
 
@@ -44,7 +47,8 @@ bolsa «abierta» todo el día, para ver el precio moverse en vivo. **Nunca** us
   cooperativas y anota su precio en «Equipo». El estimado usa los últimos 30 días; con menos de
   3 precios de un tipo de café la app avisa «pocos datos».
 
-- La versión **v1.0 queda congelada**: solo correcciones por rama `hotfix/`.
+- La versión **v1.1 queda congelada** para el experimento: solo correcciones por rama `hotfix/`.
+- Entregar un código de invitación por participante del GE (`make codes`), anotando a quién se entrega (GE-01 a GE-30).
 - Revisar cada semana los incidentes de recolección (logs): webs caídas, webs descartadas por
   discrepar y precios marcados como desactualizados; y la tabla `agent_traces`.
 - La tabla `live_quotes` crece unas 550 filas por día hábil: no requiere limpieza durante el

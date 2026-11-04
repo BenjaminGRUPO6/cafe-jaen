@@ -1,8 +1,27 @@
 # Cambios
 
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Cada versión
-corresponde a la entrega de una iteración XP del plan v3.0 (precio mundial en vivo y
+corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
+
+## [v1.1] — Interfaz dinámica, pronóstico en Jaén y ejecución local en un paso
+
+### Agregado
+- HU06 (T38): la pantalla «7 días» muestra el **pronóstico estimado en Jaén** por tipo de café
+  (pronóstico de la bolsa × porcentaje de las cooperativas), alineado con la ficha de la TPP.
+- HU15 (T39, T40): interfaz v2 «Cosecha»: paleta de bloques vivos, Bricolage Grotesque +
+  Atkinson Hyperlegible Next, barra inferior flotante y animaciones con Framer Motion (precio
+  que rueda, línea del día, pastillas deslizantes, veredicto, rangos, chat y bloques de carga).
+- HU16 (T41): `dev.py` multiplataforma (`setup`, `demo`, `start`, `test`, `check`, `admin`,
+  `reset`), SQLite por defecto en local y `backend/.env` con secreto aleatorio.
+- HU16 (T42): Dependabot, `.python-version`, `.nvmrc` y README con arquitectura, estructura y
+  paso a paso.
+- Datos de demostración con precios de cooperativas de ejemplo: el estimado en Jaén se ve sin
+  pasos extra.
+
+### Cambiado
+- La pestaña «Pronóstico» de la barra inferior se llama «7 días» (entra en 360 px de ancho).
+- `useApi` conserva el dato anterior de la misma ruta mientras recalcula.
 
 ## [v1.0] — Iteración 3 · MVP congelado para el experimento
 

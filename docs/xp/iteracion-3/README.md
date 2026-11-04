@@ -2,7 +2,7 @@
 
 **Objetivo:** «¿Vendo ahora o espero?», precio estimado en Jaén calibrado con cooperativas, producción v1.0 e inducción al GE.
 
-**Entrega:** etiqueta `v1.0` · **Puntos planificados:** 10 (40 h)
+**Entrega:** etiqueta `v1.0` · **Puntos planificados:** 13.5 (54 h)
 
 ## Historias
 
@@ -12,6 +12,8 @@
 | HU10 | Puesta en producción | Alta | 2 | Reyes G., L. B. |
 | HU11 | Manual e inducción | Media | 1 | Reyes G., L. B. |
 | HU12 | Precio estimado en Jaén (calibrado con cooperativas) | Alta | 3 | Chavez C., J. X. |
+| HU15 | Interfaz dinámica y llamativa | Media | 2 | Reyes G., L. B. |
+| HU16 | Ejecución local en un paso y mantenimiento | Media | 1.5 | Reyes G., L. B. |
 
 ## Tareas de ingeniería
 
@@ -28,6 +30,10 @@
 | T35 | HU12 | Modelo LocalPriceObservation y estimador por mediana de porcentajes (TDD) | Desarrollo | 1 | Chavez C., J. X. | Terminada | market/domain/local_price.py · tests/unit/market/test_local_price.py |
 | T36 | HU12 | Rol administrador, caso de uso RecordLocalPrice y endpoints /admin/local-prices | Desarrollo | 1 | Reyes G., L. B. | Terminada | identity (rol admin, scripts/create_admin.py) · market/application/record_local_price.py · /admin/local-prices · migración 0003 |
 | T37 | HU12 | Pantalla «Equipo» para anotar precios y tarjeta «Precio estimado en Jaén» con filtro por tipo | Desarrollo | 1 | Reyes G., L. B. | Terminada | features/admin/AdminPage.tsx · features/live/LocalEstimateCard.tsx · features/auth/RequireAdmin.tsx |
+| T39 | HU15 | Sistema de diseño v2: paleta «Cosecha», tipografías, bloques (bento) y barra inferior flotante | Mejora | 1 | Reyes G., L. B. | Terminada | shared/styles.css · docs/paleta.md · shared/components/Brand.tsx |
+| T40 | HU15 | Animaciones con Framer Motion: precio que rueda, línea del día, pastillas, veredicto, rangos, chat y carga | Desarrollo | 1 | Chavez C., J. X. | Terminada | shared/motion/ (Ticker, Sparkline, Reveal, Segmented, PageTransition) · pantallas |
+| T41 | HU16 | dev.py multiplataforma (setup, demo, start, test, check, admin, reset), SQLite por defecto y demo con cooperativas | Configuración | 1 | Reyes G., L. B. | Terminada | dev.py · settings.py (SQLite) · scripts/seed_demo_data.py · decisiones/0008 |
+| T42 | HU16 | Dependabot, versiones fijadas (.python-version, .nvmrc) y README con arquitectura y paso a paso | Documentación | 0.5 | Chavez C., J. X. | Terminada | .github/dependabot.yml · .python-version · frontend/.nvmrc · README.md |
 
 ## Pruebas de aceptación
 
@@ -46,12 +52,19 @@
 | PA-12-2 | Anotar S/ 90 por error de escritura | Se rechaza con «revisa si está bien escrito» | Aprobada (automatizada en CI) | test_local_price.py::test_rejects_prices_that_look_mistyped, integration (400 «revisa si está bien escrito») |
 | PA-12-3 | Precios convencionales de 78,9 %, 78,2 % y 79,1 % con la bolsa a S/ 1200 | Estimado S/ 947,37 (mediana); cambia cuando cambia la bolsa; los tipos sin datos no muestran estimado | Aprobada (automatizada en CI) | test_local_price.py::test_estimate_uses_median_ratio_of_each_coffee_type, test_live_price_estimate_moves_with_the_exchange_and_ignores_old_prices |
 | PA-12-4 | El caficultor elige «Orgánico» en la pantalla Precio | Ve el estimado de ese tipo, cuántos precios lo respaldan y sus fechas; aviso si son menos de 3 | Aprobada en CI · falta revisión del Cliente | Pantalla «Precio» con filtro por tipo, probada con datos DEMO; falta revisión del Cliente |
+| PA-15-1 | Revisar contraste y tamaños de la paleta v2 | Contraste AA o mejor en todos los pares; ningún texto menor a 16 px | Aprobada en CI · falta revisión del Cliente | docs/paleta.md (tabla de contraste) · texto mínimo 16 px |
+| PA-15-2 | Llega un precio nuevo con la pantalla «Precio» abierta | Los dígitos ruedan y el número se ilumina; con «reducir movimiento» cambia sin animación | Pendiente · la ejecuta el Cliente | Pantalla «Precio» con datos DEMO (el precio cambia cada minuto) |
+| PA-15-3 | Abrir todas las pantallas en un celular de 360 px | Sin desplazamiento horizontal; la barra inferior se ve completa | Aprobada en CI · falta revisión del Cliente | Capturas en 360 px y 390 px (sin desplazamiento horizontal) |
+| PA-15-4 | Leer la pantalla «Precio» con lector de pantalla | Se anuncia el precio completo, no dígito por dígito | Aprobada (automatizada en CI) | frontend/src/shared/motion/Ticker.test.tsx |
+| PA-16-1 | En una computadora limpia: python dev.py setup, demo y start | App en localhost:5173 con precio en vivo, estimado en Jaén, pronóstico y recomendación | Aprobada en CI · falta revisión del Cliente | README «Cómo ejecutarlo» · probado desde un clon limpio |
+| PA-16-2 | Revisar backend/.env después del setup | Existe, con JWT_SECRET aleatorio, y Git lo ignora | Aprobada (automatizada en CI) | dev.py ensure_env_file · .gitignore (.env) |
+| PA-16-3 | Ejecutar python dev.py check | Mismo resultado que la CI: todo en verde | Aprobada (automatizada en CI) | python dev.py check · .github/workflows/ci.yml |
 
 ## Registro de la iteración (llenar al cerrar)
 
 | Dato | Valor |
 |---|---|
-| Puntos planificados | 10 |
+| Puntos planificados | 13.5 |
 | Puntos terminados (velocidad real) | |
 | Horas reales — Chavez C., J. X. | |
 | Horas reales — Reyes G., L. B. | |
