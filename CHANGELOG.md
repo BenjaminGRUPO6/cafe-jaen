@@ -6,6 +6,11 @@ recomendación de venta).
 
 ## [v1.1] — Interfaz dinámica, pronóstico en Jaén y ejecución local en un paso
 
+### Cambiado
+- Herramientas del front-end fijadas a versiones que corren desde Node 20 (probado con Node
+  22.11): Vite 6, Vitest 3, ESLint 9, jsdom 26 y vite-plugin-pwa 1; `dev.py` revisa la versión de
+  Node y `setup` reinstala `node_modules` desde cero.
+
 ### Agregado
 - HU06 (T38): la pantalla «7 días» muestra el **pronóstico estimado en Jaén** por tipo de café
   (pronóstico de la bolsa × porcentaje de las cooperativas), alineado con la ficha de la TPP.
