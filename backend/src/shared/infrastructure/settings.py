@@ -9,8 +9,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
-    # Base de datos
-    database_url: str = "postgresql+psycopg2://cafe:cafe@localhost:5432/cafe_jaen"
+    # Base de datos: SQLite en local (un archivo, sin instalar nada); PostgreSQL en producción
+    database_url: str = "sqlite:///./cafe_jaen.db"
 
     # Seguridad (el secreto real nunca se versiona)
     jwt_secret: str = "change-me-in-production"
