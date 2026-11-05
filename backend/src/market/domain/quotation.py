@@ -40,3 +40,4 @@ class ExchangeRate:
     soles_per_dollar: Decimal
     rated_on: date
     source: str
+    rated_at: datetime | None = None  # hora exacta si es el tipo de cambio en vivo (cada minuto)

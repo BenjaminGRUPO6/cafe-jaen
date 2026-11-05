@@ -58,7 +58,11 @@ from market.application.record_local_price import RecordLocalPrice
 from market.domain.consensus import Consensus
 from market.domain.local_price import LocalPriceEstimator
 from market.domain.market_hours import MarketHours
-from market.domain.ports.sources import ExchangeRateProvider, QuotationSource
+from market.domain.ports.sources import (
+    ExchangeRateProvider,
+    LiveExchangeRateSource,
+    QuotationSource,
+)
 from market.domain.price_validator import PriceValidator
 from market.domain.quintal_price import PriceConverter
 from market.infrastructure.api.admin_market_router import build_admin_market_router
@@ -68,6 +72,7 @@ from market.infrastructure.persistence.sqlalchemy_cooperative_repository import 
 )
 from market.infrastructure.persistence.sqlalchemy_price_repository import SqlAlchemyPriceRepository
 from market.infrastructure.sources.bcrp_exchange_rate_provider import BcrpExchangeRateProvider
+from market.infrastructure.sources.live_exchange_rate_sources import build_exchange_sources
 from market.infrastructure.sources.registry import build_sources
 from orchestration.application.dispatch_request import DispatchRequest
 from orchestration.application.run_daily_cycle import CollectLivePrices, RunDailyCycle
@@ -94,6 +99,7 @@ class Overrides:
 
     quotation_sources: Sequence[QuotationSource] | None = None
     exchange_rate_provider: ExchangeRateProvider | None = None
+    live_exchange_sources: Sequence[LiveExchangeRateSource] | None = None
     language_model: LanguageModel | None = None
     clock: Clock | None = None
 
@@ -127,6 +133,9 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
             PriceValidator(settings.max_quote_change),
             market_hours,
             clock,
+            overrides.live_exchange_sources
+            if overrides.live_exchange_sources is not None
+            else build_exchange_sources(settings.exchange_rate_sources),
         ),
         clock,
     )

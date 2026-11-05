@@ -53,6 +53,8 @@ class Settings(BaseSettings):
     # Demostración: carga al arrancar precios SINTÉTICOS de cooperativas («Cooperativa JAENPERU
     # sintético A…F») si no hay ninguno. La bolsa y el tipo de cambio siguen siendo reales.
     demo_cooperatives: bool = False
+    # Webs del dólar en vivo (USD/PEN), cada minuto; si ninguna responde se usa el BCRP del día
+    exchange_rate_sources: list[str] = ["yahoo", "tradingview"]
     # Cuenta del equipo creada al arrancar (Render no tiene terminal en el plan gratuito)
     admin_phone: str = ""
     admin_password: str = ""

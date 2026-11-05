@@ -9,6 +9,7 @@ const entry = (published: boolean, statuses: string[]): PriceLogEntry => ({
   cents_per_pound: published ? 300 : null,
   median_cents: 300,
   exchange_rate: 3.75,
+  exchange_source: "BCRP",
   price_soles: published ? 1140 : null,
   sources: [],
   local_soles: {},

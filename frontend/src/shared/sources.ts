@@ -29,8 +29,23 @@ const QUOTE_SOURCES: Record<string, SourceLink> = {
   },
 };
 
-/** Fuentes fijas: la bolsa oficial y el tipo de cambio del BCRP. */
+/** Webs del dólar en vivo (USD/PEN), consultadas cada minuto junto con la bolsa. */
+const EXCHANGE_SOURCES: SourceLink[] = [
+  {
+    name: "Yahoo Finance (USD/PEN)",
+    detail: "Dólar en soles, minuto a minuto",
+    url: "https://finance.yahoo.com/quote/PEN%3DX/",
+  },
+  {
+    name: "TradingView (USD/PEN)",
+    detail: "Dólar en soles, minuto a minuto",
+    url: "https://www.tradingview.com/symbols/USDPEN/",
+  },
+];
+
+/** Fuentes fijas: la bolsa oficial, el dólar en vivo y el tipo de cambio oficial del BCRP. */
 export const REFERENCE_SOURCES: SourceLink[] = [
+  ...EXCHANGE_SOURCES,
   {
     name: "ICE",
     detail: "Bolsa oficial del contrato Café C (arábica)",
@@ -38,7 +53,7 @@ export const REFERENCE_SOURCES: SourceLink[] = [
   },
   {
     name: "BCRP",
-    detail: "Tipo de cambio interbancario (venta)",
+    detail: "Tipo de cambio oficial del día (respaldo si el dólar en vivo no responde)",
     url: "https://estadisticas.bcrp.gob.pe/estadisticas/series/diarias/resultados/PD04640PD/html",
   },
 ];

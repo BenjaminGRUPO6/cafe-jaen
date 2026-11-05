@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 
+from market.domain.exchange_rate_choice import rate_at
 from market.domain.local_price import CoffeeType, LocalPriceEstimator
 from market.domain.ports.price_repository import PriceRepository
 from market.domain.quintal_price import TWO_DECIMALS, PriceConverter
@@ -26,6 +27,7 @@ class PriceLogEntry:
     published: bool
     cents_per_pound: Decimal | None
     exchange_rate: Decimal | None
+    exchange_source: str | None  # dólar en vivo (web) o BCRP
     price_soles: Decimal | None  # bolsa en S/ por quintal (None sin precio o sin tipo de cambio)
     sources: tuple[str, ...]  # webs que respaldaron el precio publicado
     local_soles: dict[CoffeeType, Decimal]  # estimado en Jaén por tipo, con los % actuales
@@ -68,19 +70,23 @@ class GetPriceLog:
         rates = {
             r.rated_on: r for r in self._repository.exchange_rates_since(start.date() - RECENT_DAYS)
         }
+        live_rates = self._repository.live_exchange_rates_between(start, end)
         ratios = self._current_ratios(now)
         collections = self._repository.collections_between(start, end)
         rows = self._rows(start, end, collections)
         entries = []
         for at, cents, sources, collection in rows:
-            rate = _rate_for(rates, at.astimezone(now.tzinfo))
-            soles = self._converter.to_quintal(cents, rate).soles if cents and rate else None
+            moment = at.astimezone(now.tzinfo)
+            rate = rate_at(moment, live_rates, _daily_rate(rates, moment))
+            value = rate.soles_per_dollar if rate else None
+            soles = self._converter.to_quintal(cents, value).soles if cents and value else None
             entries.append(
                 PriceLogEntry(
                     at=at,
                     published=cents is not None,
                     cents_per_pound=cents,
-                    exchange_rate=rate,
+                    exchange_rate=value,
+                    exchange_source=rate.source if rate else None,
                     price_soles=soles,
                     sources=sources,
                     local_soles=_local(soles, ratios),
@@ -122,11 +128,11 @@ class GetPriceLog:
         return {e.coffee_type: e.ratio for e in self._estimator.estimate(Decimal(1), observations)}
 
 
-def _rate_for(rates: dict[date, ExchangeRate], moment: datetime) -> Decimal | None:
-    # El tipo de cambio del día o, si aún no se publicó, el último anterior
+def _daily_rate(rates: dict[date, ExchangeRate], moment: datetime) -> ExchangeRate | None:
+    # El tipo de cambio del BCRP del día o, si aún no se publicó, el último anterior
     day = moment.date()
     known = [d for d in rates if d <= day]
-    return rates[max(known)].soles_per_dollar if known else None
+    return rates[max(known)] if known else None
 
 
 def _local(soles: Decimal | None, ratios: dict[CoffeeType, Decimal]) -> dict[CoffeeType, Decimal]:

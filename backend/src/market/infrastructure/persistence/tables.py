@@ -85,6 +85,16 @@ exchange_rates = Table(
     Column("source", String(50), nullable=False),
 )
 
+# Dólar en vivo (USD/PEN): una fila por consulta del Recolector con un valor nuevo
+live_exchange_rates = Table(
+    "live_exchange_rates",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("rated_at", DateTime(timezone=True), nullable=False, index=True),
+    Column("soles_per_dollar", Numeric(8, 4), nullable=False),
+    Column("source", String(50), nullable=False),
+)
+
 cooperatives = Table(
     "cooperatives",
     metadata,

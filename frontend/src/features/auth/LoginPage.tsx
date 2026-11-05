@@ -4,6 +4,7 @@ import { ApiError } from "../../shared/api/client";
 import { useAuth } from "../../shared/auth/AuthContext";
 import { Brand } from "../../shared/components/Brand";
 import { StatusMessage } from "../../shared/components/StatusMessage";
+import { PasswordInput } from "../../shared/components/PasswordInput";
 import { texts } from "../../shared/texts/es";
 
 export function LoginPage() {
@@ -44,8 +45,7 @@ export function LoginPage() {
         </label>
         <label>
           {texts.auth.password}
-          <input
-            type="password"
+          <PasswordInput
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

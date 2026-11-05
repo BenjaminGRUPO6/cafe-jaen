@@ -9,7 +9,11 @@ from market.domain.consensus import Consensus, ConsensusResult
 from market.domain.errors import DuplicateQuotationError, MarketError, SourceUnavailableError
 from market.domain.market_hours import MarketHours
 from market.domain.ports.price_repository import PriceRepository
-from market.domain.ports.sources import ExchangeRateProvider, QuotationSource
+from market.domain.ports.sources import (
+    ExchangeRateProvider,
+    LiveExchangeRateSource,
+    QuotationSource,
+)
 from market.domain.price_validator import PriceValidator
 from market.domain.quotation import LiveQuote, Quotation
 from market.domain.source_reading import CollectionOutcome, build_collection
@@ -27,6 +31,7 @@ class CollectionReport:
     market_open: bool = False
     quotation_saved: bool = False
     exchange_rate_saved: bool = False
+    live_exchange_rate: str | None = None  # web que dio el dólar en vivo en esta consulta
     sources_ok: list[str] = field(default_factory=list)
     sources_discarded: list[str] = field(default_factory=list)
     issues: list[str] = field(default_factory=list)
@@ -44,6 +49,7 @@ class CollectPrices:
         validator: PriceValidator,
         market_hours: MarketHours,
         clock: Clock,
+        live_rates: Sequence[LiveExchangeRateSource] = (),
     ) -> None:
         self._sources = sources
         self._exchange_rates = exchange_rates
@@ -52,14 +58,37 @@ class CollectPrices:
         self._validator = validator
         self._market_hours = market_hours
         self._clock = clock
+        self._live_rates = live_rates
 
     def execute(self, force: bool = False) -> CollectionReport:
         """`force` consulta aunque la bolsa esté cerrada (p. ej., para guardar el cierre)."""
         report = CollectionReport(market_open=self._market_hours.is_open(self._clock.now()))
         self._collect_exchange_rate(report)
         if report.market_open or force:
+            self._collect_live_exchange_rate(report)
             self._collect_quotation(report)
         return report
+
+    def _collect_live_exchange_rate(self, report: CollectionReport) -> None:
+        """Dólar en vivo (USD/PEN): la primera web que responda; se guarda solo si cambió."""
+        problems = []
+        for source in self._live_rates:
+            try:
+                rate = source.fetch_latest()
+            except SourceUnavailableError as error:
+                problems.append(f"{source.name}: {error}")
+                continue
+            last = self._repository.last_live_exchange_rate()
+            if last is None or (last.soles_per_dollar, last.rated_at) != (
+                rate.soles_per_dollar,
+                rate.rated_at,
+            ):
+                self._repository.add_live_exchange_rate(rate)
+            report.live_exchange_rate = source.name
+            return
+        if problems:
+            # Sin dólar en vivo se sigue usando el del BCRP del día
+            self._register_issue(report, "Dólar en vivo: " + "; ".join(problems))
 
     def _collect_exchange_rate(self, report: CollectionReport) -> None:
         # El BCRP publica una vez al día: no tiene sentido consultarlo cada minuto

@@ -18,6 +18,9 @@ services:
       # viernes) y el tipo de cambio del BCRP.
       - key: QUOTATION_SOURCES
         value: '["yahoo","stooq","cnbc","tradingview"]'
+      # Dólar en vivo (USD/PEN) cada minuto; si no responde se usa el oficial del BCRP del día
+      - key: EXCHANGE_RATE_SOURCES
+        value: '["yahoo","tradingview"]'
       # Demostración: precios SINTÉTICOS de cooperativas («Cooperativa JAENPERU sintético A…F»)
       # sobre la bolsa real. Poner "false" y borrarlos en «Equipo» antes del experimento.
       - key: DEMO_COOPERATIVES

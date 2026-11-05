@@ -136,3 +136,26 @@ def test_exchange_rate_failure_does_not_block_quotation() -> None:
     ).execute()
 
     assert report.quotation_saved and not report.exchange_rate_saved
+
+
+def test_saves_the_live_dollar_from_the_first_web_that_answers() -> None:
+    from market.domain.quotation import ExchangeRate
+
+    repository = InMemoryPriceRepository()
+    dollar = ExchangeRate(Decimal("3.381"), AT.date(), "TradingView (USD/PEN)", rated_at=AT)
+    collector = CollectPrices(
+        [source("Yahoo", live("300", AT))],
+        FakeProvider(rate("3.75", OPEN.today())),
+        repository,
+        Consensus(),
+        PriceValidator(),
+        MarketHours(),
+        OPEN,
+        [FakeProvider(DOWN, DOWN, DOWN, name="Yahoo (USD/PEN)"), FakeProvider(dollar, dollar)],
+    )
+
+    report = collector.execute()
+    collector.execute()  # el mismo valor y la misma hora no se guarda dos veces
+
+    assert report.live_exchange_rate == "Fuente"
+    assert repository.live_rates == [dollar]

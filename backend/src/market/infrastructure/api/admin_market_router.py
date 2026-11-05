@@ -136,6 +136,7 @@ def _entry(e: PriceLogEntry) -> dict[str, Any]:
         "cents_per_pound": _num(e.cents_per_pound),
         "median_cents": _num(e.median_cents),
         "exchange_rate": _num(e.exchange_rate),
+        "exchange_source": e.exchange_source,
         "price_soles": _num(e.price_soles),
         "sources": list(e.sources),
         "local_soles": {t.value: float(v) for t, v in e.local_soles.items()},

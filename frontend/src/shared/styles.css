@@ -1394,3 +1394,63 @@ a {
 .ranking__formula {
   margin-top: 0.6rem;
 }
+
+/* ---------- Contraseña con ojo ---------- */
+.password-field {
+  position: relative;
+  display: block;
+}
+.password-field input {
+  width: 100%;
+  padding-right: 3rem;
+}
+.password-field__toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: var(--corteza);
+  cursor: pointer;
+}
+.password-field__toggle svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+.password-field__toggle:focus-visible {
+  outline: 2px solid var(--cielo);
+}
+
+/* ---------- Jaén: línea de hoy y aviso de datos sintéticos ---------- */
+.sparkline__caption {
+  margin: 0.25rem 0 0.5rem;
+  font-size: 0.8rem;
+  color: var(--corteza);
+}
+.synthetic-note {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--corteza);
+}
+
+/* ---------- Historial: los tres estimados en Jaén ---------- */
+.price-log__locals {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+}
+.price-log__local-chip {
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: var(--niebla);
+}

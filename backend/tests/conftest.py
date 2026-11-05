@@ -84,6 +84,7 @@ def client(
             source("Stooq", live("300", clock.now() - timedelta(minutes=2))),
         ],
         exchange_rate_provider=FakeProvider(rate("3.75", clock.today())),
+        live_exchange_sources=[],  # sin dólar en vivo: se usa el del BCRP
         clock=clock,
     )
     with TestClient(create_app(settings, overrides)) as test_client:

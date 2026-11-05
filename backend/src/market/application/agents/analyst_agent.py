@@ -86,6 +86,14 @@ def live_to_dict(live: LivePrice, zone: tzinfo | None = None) -> dict[str, Any]:
         "sources": list(live.sources),
         "local_estimates": [_estimate_to_dict(e) for e in live.local_estimates],
         "exchange_rate": float(live.exchange_rate) if live.exchange_rate is not None else None,
+        "exchange_source": live.exchange_source,
+        "exchange_rated_at": (
+            live.exchange_rated_at.astimezone(zone).isoformat()
+            if live.exchange_rated_at and zone
+            else live.exchange_rated_at.isoformat()
+            if live.exchange_rated_at
+            else None
+        ),
     }
 
 

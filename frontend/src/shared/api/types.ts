@@ -14,6 +14,8 @@ export interface LivePrice {
   sources: string[];
   local_estimates: LocalEstimate[];
   exchange_rate?: number | null; // S/ por US$ usado en la conversión (nota «¿Cómo se calcula?»)
+  exchange_source?: string | null; // dólar en vivo (web) o BCRP
+  exchange_rated_at?: string | null; // hora del dólar en vivo (null si es el oficial del día)
 }
 
 export type CoffeeType = "convencional" | "organico" | "especial";

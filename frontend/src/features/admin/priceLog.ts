@@ -39,6 +39,7 @@ export interface PriceLogEntry {
   cents_per_pound: number | null;
   median_cents: number | null;
   exchange_rate: number | null;
+  exchange_source: string | null;
   price_soles: number | null;
   sources: string[];
   local_soles: Partial<Record<CoffeeType, number>>;

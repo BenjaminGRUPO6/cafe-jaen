@@ -164,6 +164,17 @@ class InMemoryPriceRepository:
         self.rates: dict[date, ExchangeRate] = {}
         self.local: list[LocalPriceObservation] = []
         self.collections: list[PriceCollection] = []
+        self.live_rates: list[ExchangeRate] = []
+
+    def add_live_exchange_rate(self, rate: ExchangeRate) -> None:
+        self.live_rates.append(rate)
+
+    def last_live_exchange_rate(self) -> ExchangeRate | None:
+        return max(self.live_rates, key=lambda r: r.rated_at or 0) if self.live_rates else None  # type: ignore[arg-type,return-value]
+
+    def live_exchange_rates_between(self, start: datetime, end: datetime) -> list[ExchangeRate]:
+        found = [r for r in self.live_rates if r.rated_at and start <= r.rated_at < end]
+        return sorted(found, key=lambda r: r.rated_at)  # type: ignore[arg-type,return-value]
 
     def add_collection(self, collection: PriceCollection) -> None:
         self.collections.append(collection)

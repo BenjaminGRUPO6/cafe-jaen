@@ -4,6 +4,7 @@ import { InfoNote } from "../../shared/components/InfoNote";
 import { formatDate, formatPercent, formatSoles } from "../../shared/format";
 import { useCoffeeType } from "../../shared/hooks/useCoffeeType";
 import { Segmented } from "../../shared/motion/Segmented";
+import { Sparkline } from "../../shared/motion/Sparkline";
 import { Ticker } from "../../shared/motion/Ticker";
 import { texts } from "../../shared/texts/es";
 import { CooperativePrices } from "./CooperativePrices";
@@ -17,9 +18,11 @@ type View = "general" | "cooperatives";
 export function LocalEstimateCard({
   estimates,
   exchangeSoles,
+  todayExchange,
 }: {
   estimates: LocalEstimate[];
   exchangeSoles: number;
+  todayExchange: number[];
 }) {
   const [chosen, choose] = useCoffeeType();
   const [view, setView] = useState<View>("general");
@@ -49,7 +52,11 @@ export function LocalEstimateCard({
       {view === "cooperatives" ? (
         <CooperativePrices coffeeType={chosen} />
       ) : estimate ? (
-        <GeneralEstimate estimate={estimate} exchangeSoles={exchangeSoles} />
+        <GeneralEstimate
+          estimate={estimate}
+          exchangeSoles={exchangeSoles}
+          todayExchange={todayExchange}
+        />
       ) : (
         <p className="muted">{texts.local.empty}</p>
       )}
@@ -60,11 +67,15 @@ export function LocalEstimateCard({
 function GeneralEstimate({
   estimate,
   exchangeSoles,
+  todayExchange,
 }: {
   estimate: LocalEstimate;
   exchangeSoles: number;
+  todayExchange: number[];
 }) {
   const pct = formatPercent(estimate.ratio_pct);
+  // El estimado en Jaén de hoy, minuto a minuto: la bolsa de cada minuto × el mismo porcentaje
+  const trend = localTrend(todayExchange, estimate.ratio_pct);
   return (
     <>
       <p className="price price--secondary">
@@ -73,9 +84,11 @@ function GeneralEstimate({
       <p className="price-unit">
         {texts.local.unit} · {texts.local.ratio(pct)}
       </p>
+      <Sparkline values={trend} />
+      {trend.length >= 2 && <p className="sparkline__caption">{texts.local.trendCaption}</p>}
       {estimate.few_data && <p className="banner">{texts.local.fewData}</p>}
       {(estimate.synthetic_observations ?? 0) > 0 && (
-        <p className="banner banner--synthetic" role="note">
+        <p className="synthetic-note" role="note">
           {texts.local.synthetic(estimate.synthetic_observations ?? 0, estimate.observations)}
         </p>
       )}
@@ -103,4 +116,11 @@ function GeneralEstimate({
       </InfoNote>
     </>
   );
+}
+
+/** Precio en Jaén de cada minuto de hoy (se descarta lo que no sea un número válido). */
+export function localTrend(exchange: number[], ratioPct: number): number[] {
+  return exchange
+    .filter((value) => Number.isFinite(value))
+    .map((value) => Math.round(value * ratioPct) / 100);
 }

@@ -35,11 +35,16 @@ export const texts = {
       "Solo guardamos tu número de celular y tu uso de la aplicación, de forma confidencial y " +
       "según la Ley N.° 29733 de Protección de Datos Personales. Puedes dejar de participar cuando quieras.",
     consentAccept: "He leído y acepto participar",
+    showPassword: "Mostrar contraseña",
+    hidePassword: "Ocultar contraseña",
   },
   live: {
     title: "Precio del café en la bolsa",
     market: "Bolsa de Nueva York · café arábica",
     liveBadge: "En vivo",
+    exchangeLine: (rate: string) => `Dólar: S/ ${rate} por US$ según`,
+    exchangeAt: (time: string) => `a las ${time} (se actualiza cada minuto)`,
+    exchangeDaily: "Es el tipo de cambio oficial del día; el dólar en vivo no respondió.",
     open: "Bolsa abierta",
     closed: "Bolsa cerrada: último precio registrado",
     quotedAt: (time: string, date: string) =>
@@ -86,12 +91,13 @@ export const texts = {
   sources: {
     title: "Fuentes",
     intro:
-      "Datos reales y públicos: el precio de la bolsa sale de estas webs y el tipo de cambio, del BCRP.",
+      "Datos reales y públicos: el precio de la bolsa sale de estas webs; el dólar, de Yahoo Finance o TradingView cada minuto, y el oficial del día, del BCRP.",
   },
   local: {
     title: "Precio estimado en Jaén",
     coffeeTypes: { convencional: "Convencional", organico: "Orgánico", especial: "Especial" },
     ratio: (pct: string) => `${pct} de la bolsa`,
+    trendCaption: "Hoy, minuto a minuto: sigue a la bolsa y al dólar en vivo.",
     basis: (n: number, from: string, to: string) =>
       `Calculado con ${n} ${n === 1 ? "precio" : "precios"} de cooperativas ` +
       (from === to ? `(del ${from}).` : `(del ${from} al ${to}).`),
@@ -164,7 +170,7 @@ export const texts = {
     tab: "Bolsa",
     title: "Historial de la bolsa",
     intro:
-      "Cada consulta del Recolector, minuto a minuto: el precio publicado, el estimado en Jaén del tipo de café elegido y lo que marcó cada web.",
+      "Cada consulta del Recolector, minuto a minuto: el precio publicado (la bolsa es una sola para todo el café arábica), el dólar usado, el estimado en Jaén de cada tipo de café y lo que marcó cada web.",
     howChosen: "¿Cómo se elige el precio?",
     howChosenSteps: [
       "Cada minuto el Recolector consulta todas las webs de la bolsa al mismo tiempo.",
@@ -179,6 +185,8 @@ export const texts = {
     withFailures: "Con web sin respuesta",
     rate: (value: string) => `T. C. ${value}`,
     noEstimate: "sin precios",
+    inJaen: "En Jaén:",
+    noLocal: "En Jaén: aún no hay precios de cooperativas",
     local: (type: string) => `En Jaén · ${type}`,
     notPublished: "No se publicó: las webs no coincidieron",
     notPublishedBecause: (reason: string) => `No se publicó: ${reason}`,

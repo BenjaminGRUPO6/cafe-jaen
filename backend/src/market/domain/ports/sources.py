@@ -22,6 +22,17 @@ class ExchangeRateProvider(Protocol):
     def fetch_latest(self) -> ExchangeRate: ...
 
 
+class LiveExchangeRateSource(Protocol):
+    """Puerto de salida: una web con el dólar en soles (USD/PEN) minuto a minuto.
+
+    Complementa al BCRP, que publica una vez al día. Si falla, debe lanzar SourceUnavailableError.
+    """
+
+    name: str
+
+    def fetch_latest(self) -> ExchangeRate: ...
+
+
 class DailyHistorySource(Protocol):
     """Puerto de salida: una web con los cierres diarios del contrato C (carga del histórico)."""
 

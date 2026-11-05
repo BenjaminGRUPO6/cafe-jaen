@@ -24,7 +24,7 @@
 | Mismo precio, segunda web | Stooq (CSV público, `KC.F`; hora de Polonia, `STOOQ_TIMEZONE`) | `market/infrastructure/sources/stooq_quotation_source.py` |
 | Tipo de cambio | API del BCRP, serie `PD04640PD` (una vez al día) | `market/infrastructure/sources/bcrp_exchange_rate_provider.py` |
 
-- Las webs a usar se eligen con `QUOTATION_SOURCES` (por defecto `["yahoo","stooq","cnbc","tradingview"]`); la pantalla «Equipo → Bolsa» las evalúa y marca la mejor del día.
+- Las webs a usar se eligen con `QUOTATION_SOURCES` (por defecto `["yahoo","stooq","cnbc","tradingview"]`). El dólar en vivo se elige con `EXCHANGE_RATE_SOURCES` (por defecto `["yahoo","tradingview"]`; sin respuesta se usa el BCRP del día); la pantalla «Equipo → Bolsa» las evalúa y marca la mejor del día.
 - **Agregar una tercera web** = crear un adaptador que implemente `QuotationSource`
   (`name` y `fetch_latest()`), registrarlo en `_quotation_sources()` de `main.py` y añadir su
   prueba de lectura (como `test_source_parsers.py`).

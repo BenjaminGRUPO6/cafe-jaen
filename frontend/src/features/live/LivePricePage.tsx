@@ -21,7 +21,7 @@ import { priceSteps } from "./priceFormula";
 import { RevealGroup, RevealItem } from "../../shared/motion/Reveal";
 import { Sparkline } from "../../shared/motion/Sparkline";
 import { Ticker } from "../../shared/motion/Ticker";
-import { SourceNames } from "../../shared/components/SourceName";
+import { SourceName, SourceNames } from "../../shared/components/SourceName";
 import { texts } from "../../shared/texts/es";
 import { loadLastPrice, saveLastPrice } from "./lastPriceCache";
 import { LocalEstimateCard } from "./LocalEstimateCard";
@@ -63,6 +63,7 @@ export function LivePricePage() {
             <LocalEstimateCard
               estimates={price.local_estimates ?? []}
               exchangeSoles={price.price_soles}
+              todayExchange={today?.points.map((point) => point.price_soles) ?? []}
             />
           </RevealItem>
           <RevealItem className="tile tile--espresso tile--half">
@@ -92,6 +93,15 @@ export function LivePricePage() {
             {texts.live.quotedAt(formatTime(price.quoted_at), formatDate(price.date))}.{" "}
             {texts.live.delayNote}
           </p>
+          {price.exchange_rate && price.exchange_source && (
+            <p className="footnote">
+              {texts.live.exchangeLine(formatNumber(price.exchange_rate, 3))}{" "}
+              <SourceName name={price.exchange_source} />
+              {price.exchange_rated_at
+                ? `, ${texts.live.exchangeAt(formatTime(price.exchange_rated_at))}`
+                : `. ${texts.live.exchangeDaily}`}
+            </p>
+          )}
           <SourceLinks sources={price.sources} />
         </>
       )}

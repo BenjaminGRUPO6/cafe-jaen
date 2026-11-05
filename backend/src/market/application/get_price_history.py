@@ -1,5 +1,6 @@
 from datetime import datetime, time, timedelta
 
+from market.domain.exchange_rate_choice import rate_at
 from market.domain.live_price import HistoryPoint, IntradayPoint
 from market.domain.market_hours import NEW_YORK, MarketHours
 from market.domain.ports.price_repository import PriceRepository
@@ -24,16 +25,22 @@ class GetPriceHistory:
             return []
         day = MarketHours.trading_day(last.quoted_at)
         start = datetime.combine(day, time.min, tzinfo=NEW_YORK)
-        quotes = self._repository.live_quotes_between(start, start + timedelta(days=1))
-        rate = self._repository.exchange_rate_on(self._clock.today())
-        if rate is None:
-            return []
-        return [
-            IntradayPoint(
-                q.quoted_at, self._converter.to_quintal(q.cents_per_pound, rate.soles_per_dollar)
-            )
-            for q in quotes
-        ]
+        end = start + timedelta(days=1)
+        quotes = self._repository.live_quotes_between(start, end)
+        daily = self._repository.exchange_rate_on(self._clock.today())
+        # Cada minuto con el dólar en vivo de ese momento (o el del BCRP si no hubo)
+        live = self._repository.live_exchange_rates_between(start, end)
+        points = []
+        for q in quotes:
+            rate = rate_at(q.quoted_at, live, daily)
+            if rate is not None:
+                points.append(
+                    IntradayPoint(
+                        q.quoted_at,
+                        self._converter.to_quintal(q.cents_per_pound, rate.soles_per_dollar),
+                    )
+                )
+        return points
 
     def daily(self, days: int) -> list[HistoryPoint]:
         since = self._clock.today() - timedelta(days=days)

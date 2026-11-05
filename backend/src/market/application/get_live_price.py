@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from market.domain.errors import PriceNotAvailableError
+from market.domain.exchange_rate_choice import current_rate
 from market.domain.live_price import LivePrice
 from market.domain.local_price import LocalPriceEstimator
 from market.domain.market_hours import MarketHours
@@ -31,10 +32,15 @@ class GetLivePrice:
 
     def execute(self) -> LivePrice:
         quote = self._latest_quote()
-        rate = self._repository.exchange_rate_on(self._clock.today())
+        now = self._clock.now()
+        rate = current_rate(
+            self._repository.last_live_exchange_rate(),
+            self._repository.exchange_rate_on(self._clock.today()),
+            self._clock.today(),
+            now.tzinfo,
+        )
         if rate is None:
             raise PriceNotAvailableError()
-        now = self._clock.now()
         market_open = self._market_hours.is_open(now)
         price = self._converter.to_quintal(quote.cents_per_pound, rate.soles_per_dollar)
         observations = self._repository.local_observations_since(now - self._estimator.window)
@@ -48,6 +54,8 @@ class GetLivePrice:
             stale=market_open and now - quote.quoted_at > self._stale_after,
             local_estimates=tuple(self._estimator.estimate(price.soles, observations)),
             exchange_rate=rate.soles_per_dollar,
+            exchange_source=rate.source,
+            exchange_rated_at=rate.rated_at,
         )
 
     def _latest_quote(self) -> LiveQuote:

@@ -4,6 +4,22 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.9] — Dólar en vivo, gráfica de Jaén y contraseña visible
+
+### Agregado
+- **Dólar en vivo (USD/PEN) cada minuto** desde Yahoo Finance (PEN=X) o TradingView
+  (FX_IDC:USDPEN), la primera que responda (`EXCHANGE_RATE_SOURCES`, migración 0010). El precio
+  en soles, el gráfico de hoy y el historial usan el dólar de cada momento; si ninguna web
+  responde, se usa el tipo de cambio oficial del BCRP del día.
+- La pantalla Precio dice de dónde salió el dólar y a qué hora, con enlace a la fuente.
+- «Precio estimado en Jaén» muestra la línea de hoy, minuto a minuto, en lugar del recuadro;
+  el aviso de datos sintéticos queda como una nota debajo.
+- Botón del ojo para ver u ocultar la contraseña al ingresar y al crear la cuenta.
+
+### Cambiado
+- «Equipo → Bolsa» ya no separa por tipo de café: la bolsa es una sola; cada fila muestra el
+  dólar usado (con su fuente) y el estimado en Jaén de los tres tipos.
+
 ## [v1.8] — Cuatro webs reales evaluadas, fuentes con enlace y cooperativas de demostración
 
 ### Agregado

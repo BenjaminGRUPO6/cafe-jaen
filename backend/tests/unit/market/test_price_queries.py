@@ -88,3 +88,19 @@ def test_intraday_history_returns_today_minute_by_minute(
 
 def test_intraday_history_is_empty_without_live_quotes() -> None:
     assert GetPriceHistory(InMemoryPriceRepository(), PriceConverter(), CLOCK).intraday() == []
+
+
+def test_live_price_follows_todays_live_dollar(repository: InMemoryPriceRepository) -> None:
+    from market.domain.quotation import ExchangeRate
+
+    at = datetime(2026, 11, 4, 8, 58, tzinfo=LIMA)
+    repository.add_live_exchange_rate(
+        ExchangeRate(Decimal("3.80"), at.date(), "Yahoo Finance (USD/PEN)", rated_at=at)
+    )
+
+    price = live_price(repository).execute()
+
+    assert price.exchange_rate == Decimal("3.80")
+    assert price.exchange_source == "Yahoo Finance (USD/PEN)"
+    assert price.exchange_rated_at == at
+    assert price.sources == ("Yahoo Finance", "Yahoo Finance (USD/PEN)")

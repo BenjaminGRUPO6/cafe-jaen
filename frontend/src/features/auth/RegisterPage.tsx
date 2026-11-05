@@ -4,6 +4,7 @@ import { ApiError } from "../../shared/api/client";
 import { useAuth } from "../../shared/auth/AuthContext";
 import { Brand } from "../../shared/components/Brand";
 import { StatusMessage } from "../../shared/components/StatusMessage";
+import { PasswordInput } from "../../shared/components/PasswordInput";
 import { texts } from "../../shared/texts/es";
 
 /** HU01: registro con código de invitación y consentimiento informado. */
@@ -56,8 +57,8 @@ export function RegisterPage() {
         </label>
         <label>
           {texts.auth.password}
-          <input
-            type="password"
+          <PasswordInput
+            autoComplete="new-password"
             minLength={8}
             value={form.password}
             onChange={update("password")}

@@ -49,6 +49,14 @@ class PriceRepository(Protocol):
 
     def exchange_rates_since(self, day: date) -> list[ExchangeRate]: ...
 
+    def add_live_exchange_rate(self, rate: ExchangeRate) -> None:
+        """Guarda el dólar en vivo (USD/PEN) de una consulta; `rate.rated_at` es obligatorio."""
+
+    def last_live_exchange_rate(self) -> ExchangeRate | None: ...
+
+    def live_exchange_rates_between(self, start: datetime, end: datetime) -> list[ExchangeRate]:
+        """Dólar en vivo de un intervalo, del más antiguo al más reciente."""
+
     # ---- precios de cooperativas (HU12)
     def add_local_observation(self, observation: LocalPriceObservation) -> LocalPriceObservation:
         """Guarda el precio y lo devuelve con el id asignado."""

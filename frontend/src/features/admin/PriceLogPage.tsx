@@ -5,12 +5,12 @@ import { StatusMessage } from "../../shared/components/StatusMessage";
 import { formatCents, formatDateTime, formatNumber, formatSoles } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
 import { useAutoReload } from "../../shared/hooks/useAutoReload";
-import { Segmented } from "../../shared/motion/Segmented";
 import { texts } from "../../shared/texts/es";
 import { AdminTabs } from "./AdminTabs";
 import { summarizeDay, todayInput, type PriceLog, type PriceLogEntry } from "./priceLog";
 import { SourceRanking } from "./SourceRanking";
 import { SourceReadings } from "./SourceReadings";
+import { SourceName } from "../../shared/components/SourceName";
 
 const TYPES: CoffeeType[] = ["convencional", "organico", "especial"];
 const REFRESH_MS = 30_000; // el Recolector consulta cada minuto
@@ -23,7 +23,6 @@ const PAGE = 100; // filas que se muestran antes de «Mostrar más»
 export function PriceLogPage() {
   const today = todayInput(new Date());
   const [day, setDay] = useState(today);
-  const [coffeeType, setCoffeeType] = useState<CoffeeType>("convencional");
   const [visible, setVisible] = useState(PAGE);
   const { data, error, reload } = useApi<PriceLog>(`/admin/price-log?day=${day}`);
   useAutoReload(reload, REFRESH_MS);
@@ -54,12 +53,6 @@ export function PriceLogPage() {
             }}
           />
         </label>
-        <Segmented
-          label={texts.admin.coffeeType}
-          value={coffeeType}
-          onChange={setCoffeeType}
-          options={TYPES.map((type) => ({ value: type, label: texts.local.coffeeTypes[type] }))}
-        />
       </div>
       {!data || !summary ? (
         <StatusMessage loading={!error} error={error} onRetry={reload} />
@@ -78,7 +71,6 @@ export function PriceLogPage() {
               <LogRow
                 key={`${entry.quoted_at}-${index}`}
                 entry={entry}
-                coffeeType={coffeeType}
                 latest={index === 0 && day === today}
               />
             ))}
@@ -98,17 +90,8 @@ export function PriceLogPage() {
   );
 }
 
-function LogRow({
-  entry,
-  coffeeType,
-  latest,
-}: {
-  entry: PriceLogEntry;
-  coffeeType: CoffeeType;
-  latest: boolean;
-}) {
+function LogRow({ entry, latest }: { entry: PriceLogEntry; latest: boolean }) {
   const [open, setOpen] = useState(false);
-  const local = entry.local_soles[coffeeType];
   const rowClass = [
     "price-log__row",
     latest ? "price-log__row--latest" : "",
@@ -124,14 +107,6 @@ function LogRow({
           <strong>{formatDateTime(new Date(entry.quoted_at))}</strong>
           <small>{agreement(entry)}</small>
         </div>
-        <div className="price-log__local">
-          <small>{texts.priceLog.local(texts.local.coffeeTypes[coffeeType])}</small>
-          {local !== undefined ? (
-            formatSoles(local)
-          ) : (
-            <small>{entry.published ? texts.priceLog.noEstimate : "—"}</small>
-          )}
-        </div>
         <p className="price-log__exchange">
           {entry.published || entry.median_cents === null
             ? texts.priceLog.exchangeLine(
@@ -141,7 +116,15 @@ function LogRow({
             : texts.priceLog.medianLine(formatCents(entry.median_cents))}
           {entry.exchange_rate !== null &&
             ` · ${texts.priceLog.rate(formatNumber(entry.exchange_rate, 3))}`}
+          {entry.exchange_source && (
+            <>
+              {" ("}
+              <SourceName name={entry.exchange_source} />
+              {")"}
+            </>
+          )}
         </p>
+        <LocalPrices entry={entry} />
       </div>
       <button
         type="button"
@@ -176,5 +159,25 @@ function Stat({ label, value }: { label: string; value: string }) {
       <span className="stat__label">{label}</span>
       <span className="stat__value">{value}</span>
     </div>
+  );
+}
+
+/** Estimado en Jaén de los tres tipos de café (la bolsa es una sola para todos). */
+function LocalPrices({ entry }: { entry: PriceLogEntry }) {
+  if (!entry.published) return null;
+  const known = TYPES.filter((type) => entry.local_soles[type] !== undefined);
+  if (known.length === 0) {
+    return <p className="price-log__locals muted">{texts.priceLog.noLocal}</p>;
+  }
+  return (
+    <p className="price-log__locals">
+      <span>{texts.priceLog.inJaen}</span>
+      {known.map((type) => (
+        <span key={type} className="price-log__local-chip">
+          {texts.local.coffeeTypes[type]}{" "}
+          <strong>{formatSoles(entry.local_soles[type] ?? 0)}</strong>
+        </span>
+      ))}
+    </p>
   );
 }

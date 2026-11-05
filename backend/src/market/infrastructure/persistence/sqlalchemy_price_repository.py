@@ -16,6 +16,7 @@ from market.domain.source_reading import (
 )
 from market.infrastructure.persistence.tables import (
     exchange_rates,
+    live_exchange_rates,
     live_quotes,
     local_price_observations,
     price_collections,
@@ -266,6 +267,42 @@ class SqlAlchemyPriceRepository:
         )
         with self._sessions() as session:
             return [_to_rate(row) for row in session.execute(query)]
+
+    # ---------------------------------------------------------------- dólar en vivo (USD/PEN)
+    def add_live_exchange_rate(self, rate: ExchangeRate) -> None:
+        if rate.rated_at is None:
+            raise ValueError("El dólar en vivo necesita la hora de la consulta")
+        with self._sessions() as session, session.begin():
+            session.execute(
+                insert(live_exchange_rates).values(
+                    rated_at=rate.rated_at.astimezone(UTC),
+                    soles_per_dollar=rate.soles_per_dollar,
+                    source=rate.source,
+                )
+            )
+
+    def last_live_exchange_rate(self) -> ExchangeRate | None:
+        query = select(live_exchange_rates).order_by(live_exchange_rates.c.rated_at.desc()).limit(1)
+        with self._sessions() as session:
+            row = session.execute(query).first()
+        return _to_live_rate(row) if row else None
+
+    def live_exchange_rates_between(self, start: datetime, end: datetime) -> list[ExchangeRate]:
+        query = (
+            select(live_exchange_rates)
+            .where(live_exchange_rates.c.rated_at >= start.astimezone(UTC))
+            .where(live_exchange_rates.c.rated_at < end.astimezone(UTC))
+            .order_by(live_exchange_rates.c.rated_at)
+        )
+        with self._sessions() as session:
+            return [_to_live_rate(row) for row in session.execute(query)]
+
+
+def _to_live_rate(row: Row) -> ExchangeRate:  # type: ignore[type-arg]
+    rated_at = _utc(row.rated_at)
+    return ExchangeRate(
+        Decimal(row.soles_per_dollar), rated_at.date(), row.source, rated_at=rated_at
+    )
 
 
 def _to_utc(moment: datetime | None) -> datetime | None:
