@@ -3,10 +3,10 @@
 Se usa en desarrollo, en las pruebas y como respaldo si el LLM no está disponible.
 """
 
-import unicodedata
 from typing import Any
 
 from advisor.domain.templates import template_answer
+from advisor.domain.text import normalize
 from advisor.domain.tools import TOOLS, ToolCall
 from shared.domain.contract import Action
 
@@ -33,6 +33,23 @@ _RULES: list[tuple[Action, tuple[str, ...]]] = [
         ("historic", "ultimos", "mes pasado", "tendencia", "dias atras", "grafic"),
     ),
     (
+        Action.GET_LOCAL_PRICES,
+        (
+            "cooperativa",
+            "cenfrocafe",
+            "sol & cafe",
+            "sol y cafe",
+            "jesus solidario",
+            "peru andino",
+            "cafe del norte",
+            "acopio",
+            "pagan en jaen",
+            "paga en jaen",
+            "cuanto paga",
+            "cuanto pagan",
+        ),
+    ),
+    (
         Action.GET_LIVE_PRICE,
         ("precio", "cuanto", "quintal", "cotiza", "hoy", "vale", "esta el cafe", "bolsa", "ahora"),
     ),
@@ -43,7 +60,7 @@ class KeywordLanguageModel:
     """Implementa LanguageModel con reglas simples y respuestas con plantilla."""
 
     def choose_tool(self, question: str) -> ToolCall | None:
-        text = _normalize(question)
+        text = normalize(question)
         for action, keywords in _RULES:
             if any(keyword in text for keyword in keywords):
                 return ToolCall(TOOLS[action], _arguments(action, text))
@@ -59,9 +76,3 @@ def _arguments(action: Action, text: str) -> dict[str, Any]:
     if "90" in text:
         return {"period": "90"}
     return {"period": "today" if "hoy" in text else "30"}
-
-
-def _normalize(text: str) -> str:
-    """Minúsculas y sin tildes, para comparar palabras clave."""
-    decomposed = unicodedata.normalize("NFD", text.lower())
-    return "".join(char for char in decomposed if unicodedata.category(char) != "Mn")

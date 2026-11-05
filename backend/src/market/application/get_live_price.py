@@ -47,6 +47,7 @@ class GetLivePrice:
             market_open=market_open,
             stale=market_open and now - quote.quoted_at > self._stale_after,
             local_estimates=tuple(self._estimator.estimate(price.soles, observations)),
+            exchange_rate=rate.soles_per_dollar,
         )
 
     def _latest_quote(self) -> LiveQuote:

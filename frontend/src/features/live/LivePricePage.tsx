@@ -6,6 +6,7 @@ import { StatusMessage } from "../../shared/components/StatusMessage";
 import {
   formatCents,
   formatDate,
+  formatNumber,
   formatPercent,
   formatSoles,
   formatTime,
@@ -14,6 +15,9 @@ import { useApi } from "../../shared/hooks/useApi";
 import { useLivePrice } from "../../shared/hooks/useLivePrice";
 import { useOnlineStatus } from "../../shared/hooks/useOnlineStatus";
 import { DecisionIcon, ForecastIcon } from "../../shared/motion/icons";
+import { InfoNote } from "../../shared/components/InfoNote";
+import { SourceLinks } from "../../shared/components/SourceLinks";
+import { priceSteps } from "./priceFormula";
 import { RevealGroup, RevealItem } from "../../shared/motion/Reveal";
 import { Sparkline } from "../../shared/motion/Sparkline";
 import { Ticker } from "../../shared/motion/Ticker";
@@ -55,7 +59,10 @@ export function LivePricePage() {
             />
           </RevealItem>
           <RevealItem className="tile tile--brote">
-            <LocalEstimateCard estimates={price.local_estimates ?? []} />
+            <LocalEstimateCard
+              estimates={price.local_estimates ?? []}
+              exchangeSoles={price.price_soles}
+            />
           </RevealItem>
           <RevealItem className="tile tile--espresso tile--half">
             <ActionTile
@@ -78,11 +85,14 @@ export function LivePricePage() {
         <StatusMessage loading={!error} error={error} />
       )}
       {price && (
-        <p className="footnote">
-          {texts.common.source}: {price.sources.join(", ")}.{" "}
-          {texts.live.quotedAt(formatTime(price.quoted_at), formatDate(price.date))}.{" "}
-          {texts.live.delayNote}
-        </p>
+        <>
+          <p className="footnote">
+            {texts.common.source}: {price.sources.join(", ")}.{" "}
+            {texts.live.quotedAt(formatTime(price.quoted_at), formatDate(price.date))}.{" "}
+            {texts.live.delayNote}
+          </p>
+          <SourceLinks sources={price.sources} />
+        </>
       )}
     </section>
   );
@@ -147,7 +157,30 @@ function PriceBoard({ price, live, trend }: { price: LivePrice; live: boolean; t
       </div>
       {price.stale && <p className="banner">{texts.live.stale}</p>}
       <Sparkline values={trend} />
+      <InfoNote>
+        <PriceFormula price={price} />
+      </InfoNote>
     </article>
+  );
+}
+
+/** Nota «¿Cómo se calcula?»: la conversión con los números de esta cotización. */
+function PriceFormula({ price }: { price: LivePrice }) {
+  if (price.exchange_rate == null) return <p>{texts.info.priceNoRate}</p>;
+  const steps = priceSteps(price.cents_per_pound);
+  const lines = texts.info.priceSteps(
+    formatCents(price.cents_per_pound),
+    formatNumber(steps.usdPerPound, 4),
+    formatNumber(steps.usdPerQuintal, 2),
+    formatNumber(price.exchange_rate, 3),
+    formatSoles(price.price_soles),
+  );
+  return (
+    <ol>
+      {lines.map((line) => (
+        <li key={line}>{line}</li>
+      ))}
+    </ol>
   );
 }
 

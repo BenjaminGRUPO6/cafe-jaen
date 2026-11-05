@@ -33,3 +33,11 @@ class PriceNotAvailableError(MarketError):
 
 class InvalidLocalPriceError(MarketError):
     """El precio de una cooperativa no es válido (HU12)."""
+
+
+class InvalidCooperativeError(MarketError):
+    """Datos de una cooperativa del catálogo que no son válidos."""
+
+
+class NotFoundError(MarketError):
+    """La cooperativa o el precio que se quiere cambiar ya no existe."""

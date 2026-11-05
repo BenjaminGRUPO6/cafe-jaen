@@ -11,7 +11,7 @@ la recomendación **«¿Vendo ahora o espero?»** y un **asesor** que responde e
 Detrás, seis agentes coordinados por un supervisor mantienen los datos al día sin intervención
 humana.
 
-> **Versión:** v1.3 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
+> **Versión:** v1.4 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
 > **Arquitectura:** monolito modular hexagonal + sistema multiagente con supervisor
 
 | Integrante | GitHub | Rol en XP | Lidera |
@@ -77,7 +77,10 @@ Organizamos el producto en historias de usuario (XP). Estas son las que implemen
 | HU09 | Letra grande, se instala en el celular y muestra el último precio sin señal | — |
 | HU10–11 | Producción, manual de usuario e inducción | — |
 | HU12 | **Precio estimado en Jaén**: la bolsa × el porcentaje que pagan las cooperativas (los precios los anotamos nosotros en la pantalla «Equipo») | Analista |
-| Equipo | Área solo para administrador: **Precios** de cooperativas y **Participantes** del GE (quién se registró, con qué código y cuándo entró), en vivo | — |
+| HU12+ | En «Precio», el estimado en Jaén **general** o **por cooperativa** (lo último que pagó cada una), con las cooperativas reales de Jaén en el catálogo | Analista |
+| Transparencia | Botón **«¿Cómo se calcula?»** junto a cada valor calculado (precio por quintal, estimado en Jaén, pronóstico y recomendación) y sección **«Fuentes»** con enlaces a ICE, Yahoo Finance, Stooq y BCRP, para caficultores y equipo | — |
+| HU08+ | Asesor con más de 20 temas preparados (pergamino, quintal, horario de la bolsa, tipo de cambio, cooperativas, cómo se calcula…) además de los datos en vivo | Asesor |
+| Equipo | Área solo para administrador con 5 pestañas: **Precios** (anotar, corregir y borrar), **Cooperativas** (agregar, editar y archivar), **Códigos** (generar y borrar los libres), **Participantes** (en vivo) y **Bolsa** (historial de 24 h por tipo de café) | — |
 | HU15 | Interfaz dinámica: colores vivos, precio que rueda al cambiar, animaciones que responden al toque | — |
 | HU16 | Ejecución local en un paso (Windows, macOS, Linux), despliegue en línea y dependencias que se actualizan solas | — |
 
@@ -317,7 +320,7 @@ En macOS o Linux el comando puede ser `python3`; en Windows también funciona `p
 ## Cómo trabajamos con Git y GitHub
 
 - El historial tiene **un commit por tarea de ingeniería (T01–T42)** y una etiqueta por cada
-  iteración o entrega: `v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1`, `v1.2` y `v1.3`.
+  iteración o entrega: `v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1`, `v1.2`, `v1.3` y `v1.4`.
 - Cada tarea la trabajamos en una rama `feature/huXX-descripcion` y la integramos con un PR que
   revisa el compañero. La CI tiene que quedar en verde antes de unir el PR.
 - Integramos a `main` al menos una vez al día (integración continua).

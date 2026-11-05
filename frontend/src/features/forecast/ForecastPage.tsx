@@ -5,6 +5,7 @@ import { formatPercent, formatSoles } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
 import { useCoffeeType } from "../../shared/hooks/useCoffeeType";
 import { Segmented } from "../../shared/motion/Segmented";
+import { InfoNote } from "../../shared/components/InfoNote";
 import { texts } from "../../shared/texts/es";
 import { toLocalForecast } from "./localForecast";
 
@@ -52,6 +53,13 @@ export function ForecastPage() {
               : texts.forecast.noLocal}{" "}
             {texts.forecast.rangeHint}
           </p>
+          <InfoNote>
+            <ol>
+              {texts.info.forecast.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ol>
+          </InfoNote>
         </>
       )}
     </section>

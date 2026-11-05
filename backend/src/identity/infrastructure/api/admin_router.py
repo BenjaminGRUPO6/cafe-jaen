@@ -2,13 +2,25 @@ from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from pydantic import BaseModel
 
 from identity.application.list_participants import ListParticipants
+from identity.application.manage_invitation_codes import (
+    CodeNotFoundError,
+    ManageInvitationCodes,
+)
+from identity.domain.errors import IdentityError
+
+
+class GenerateCodesRequest(BaseModel):
+    count: int
 
 
 def build_participants_router(
-    list_participants: ListParticipants, require_admin: Callable[..., str]
+    list_participants: ListParticipants,
+    manage_codes: ManageInvitationCodes,
+    require_admin: Callable[..., str],
 ) -> APIRouter:
     """Rutas del equipo de investigación sobre los participantes (solo administrador)."""
     router = APIRouter(tags=["equipo"], dependencies=[Depends(require_admin)])
@@ -29,6 +41,32 @@ def build_participants_router(
                 for p in report.participants
             ],
         }
+
+    @router.get("/admin/invitation-codes")
+    def invitation_codes() -> dict[str, Any]:
+        return {
+            "codes": [
+                {"code": c.code, "used": c.is_used, "used_at": _iso(c.used_at)}
+                for c in manage_codes.list()
+            ]
+        }
+
+    @router.post("/admin/invitation-codes", status_code=status.HTTP_201_CREATED)
+    def generate_codes(body: GenerateCodesRequest) -> dict[str, Any]:
+        try:
+            return {"codes": manage_codes.generate(body.count)}
+        except IdentityError as error:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, str(error)) from None
+
+    @router.delete("/admin/invitation-codes/{code}", status_code=status.HTTP_204_NO_CONTENT)
+    def delete_code(code: str) -> Response:
+        try:
+            manage_codes.delete(code)
+        except CodeNotFoundError as error:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, str(error)) from None
+        except IdentityError as error:
+            raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from None
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     return router
 

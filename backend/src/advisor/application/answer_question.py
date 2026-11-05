@@ -1,6 +1,7 @@
 import logging
 
 from advisor.domain.answer import NO_INFORMATION, SERVICE_UNAVAILABLE, Answer
+from advisor.domain.faq import TEAM_SOURCE, FaqEntry, find_faq
 from advisor.domain.grounding import is_grounded
 from advisor.domain.ports.language_model import LanguageModel
 from advisor.domain.templates import template_answer
@@ -20,9 +21,17 @@ class AnswerQuestion:
 
     def execute(self, question: str) -> Answer:
         question = question.strip()[:MAX_QUESTION_LENGTH]
-        tool = self._language_model.choose_tool(question) if question else None
-        if tool is None:
+        if not question:
             return Answer(NO_INFORMATION)
+        # 1) Preguntas de explicación («¿cómo se calcula…?»): respuesta preparada por el equipo
+        explained = find_faq(question, phrases_only=True)
+        if explained:
+            return _faq_answer(explained)
+        tool = self._language_model.choose_tool(question)
+        if tool is None:
+            # 3) Palabras sueltas («pergamino», «hola») solo si ningún dato responde la pregunta
+            entry = find_faq(question, phrases_only=False)
+            return _faq_answer(entry) if entry else Answer(NO_INFORMATION)
 
         # El asesor nunca accede a la BD: pide los datos al agente dueño, vía supervisor
         reply = self._gateway.request(
@@ -37,3 +46,7 @@ class AnswerQuestion:
             text = template_answer(tool.spec.action, reply.content)
         sources = tuple(reply.content.get("sources", ["ICE", "BCRP"]))
         return Answer(text, sources, tool.spec.action)
+
+
+def _faq_answer(entry: FaqEntry) -> Answer:
+    return Answer(entry.answer, (TEAM_SOURCE,), f"faq:{entry.topic}")

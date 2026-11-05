@@ -15,10 +15,14 @@ from decimal import Decimal
 from identity.infrastructure.persistence.sqlalchemy_repositories import (
     SqlAlchemyInvitationCodeRepository,
 )
+from market.domain.cooperative import Cooperative
 from market.domain.local_price import CoffeeType, LocalPriceObservation
 from market.domain.market_hours import NEW_YORK
 from market.domain.quintal_price import PriceConverter
 from market.domain.quotation import ExchangeRate, LiveQuote, Quotation
+from market.infrastructure.persistence.sqlalchemy_cooperative_repository import (
+    SqlAlchemyCooperativeRepository,
+)
 from market.infrastructure.persistence.sqlalchemy_price_repository import SqlAlchemyPriceRepository
 from shared.infrastructure.database import create_db_engine, create_session_factory
 from shared.infrastructure.settings import get_settings
@@ -71,6 +75,12 @@ def main() -> None:
         Decimal(f"{cents:.2f}"), Decimal(f"{rate:.3f}")
     )
     now = datetime.now(NEW_YORK)
+    catalog = SqlAlchemyCooperativeRepository(sessions)
+    for number in range(1, 4):
+        # Nombres ficticios: los precios de ejemplo nunca se atribuyen a cooperativas reales
+        name = f"Cooperativa Demo {number}"
+        if catalog.get_by_name(name) is None:
+            catalog.add(Cooperative.create(name, "Jaén (datos de ejemplo)", None))
     for coffee_type, ratios in DEMO_RATIOS.items():
         for number, ratio in enumerate(ratios, start=1):
             paid = (exchange.soles * Decimal(str(ratio))).quantize(Decimal("0.01"))

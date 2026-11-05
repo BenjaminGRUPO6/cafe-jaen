@@ -75,6 +75,11 @@ def build_market_router(
             raise HTTPException(status.HTTP_400_BAD_REQUEST, reply.content["reason"])
         return reply.content
 
+    @router.get("/prices/local")
+    def cooperative_prices() -> dict[str, Any]:
+        """Lo que pagó cada cooperativa en los últimos 30 días (vista «Por cooperativa»)."""
+        return ask_analyst(Action.GET_LOCAL_PRICES)
+
     @router.get("/admin/local-prices", dependencies=[Depends(require_admin)])
     def local_prices() -> dict[str, Any]:
         return ask_analyst(Action.GET_LOCAL_PRICES)

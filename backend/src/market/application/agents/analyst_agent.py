@@ -85,6 +85,7 @@ def live_to_dict(live: LivePrice, zone: tzinfo | None = None) -> dict[str, Any]:
         "stale": live.stale,
         "sources": list(live.sources),
         "local_estimates": [_estimate_to_dict(e) for e in live.local_estimates],
+        "exchange_rate": float(live.exchange_rate) if live.exchange_rate is not None else None,
     }
 
 
@@ -103,6 +104,7 @@ def _estimate_to_dict(estimate: LocalEstimate) -> dict[str, Any]:
 def _observation_to_dict(observation: LocalPriceObservation, zone: tzinfo | None) -> dict[str, Any]:
     observed_at = observation.observed_at.astimezone(zone) if zone else observation.observed_at
     return {
+        "id": observation.id,
         "observed_at": observed_at.isoformat(),
         "cooperative": observation.cooperative,
         "coffee_type": observation.coffee_type.value,

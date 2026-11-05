@@ -58,7 +58,7 @@ BATTERY = [
     ("¿Cómo curo la roya?", None),
     ("Cuéntame un chiste", None),
     ("¿Qué clima hará en Jaén?", None),
-    ("hola", None),
+    ("¿Cuál es la capital de Francia?", None),
 ]
 
 
@@ -91,3 +91,67 @@ def test_answer_is_grounded_or_declines(
     else:
         assert is_grounded(answer.text, DATA[expected_tool]), answer.text
         assert answer.sources
+
+
+# Ampliación del catálogo: preguntas frecuentes con respuesta preparada y precios por cooperativa
+LOCAL = {
+    "observations": [
+        {
+            "observed_at": "2026-11-04T09:00:00-05:00",
+            "cooperative": "CENFROCAFE",
+            "coffee_type": "convencional",
+            "paid_soles": 1100.0,
+            "exchange_soles": 1525.0,
+            "ratio_pct": 72.1,
+        },
+        {
+            "observed_at": "2026-11-03T09:00:00-05:00",
+            "cooperative": "CENFROCAFE",
+            "coffee_type": "convencional",
+            "paid_soles": 1090.0,
+            "exchange_soles": 1520.0,
+            "ratio_pct": 71.7,
+        },
+    ]
+}
+
+FAQ_BATTERY = [
+    ("hola", "faq:saludo"),
+    ("¿Cómo se calcula el precio?", "faq:como_se_calcula"),
+    ("¿Por qué en Jaén pagan menos que en la bolsa?", "faq:por_que_jaen_es_distinto"),
+    ("¿De dónde sacan los datos?", "faq:fuentes"),
+    ("¿Qué es un quintal?", "faq:quintal"),
+    ("¿Cuándo abre la bolsa?", "faq:horario"),
+    ("¿A qué hora cierra la bolsa?", "faq:horario"),
+    ("¿Qué es el café pergamino?", "faq:pergamino"),
+    ("¿Qué cooperativas hay en Jaén?", "faq:cooperativas"),
+    ("¿Cómo decide si vender?", "faq:como_decide"),
+    ("ayuda", "faq:ayuda"),
+    ("gracias", "faq:gracias"),
+    ("¿Cuánto paga CENFROCAFE?", "get_local_prices"),
+    ("¿Cuánto pagan por café especial?", "get_local_prices"),
+    ("hola, ¿a cuánto está el café?", "get_live_price"),
+]
+
+
+@pytest.mark.parametrize(("question", "expected"), FAQ_BATTERY)
+def test_extended_catalog(advisor: AnswerQuestion, question: str, expected: str) -> None:
+    advisor_gateway = advisor._gateway  # type: ignore[attr-defined]
+    advisor_gateway.answer("analyst", "get_local_prices", LOCAL)
+
+    answer = advisor.execute(question)
+
+    assert answer.used_tool == expected
+    assert answer.sources
+    assert answer.text != NO_INFORMATION
+
+
+def test_cooperative_answer_uses_the_latest_price() -> None:
+    gateway = FakeGateway()
+    gateway.answer("analyst", "get_local_prices", LOCAL)
+
+    answer = AnswerQuestion(KeywordLanguageModel(), gateway).execute("¿Cuánto paga CENFROCAFE?")
+
+    assert "CENFROCAFE (convencional): S/ 1100,00 el 04/11/2026" in answer.text
+    assert "1090" not in answer.text
+    assert is_grounded(answer.text, LOCAL)

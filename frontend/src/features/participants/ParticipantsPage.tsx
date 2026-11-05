@@ -4,7 +4,7 @@ import { formatDateTime } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
 import { useAutoReload } from "../../shared/hooks/useAutoReload";
 import { texts } from "../../shared/texts/es";
-import { AdminTabs } from "./AdminTabs";
+import { AdminTabs } from "../admin/AdminTabs";
 import { startOfToday, summarize, type Participant, type ParticipantsReport } from "./participants";
 
 const REFRESH_MS = 10_000; // un registro nuevo aparece en menos de 10 s sin recargar

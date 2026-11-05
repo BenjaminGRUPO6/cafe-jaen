@@ -42,6 +42,11 @@ TOOLS: dict[Action, ToolSpec] = {
             "Pronóstico del precio para los próximos 7 días hábiles",
         ),
         ToolSpec(
+            Action.GET_LOCAL_PRICES,
+            AgentName.ANALYST,
+            "Lo que pagó cada cooperativa de Jaén por quintal de pergamino (últimos 30 días)",
+        ),
+        ToolSpec(
             Action.GET_SELLING_ADVICE,
             AgentName.STRATEGIST,
             "Recomendación: vender ahora, esperar o sin señal clara, con su motivo",

@@ -38,6 +38,7 @@ class LocalPriceObservation:
     coffee_type: CoffeeType
     paid_soles: Decimal  # S/ por quintal que paga la cooperativa al productor
     exchange_soles: Decimal  # precio de la bolsa en S/ por quintal en ese momento
+    id: int | None = None  # lo asigna la base de datos; sirve para corregir o borrar
 
     def __post_init__(self) -> None:
         if not self.cooperative.strip():

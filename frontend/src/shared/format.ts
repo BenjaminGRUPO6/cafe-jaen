@@ -25,3 +25,8 @@ export function formatTime(isoDateTime: string): string {
 export function formatCents(value: number): string {
   return `${value.toFixed(2).replace(".", ",")} ¢/lb`;
 }
+
+/** Número con coma decimal y la cantidad de decimales indicada (p. ej., 3,7512). */
+export function formatNumber(value: number, decimals: number): string {
+  return value.toFixed(decimals).replace(".", ",");
+}

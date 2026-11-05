@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import func, insert, select, update
+from sqlalchemy import delete, func, insert, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from identity.domain.invitation_code import InvitationCode
@@ -96,7 +96,21 @@ class SqlAlchemyInvitationCodeRepository:
             ).one()
         return CodeSummary(total=int(total), used=int(used))
 
+    def all(self) -> list[InvitationCode]:
+        query = select(invitation_codes).order_by(
+            invitation_codes.c.used_at.is_not(None),
+            invitation_codes.c.used_at.desc(),
+            invitation_codes.c.code,
+        )
+        with self._sessions() as session:
+            rows = session.execute(query).all()
+        return [InvitationCode(row.code, row.used_by, row.used_at) for row in rows]
+
     def add_many(self, codes: list[str]) -> None:
         """Usado por el script que genera los códigos del GE."""
         with self._sessions() as session, session.begin():
             session.execute(insert(invitation_codes), [{"code": c} for c in codes])
+
+    def delete(self, code: str) -> None:
+        with self._sessions() as session, session.begin():
+            session.execute(delete(invitation_codes).where(invitation_codes.c.code == code))

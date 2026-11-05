@@ -57,10 +57,16 @@ El plan gratuito de Render no tiene terminal, así que la cuenta de administrado
 | `ADMIN_PASSWORD` | Contraseña de al menos 8 caracteres |
 | `DATABASE_URL` | URL de la base PostgreSQL gratuita de Neon (`postgresql://…?sslmode=require`) |
 
-Con esa cuenta aparecen en la app el enlace **«Equipo»** y sus dos pestañas:
-- **Precios:** anotamos lo que paga cada cooperativa; el «Precio estimado en Jaén» se recalcula.
+Con esa cuenta aparece en la app el enlace **«Equipo»** con cinco pestañas:
+- **Precios:** anotamos lo que paga cada cooperativa (y corregimos o borramos un dato mal
+  escrito); el «Precio estimado en Jaén» se recalcula al instante.
+- **Cooperativas:** catálogo con las cooperativas de Jaén; agregamos, editamos o archivamos. Al
+  archivar una que ya tiene precios, sus datos se conservan para no perder el historial.
+- **Códigos:** generamos códigos de invitación para el GE y borramos los que no se usaron.
 - **Participantes:** quiénes del GE se registraron, con qué código, cuándo y su último ingreso.
   Se actualiza sola cada 10 segundos.
+- **Bolsa:** cada consulta del Recolector en las últimas 24 horas, con el estimado en Jaén del
+  tipo de café elegido.
 
 Los caficultores no ven «Equipo» y la API les responde 403 si intentan entrar.
 

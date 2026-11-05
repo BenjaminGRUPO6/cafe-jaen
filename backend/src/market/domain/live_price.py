@@ -18,6 +18,7 @@ class LivePrice:
     market_open: bool
     stale: bool  # la bolsa está abierta pero el último precio es muy antiguo
     local_estimates: tuple[LocalEstimate, ...] = ()  # precio estimado en Jaén por tipo (HU12)
+    exchange_rate: Decimal | None = None  # S/ por US$ usado (nota «¿cómo se calcula?»)
 
     @property
     def change_soles(self) -> Decimal | None:

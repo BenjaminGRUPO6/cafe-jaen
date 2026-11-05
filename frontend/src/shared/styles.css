@@ -833,14 +833,23 @@ a {
 
 /* ---------- Área del equipo: pestañas y participantes ---------- */
 .admin-tabs {
-  display: inline-flex;
+  display: flex;
   gap: 0.25rem;
+  max-width: 100%;
+  width: max-content;
   padding: 0.25rem;
   margin-bottom: 0.75rem;
   border-radius: 999px;
   background: var(--papel);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.admin-tabs::-webkit-scrollbar {
+  display: none;
 }
 .admin-tabs__link {
+  flex: none;
+  white-space: nowrap;
   padding: 0.35rem 0.9rem;
   border-radius: 999px;
   font-weight: 700;
@@ -899,4 +908,308 @@ a {
 .agent-chip--strategist {
   background: var(--espresso);
   color: var(--papel);
+}
+
+/* ---------- Nota «¿Cómo se calcula?» ---------- */
+.info-note {
+  margin-top: 0.75rem;
+}
+.info-note__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.35rem 0.9rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(26, 18, 8, 0.08);
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.tile--espresso .info-note__toggle {
+  background: rgba(255, 255, 255, 0.14);
+}
+.info-note__toggle svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.info-note__body {
+  overflow: hidden;
+}
+.info-note__content {
+  margin-top: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radio-chico);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--espresso);
+  font-size: 0.95rem;
+}
+.info-note__content ol {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+/* ---------- Fuentes ---------- */
+.sources {
+  margin-top: 1rem;
+}
+.sources__title {
+  font-size: 1.05rem;
+  margin: 0 0 0.5rem;
+}
+.sources__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.5rem;
+}
+.source-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radio-chico);
+  background: var(--papel);
+  color: var(--espresso);
+  text-decoration: none;
+}
+.source-link span {
+  display: grid;
+}
+.source-link small {
+  color: var(--corteza);
+}
+.source-link svg {
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: var(--cielo);
+}
+.source-link:hover {
+  outline: 2px solid var(--grano);
+}
+
+/* ---------- Precio por cooperativa ---------- */
+.tile .segmented + .segmented {
+  margin-top: 0.5rem;
+}
+.coop-prices {
+  list-style: none;
+  margin: 0.75rem 0 0.5rem;
+  padding: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+.coop-prices__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--radio-chico);
+  background: rgba(255, 255, 255, 0.72);
+}
+.coop-prices__name {
+  display: grid;
+  min-width: 0;
+}
+.coop-prices__name strong {
+  overflow-wrap: anywhere;
+}
+.coop-prices__name small {
+  color: #3d362c;
+}
+.coop-prices__value {
+  display: grid;
+  justify-items: end;
+  text-align: right;
+}
+.coop-prices__value strong {
+  font-family: var(--display);
+  white-space: nowrap;
+}
+.coop-prices__web,
+.inline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  color: var(--cielo);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.coop-prices__web svg,
+.inline-link svg {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+/* ---------- Área del equipo: listas editables ---------- */
+.observation {
+  display: grid;
+  gap: 0.25rem;
+}
+.observation--archived {
+  opacity: 0.65;
+}
+.observation__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.observation__head .pill {
+  margin-left: 0.4rem;
+  font-size: 0.8rem;
+  padding: 0.1rem 0.5rem;
+}
+.observation__actions {
+  display: flex;
+  gap: 0.25rem;
+  flex: none;
+}
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.6rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--niebla);
+  color: var(--espresso);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.icon-button svg {
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.icon-button--danger {
+  background: var(--cereza);
+  color: var(--papel);
+}
+.icon-button:disabled {
+  opacity: 0.5;
+}
+.inline-form {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+.inline-form input {
+  min-height: 44px;
+}
+.inline-form label {
+  flex: 1 1 12rem;
+}
+.form__link {
+  margin-top: -0.4rem;
+  font-size: 0.9rem;
+  color: var(--cielo);
+  font-weight: 700;
+}
+.form .check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+.form .check input {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* Códigos de invitación */
+.new-codes {
+  background: var(--brote);
+}
+.new-codes__list {
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.codes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.4rem;
+}
+.codes__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.4rem 0.35rem 0.8rem;
+  border-radius: var(--radio-chico);
+  background: var(--papel);
+}
+.codes__item code {
+  font-weight: 700;
+}
+.codes__item--used {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  padding: 0.5rem 0.8rem;
+  background: var(--grano);
+}
+
+/* Historial de la bolsa: tabla con desplazamiento lateral en el celular */
+.price-log {
+  overflow-x: auto;
+  border-radius: var(--radio);
+  background: var(--papel);
+}
+.price-log table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.price-log th,
+.price-log td {
+  padding: 0.55rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--linea);
+}
+.price-log thead th {
+  position: sticky;
+  top: 0;
+  background: var(--espresso);
+  color: var(--papel);
+}
+.price-log tbody th {
+  font-weight: 700;
+}
+/* La columna «En Jaén» es la que el equipo compara: va resaltada a la derecha */
+.price-log td:last-child {
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+.price-log thead .price-log__local {
+  text-align: right;
+}
+.price-log small {
+  display: block;
+  color: var(--corteza);
+  font-weight: 400;
+}
+.price-log tbody tr:first-child {
+  background: var(--hoja-clara);
 }

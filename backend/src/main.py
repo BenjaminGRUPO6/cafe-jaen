@@ -5,6 +5,7 @@ Ejecutar en desarrollo:  uvicorn main:app --reload --app-dir src
 """
 
 import logging
+import secrets
 from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
@@ -35,6 +36,7 @@ from forecasting.infrastructure.persistence.sqlalchemy_forecast_repository impor
 )
 from identity.application.authenticate_user import AuthenticateUser
 from identity.application.list_participants import ListParticipants
+from identity.application.manage_invitation_codes import ManageInvitationCodes
 from identity.application.register_user import RegisterUser
 from identity.infrastructure.api.admin_router import build_participants_router
 from identity.infrastructure.api.auth_router import build_auth_router
@@ -47,15 +49,23 @@ from identity.infrastructure.security.jwt_token_service import JwtTokenService
 from market.application.agents.analyst_agent import AnalystAgent
 from market.application.agents.collector_agent import CollectorAgent
 from market.application.collect_prices import CollectPrices
+from market.application.correct_local_price import CorrectLocalPrice
 from market.application.get_live_price import GetLivePrice
 from market.application.get_price_history import GetPriceHistory
+from market.application.get_price_log import GetPriceLog
+from market.application.manage_cooperatives import ManageCooperatives
 from market.application.record_local_price import RecordLocalPrice
 from market.domain.consensus import Consensus
+from market.domain.local_price import LocalPriceEstimator
 from market.domain.market_hours import MarketHours
 from market.domain.ports.sources import ExchangeRateProvider, QuotationSource
 from market.domain.price_validator import PriceValidator
 from market.domain.quintal_price import PriceConverter
+from market.infrastructure.api.admin_market_router import build_admin_market_router
 from market.infrastructure.api.market_router import build_market_router
+from market.infrastructure.persistence.sqlalchemy_cooperative_repository import (
+    SqlAlchemyCooperativeRepository,
+)
 from market.infrastructure.persistence.sqlalchemy_price_repository import SqlAlchemyPriceRepository
 from market.infrastructure.sources.bcrp_exchange_rate_provider import BcrpExchangeRateProvider
 from market.infrastructure.sources.demo_quotation_source import DemoQuotationSource
@@ -124,10 +134,11 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     get_live_price = GetLivePrice(
         prices, converter, market_hours, clock, timedelta(minutes=settings.stale_after_minutes)
     )
+    cooperatives = SqlAlchemyCooperativeRepository(sessions)
     analyst = AnalystAgent(
         get_live_price,
         GetPriceHistory(prices, converter, clock),
-        RecordLocalPrice(prices, get_live_price, clock),
+        RecordLocalPrice(prices, get_live_price, cooperatives, clock),
         clock,
     )
 
@@ -187,7 +198,11 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     require_user = build_require_user(tokens)
     app.include_router(build_auth_router(register, authenticate, tokens), prefix="/api")
     app.include_router(
-        build_participants_router(ListParticipants(users, codes), build_require_admin(tokens)),
+        build_participants_router(
+            ListParticipants(users, codes),
+            ManageInvitationCodes(codes, secrets.choice),
+            build_require_admin(tokens),
+        ),
         prefix="/api",
     )
     app.include_router(
@@ -198,6 +213,16 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
             latest_quote_time,
             settings.stream_poll_seconds,
             settings.stream_max_events,
+        ),
+        prefix="/api",
+    )
+    app.include_router(
+        build_admin_market_router(
+            ManageCooperatives(cooperatives),
+            CorrectLocalPrice(prices),
+            GetPriceLog(prices, converter, LocalPriceEstimator(), clock),
+            require_user,
+            build_require_admin(tokens),
         ),
         prefix="/api",
     )

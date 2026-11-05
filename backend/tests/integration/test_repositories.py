@@ -69,9 +69,10 @@ def test_local_prices_keep_time_zone_type_and_order(sessions: sessionmaker[Sessi
         Decimal("1000"),
         Decimal("1150.5"),
     )
-    prices.add_local_observation(old)
-    prices.add_local_observation(new)
+    old = prices.add_local_observation(old)
+    new = prices.add_local_observation(new)
 
+    assert old.id is not None and new.id is not None
     assert prices.local_observations_since(old.observed_at) == [new, old]
     assert prices.local_observations_since(new.observed_at) == [new]
 

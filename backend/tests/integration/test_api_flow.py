@@ -181,3 +181,141 @@ def test_team_sees_participants_and_their_last_login(
 
 def test_farmers_cannot_see_participants(client: TestClient, auth_headers: dict[str, str]) -> None:
     assert client.get("/api/admin/participants", headers=auth_headers).status_code == 403
+
+
+def test_team_generates_codes_that_farmers_can_use(
+    client: TestClient, admin_headers: dict[str, str]
+) -> None:
+    created = client.post(
+        "/api/admin/invitation-codes", json={"count": 2}, headers=admin_headers
+    ).json()["codes"]
+
+    registered = client.post(
+        "/api/auth/register",
+        json={
+            "invitation_code": created[0],
+            "phone": "955444333",
+            "password": "cafe2026!",
+            "consent_accepted": True,
+        },
+    )
+    listed = client.get("/api/admin/invitation-codes", headers=admin_headers).json()["codes"]
+
+    assert registered.status_code == 201
+    status = {c["code"]: c["used"] for c in listed}
+    assert status[created[0]] is True
+    assert status[created[1]] is False
+    assert listed[0]["used"] is False  # los libres primero
+
+
+def test_invalid_amount_of_codes_is_rejected(
+    client: TestClient, admin_headers: dict[str, str]
+) -> None:
+    response = client.post(
+        "/api/admin/invitation-codes", json={"count": 500}, headers=admin_headers
+    )
+
+    assert response.status_code == 400
+
+
+def test_farmers_cannot_generate_codes(client: TestClient, auth_headers: dict[str, str]) -> None:
+    response = client.post("/api/admin/invitation-codes", json={"count": 1}, headers=auth_headers)
+
+    assert response.status_code == 403
+
+
+def test_farmers_see_what_each_cooperative_paid(
+    client: TestClient, auth_headers: dict[str, str], admin_headers: dict[str, str]
+) -> None:
+    client.post(
+        "/api/admin/local-prices",
+        json={"cooperative": "CENFROCAFE", "coffee_type": "convencional", "paid_soles": 1100},
+        headers=admin_headers,
+    )
+
+    body = client.get("/api/prices/local", headers=auth_headers).json()
+
+    assert body["observations"][0]["cooperative"] == "CENFROCAFE"
+    assert client.get("/api/prices/live", headers=auth_headers).json()["exchange_rate"] == 3.75
+
+
+def test_team_manages_the_cooperative_catalog(
+    client: TestClient, auth_headers: dict[str, str], admin_headers: dict[str, str]
+) -> None:
+    created = client.post(
+        "/api/admin/cooperatives",
+        headers=admin_headers,
+        json={"name": "Cooperativa Agraria Café del Norte", "website": "https://cafe.pe"},
+    )
+    assert created.status_code == 201
+    new_id = created.json()["id"]
+    duplicate = client.post(
+        "/api/admin/cooperatives", headers=admin_headers, json={"name": "cenfrocafe"}
+    )
+    assert duplicate.status_code == 400
+
+    renamed = client.put(
+        f"/api/admin/cooperatives/{new_id}",
+        headers=admin_headers,
+        json={"name": "Café del Norte", "location": "Jaén", "active": True},
+    )
+    assert renamed.json()["name"] == "Café del Norte"
+    visible = client.get("/api/cooperatives", headers=auth_headers).json()["cooperatives"]
+    assert "Café del Norte" in {c["name"] for c in visible}
+
+    removed = client.delete(f"/api/admin/cooperatives/{new_id}", headers=admin_headers)
+    assert removed.json() == {"result": "deleted"}
+    assert client.get("/api/admin/cooperatives", headers=auth_headers).status_code == 403
+
+
+def test_team_corrects_and_deletes_a_price(
+    client: TestClient, admin_headers: dict[str, str]
+) -> None:
+    saved = client.post(
+        "/api/admin/local-prices",
+        headers=admin_headers,
+        json={"cooperative": "Coop. A", "coffee_type": "convencional", "paid_soles": 900},
+    ).json()
+
+    corrected = client.patch(
+        f"/api/admin/local-prices/{saved['id']}", headers=admin_headers, json={"paid_soles": 950}
+    )
+    assert corrected.status_code == 200 and corrected.json()["ratio_pct"] > saved["ratio_pct"]
+    assert (
+        client.delete(f"/api/admin/local-prices/{saved['id']}", headers=admin_headers).status_code
+        == 204
+    )
+    assert (
+        client.delete(f"/api/admin/local-prices/{saved['id']}", headers=admin_headers).status_code
+        == 404
+    )
+    archived = client.delete("/api/admin/cooperatives/1", headers=admin_headers)
+    assert archived.json() == {"result": "deleted"}  # ya no le quedan precios
+
+
+def test_team_sees_the_price_log(client: TestClient, admin_headers: dict[str, str]) -> None:
+    client.app.state.daily_cycle.execute()  # type: ignore[attr-defined]
+
+    entries = client.get("/api/admin/price-log", headers=admin_headers).json()["entries"]
+
+    assert entries and entries[0]["cents_per_pound"] == 300.0
+    assert entries[0]["sources"] == ["Yahoo Finance", "Stooq"]
+
+
+def test_team_deletes_only_unused_invitation_codes(
+    client: TestClient, auth_headers: dict[str, str], admin_headers: dict[str, str]
+) -> None:
+    (code,) = client.post(
+        "/api/admin/invitation-codes", headers=admin_headers, json={"count": 1}
+    ).json()["codes"]
+
+    assert (
+        client.delete(f"/api/admin/invitation-codes/{code}", headers=admin_headers).status_code
+        == 204
+    )
+    assert (
+        client.delete(f"/api/admin/invitation-codes/{code}", headers=admin_headers).status_code
+        == 404
+    )
+    used = client.delete(f"/api/admin/invitation-codes/{INVITATION_CODE}", headers=admin_headers)
+    assert used.status_code == 409

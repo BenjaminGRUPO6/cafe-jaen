@@ -1,7 +1,8 @@
+from dataclasses import replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Row, delete, insert, select
+from sqlalchemy import Row, delete, insert, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from market.domain.local_price import CoffeeType, LocalPriceObservation
@@ -74,17 +75,20 @@ class SqlAlchemyPriceRepository:
             return [_to_quotation(row) for row in session.execute(query)]
 
     # ---------------------------------------------------------------- cooperativas (HU12)
-    def add_local_observation(self, observation: LocalPriceObservation) -> None:
+    def add_local_observation(self, observation: LocalPriceObservation) -> LocalPriceObservation:
         with self._sessions() as session, session.begin():
-            session.execute(
-                insert(local_price_observations).values(
+            new_id = session.execute(
+                insert(local_price_observations)
+                .values(
                     observed_at=observation.observed_at.astimezone(UTC),
                     cooperative=observation.cooperative,
                     coffee_type=observation.coffee_type.value,
                     paid_soles=observation.paid_soles,
                     exchange_soles=observation.exchange_soles,
                 )
-            )
+                .returning(local_price_observations.c.id)
+            ).scalar_one()
+        return replace(observation, id=new_id)
 
     def local_observations_since(self, moment: datetime) -> list[LocalPriceObservation]:
         table = local_price_observations
@@ -94,16 +98,25 @@ class SqlAlchemyPriceRepository:
             .order_by(table.c.observed_at.desc())
         )
         with self._sessions() as session:
-            return [
-                LocalPriceObservation(
-                    _utc(row.observed_at),
-                    row.cooperative,
-                    CoffeeType(row.coffee_type),
-                    Decimal(row.paid_soles),
-                    Decimal(row.exchange_soles),
-                )
-                for row in session.execute(query)
-            ]
+            return [_observation(row) for row in session.execute(query)]
+
+    def get_local_observation(self, observation_id: int) -> LocalPriceObservation | None:
+        table = local_price_observations
+        with self._sessions() as session:
+            row = session.execute(select(table).where(table.c.id == observation_id)).first()
+        return _observation(row) if row else None
+
+    def update_local_paid(self, observation_id: int, paid_soles: Decimal) -> None:
+        table = local_price_observations
+        with self._sessions() as session, session.begin():
+            session.execute(
+                update(table).where(table.c.id == observation_id).values(paid_soles=paid_soles)
+            )
+
+    def delete_local_observation(self, observation_id: int) -> None:
+        table = local_price_observations
+        with self._sessions() as session, session.begin():
+            session.execute(delete(table).where(table.c.id == observation_id))
 
     # ---------------------------------------------------------------- tipo de cambio
     def add_exchange_rate(self, rate: ExchangeRate) -> None:
@@ -160,3 +173,14 @@ def _to_quotation(row: Row) -> Quotation:  # type: ignore[type-arg]
 
 def _to_rate(row: Row) -> ExchangeRate:  # type: ignore[type-arg]
     return ExchangeRate(Decimal(row.soles_per_dollar), row.rated_on, row.source)
+
+
+def _observation(row: Row) -> LocalPriceObservation:  # type: ignore[type-arg]
+    return LocalPriceObservation(
+        _utc(row.observed_at),
+        row.cooperative,
+        CoffeeType(row.coffee_type),
+        Decimal(row.paid_soles),
+        Decimal(row.exchange_soles),
+        row.id,
+    )

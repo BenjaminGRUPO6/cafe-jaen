@@ -11,7 +11,14 @@ from market.domain.errors import InvalidLocalPriceError
 from market.domain.local_price import CoffeeType, LocalPriceEstimator, LocalPriceObservation
 from market.domain.market_hours import MarketHours
 from market.domain.quintal_price import PriceConverter
-from tests.fakes import LIMA, FixedClock, InMemoryPriceRepository, live, rate
+from tests.fakes import (
+    LIMA,
+    FixedClock,
+    InMemoryCooperativeRepository,
+    InMemoryPriceRepository,
+    live,
+    rate,
+)
 
 NOW = datetime(2026, 11, 4, 9, 0, tzinfo=LIMA)
 CLOCK = FixedClock(NOW)
@@ -63,6 +70,9 @@ def test_rejects_prices_that_look_mistyped(cooperative: str, paid: str) -> None:
         )
 
 
+CATALOG = InMemoryCooperativeRepository("Coop. A", "Coop. B")
+
+
 @pytest.fixture
 def repository() -> InMemoryPriceRepository:
     repo = InMemoryPriceRepository()
@@ -75,7 +85,7 @@ def test_record_saves_price_with_exchange_of_that_moment(
     repository: InMemoryPriceRepository,
 ) -> None:
     live_price = GetLivePrice(repository, PriceConverter(), MarketHours(), CLOCK)
-    record = RecordLocalPrice(repository, live_price, CLOCK)
+    record = RecordLocalPrice(repository, live_price, CATALOG, CLOCK)
 
     saved = record.execute(RecordLocalPriceCommand(" Coop. A ", "organico", "1000"))
 
@@ -91,7 +101,7 @@ def test_record_rejects_unknown_type_or_amount(
     live_price = GetLivePrice(repository, PriceConverter(), MarketHours(), CLOCK)
 
     with pytest.raises(InvalidLocalPriceError):
-        RecordLocalPrice(repository, live_price, CLOCK).execute(
+        RecordLocalPrice(repository, live_price, CATALOG, CLOCK).execute(
             RecordLocalPriceCommand("Coop. A", coffee, paid)
         )
 

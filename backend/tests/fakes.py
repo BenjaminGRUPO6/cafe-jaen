@@ -1,7 +1,7 @@
 """Dobles de prueba (fakes) de los puertos: permiten probar el núcleo sin BD ni internet."""
 
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from decimal import Decimal
 from typing import Any
@@ -12,6 +12,7 @@ from identity.domain.invitation_code import InvitationCode
 from identity.domain.participant import CodeSummary, Participant
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.user import User
+from market.domain.cooperative import Cooperative
 from market.domain.errors import SourceUnavailableError
 from market.domain.local_price import LocalPriceObservation
 from market.domain.quotation import ExchangeRate, LiveQuote, Quotation
@@ -96,6 +97,13 @@ class InMemoryInvitationCodeRepository:
     def summary(self) -> CodeSummary:
         return CodeSummary(len(self.codes), sum(c.is_used for c in self.codes.values()))
 
+    def all(self) -> list[InvitationCode]:
+        return sorted(self.codes.values(), key=lambda c: (c.is_used, c.code))
+
+    def add_many(self, codes: list[str]) -> None:
+        for code in codes:
+            self.codes[code] = InvitationCode(code)
+
 
 class FakePasswordHasher:
     """Hash reversible solo para pruebas (el real es bcrypt)."""
@@ -113,6 +121,41 @@ class FakeTokenIssuer:
 
 
 # ---------------------------------------------------------------- market
+class InMemoryCooperativeRepository:
+    def __init__(self, *names: str) -> None:
+        self.items: dict[int, Cooperative] = {}
+        self.renamed: list[tuple[str, str]] = []
+        self.with_prices: set[str] = set()
+        for name in names:
+            self.add(Cooperative.create(name, "Jaén", None))
+
+    def all(self) -> list[Cooperative]:
+        return sorted(self.items.values(), key=lambda c: (not c.active, c.name))
+
+    def get(self, cooperative_id: int) -> Cooperative | None:
+        return self.items.get(cooperative_id)
+
+    def get_by_name(self, name: str) -> Cooperative | None:
+        wanted = name.strip().lower()
+        return next((c for c in self.items.values() if c.name.lower() == wanted), None)
+
+    def add(self, cooperative: Cooperative) -> Cooperative:
+        saved = replace(cooperative, id=len(self.items) + 1)
+        self.items[saved.id] = saved  # type: ignore[index]
+        return saved
+
+    def update(self, cooperative: Cooperative, previous_name: str) -> None:
+        self.items[cooperative.id] = cooperative  # type: ignore[index]
+        if cooperative.name != previous_name:
+            self.renamed.append((previous_name, cooperative.name))
+
+    def delete(self, cooperative_id: int) -> None:
+        del self.items[cooperative_id]
+
+    def has_prices(self, name: str) -> bool:
+        return name in self.with_prices
+
+
 class InMemoryPriceRepository:
     def __init__(self) -> None:
         self.live: list[LiveQuote] = []
@@ -120,8 +163,21 @@ class InMemoryPriceRepository:
         self.rates: dict[date, ExchangeRate] = {}
         self.local: list[LocalPriceObservation] = []
 
-    def add_local_observation(self, observation: LocalPriceObservation) -> None:
-        self.local.append(observation)
+    def add_local_observation(self, observation: LocalPriceObservation) -> LocalPriceObservation:
+        saved = replace(observation, id=len(self.local) + 1)
+        self.local.append(saved)
+        return saved
+
+    def get_local_observation(self, observation_id: int) -> LocalPriceObservation | None:
+        return next((o for o in self.local if o.id == observation_id), None)
+
+    def update_local_paid(self, observation_id: int, paid_soles: Decimal) -> None:
+        self.local = [
+            replace(o, paid_soles=paid_soles) if o.id == observation_id else o for o in self.local
+        ]
+
+    def delete_local_observation(self, observation_id: int) -> None:
+        self.local = [o for o in self.local if o.id != observation_id]
 
     def local_observations_since(self, moment: datetime) -> list[LocalPriceObservation]:
         recent = [o for o in self.local if o.observed_at >= moment]

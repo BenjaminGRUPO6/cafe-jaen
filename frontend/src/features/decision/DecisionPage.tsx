@@ -5,6 +5,7 @@ import { StatusMessage } from "../../shared/components/StatusMessage";
 import { formatDate, formatPercent, formatSoles } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
 import { NoSignalIcon, RefreshIcon, SellIcon, WaitIcon } from "../../shared/motion/icons";
+import { InfoNote } from "../../shared/components/InfoNote";
 import { texts } from "../../shared/texts/es";
 
 // Cada veredicto tiene su color y su ícono (verde-lima: vender, azul: esperar)
@@ -53,6 +54,13 @@ export function DecisionPage() {
             <p className="muted">{texts.decision.hitRate(formatPercent(data.hit_rate_pct))}</p>
           )}
           <p className="banner">{data.disclaimer}</p>
+          <InfoNote>
+            <ol>
+              {texts.info.decision.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ol>
+          </InfoNote>
           <motion.button
             className="button button--block"
             onClick={reload}

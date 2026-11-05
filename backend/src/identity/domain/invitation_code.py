@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from datetime import datetime
 
@@ -23,3 +24,14 @@ class InvitationCode:
         if self.is_used:
             raise InvalidInvitationCodeError()
         return replace(self, used_by=user_id, used_at=at)
+
+
+# Sin letras ni números que se confunden al leerlos o dictarlos (0/O, 1/I/L)
+CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"
+CODE_PREFIX = "JAEN-"
+CODE_LENGTH = 6
+
+
+def new_invitation_code(choice: Callable[[str], str]) -> str:
+    """Código como «JAEN-7KQ2MX». `choice` elige un carácter (secrets.choice en producción)."""
+    return CODE_PREFIX + "".join(choice(CODE_ALPHABET) for _ in range(CODE_LENGTH))

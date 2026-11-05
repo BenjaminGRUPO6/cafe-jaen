@@ -4,6 +4,24 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.4] — Transparencia, cooperativas de Jaén y gestión desde «Equipo»
+
+### Agregado
+- **Fuentes** en «Precio» para caficultores y equipo: enlaces a ICE (contrato café C), Yahoo
+  Finance (KC=F), Stooq (KC.F) y el tipo de cambio del BCRP.
+- Botón **«¿Cómo se calcula?»** con la fórmula y los números del momento en el precio por quintal,
+  el estimado en Jaén, el pronóstico a 7 días y «¿Vendo ahora o espero?».
+- Catálogo de **cooperativas de Jaén** (migración 0005): CENFROCAFE, Sol & Café, Jesús Solidario,
+  Perú Andino y Café del Norte (fuentes públicas: JNC/Agraria.pe, Coop Coffees, Oikocredit y el
+  registro de certificación orgánica de OCIA). Los nombres que ya tenían precios se agregan solos.
+  Los precios de demostración siguen asignados solo a «Cooperativa Demo 1–3».
+- En «Precio», el estimado en Jaén se ve **general** o **por cooperativa**.
+- Asesor: catálogo de preguntas frecuentes con más de 20 temas (pergamino, quintal, horario de la
+  bolsa, tipo de cambio, cooperativas, cómo se calcula, privacidad, instalar la app…).
+- «Equipo» con cinco pestañas: Precios (corregir y borrar), Cooperativas (agregar, editar,
+  archivar), Códigos (generar y borrar los libres), Participantes y Bolsa (historial de 24 h por
+  tipo de café).
+
 ## [v1.3] — El equipo trabaja en la app publicada
 
 ### Agregado

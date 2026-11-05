@@ -2,6 +2,9 @@ import { MotionConfig } from "framer-motion";
 import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AdminPage } from "./features/admin/AdminPage";
+import { CodesPage } from "./features/admin/CodesPage";
+import { CooperativesPage } from "./features/admin/CooperativesPage";
+import { PriceLogPage } from "./features/admin/PriceLogPage";
 import { AdvisorPage } from "./features/advisor/AdvisorPage";
 import { LoginPage } from "./features/auth/LoginPage";
 import { RegisterPage } from "./features/auth/RegisterPage";
@@ -19,6 +22,15 @@ import { StatusMessage } from "./shared/components/StatusMessage";
 const ChartPage = lazy(() =>
   import("./features/live/ChartPage").then((module) => ({ default: module.ChartPage })),
 );
+
+// Área del equipo: todas exigen el rol de administrador (la API también lo valida)
+const ADMIN_ROUTES = [
+  { path: "/equipo", element: <AdminPage /> },
+  { path: "/equipo/cooperativas", element: <CooperativesPage /> },
+  { path: "/equipo/codigos", element: <CodesPage /> },
+  { path: "/equipo/participantes", element: <ParticipantsPage /> },
+  { path: "/equipo/bolsa", element: <PriceLogPage /> },
+];
 
 // Las rutas están en español porque el caficultor las ve en la barra del navegador
 export function App() {
@@ -49,22 +61,9 @@ export function App() {
               <Route path="/vender" element={<DecisionPage />} />
               <Route path="/pronostico" element={<ForecastPage />} />
               <Route path="/asesor" element={<AdvisorPage />} />
-              <Route
-                path="/equipo"
-                element={
-                  <RequireAdmin>
-                    <AdminPage />
-                  </RequireAdmin>
-                }
-              />
-              <Route
-                path="/equipo/participantes"
-                element={
-                  <RequireAdmin>
-                    <ParticipantsPage />
-                  </RequireAdmin>
-                }
-              />
+              {ADMIN_ROUTES.map(({ path, element }) => (
+                <Route key={path} path={path} element={<RequireAdmin>{element}</RequireAdmin>} />
+              ))}
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

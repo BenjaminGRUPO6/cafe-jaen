@@ -13,6 +13,7 @@ export interface LivePrice {
   stale: boolean;
   sources: string[];
   local_estimates: LocalEstimate[];
+  exchange_rate?: number | null; // S/ por US$ usado en la conversión (nota «¿Cómo se calcula?»)
 }
 
 export type CoffeeType = "convencional" | "organico" | "especial";
@@ -29,6 +30,7 @@ export interface LocalEstimate {
 }
 
 export interface LocalPriceObservation {
+  id: number;
   observed_at: string;
   cooperative: string;
   coffee_type: CoffeeType;
@@ -87,4 +89,13 @@ export interface AdvisorAnswer {
 
 export interface Session {
   access_token: string;
+}
+
+/** Cooperativa del catálogo que mantiene el equipo. */
+export interface Cooperative {
+  id: number;
+  name: string;
+  location: string;
+  website: string | null;
+  active: boolean;
 }

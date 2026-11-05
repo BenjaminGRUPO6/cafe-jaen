@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Protocol
 
 from market.domain.local_price import LocalPriceObservation
@@ -40,8 +41,16 @@ class PriceRepository(Protocol):
     def exchange_rates_since(self, day: date) -> list[ExchangeRate]: ...
 
     # ---- precios de cooperativas (HU12)
-    def add_local_observation(self, observation: LocalPriceObservation) -> None: ...
+    def add_local_observation(self, observation: LocalPriceObservation) -> LocalPriceObservation:
+        """Guarda el precio y lo devuelve con el id asignado."""
+        ...
 
     def local_observations_since(self, moment: datetime) -> list[LocalPriceObservation]:
         """Precios anotados desde ese momento, del más reciente al más antiguo."""
         ...
+
+    def get_local_observation(self, observation_id: int) -> LocalPriceObservation | None: ...
+
+    def update_local_paid(self, observation_id: int, paid_soles: Decimal) -> None: ...
+
+    def delete_local_observation(self, observation_id: int) -> None: ...

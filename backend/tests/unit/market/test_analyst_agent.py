@@ -13,10 +13,22 @@ from market.domain.market_hours import MarketHours
 from market.domain.price_validator import PriceValidator
 from market.domain.quintal_price import PriceConverter
 from shared.domain.agent_message import AgentMessage
-from tests.fakes import LIMA, FakeProvider, FixedClock, InMemoryPriceRepository, live, rate, source
+from tests.fakes import (
+    LIMA,
+    FakeProvider,
+    FixedClock,
+    InMemoryCooperativeRepository,
+    InMemoryPriceRepository,
+    live,
+    rate,
+    source,
+)
 
 CLOCK = FixedClock()
 AT = datetime(2026, 11, 4, 8, 55, tzinfo=LIMA)
+
+
+CATALOG = InMemoryCooperativeRepository("Coop. A", "Coop. B")
 
 
 @pytest.fixture
@@ -32,7 +44,7 @@ def build_analyst(repo: InMemoryPriceRepository) -> AnalystAgent:
     return AnalystAgent(
         live_price,
         GetPriceHistory(repo, PriceConverter(), CLOCK),
-        RecordLocalPrice(repo, live_price, CLOCK),
+        RecordLocalPrice(repo, live_price, CATALOG, CLOCK),
         CLOCK,
     )
 

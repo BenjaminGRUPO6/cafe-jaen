@@ -22,6 +22,10 @@ from identity.infrastructure.persistence.sqlalchemy_repositories import (
 )
 from identity.infrastructure.security.bcrypt_password_hasher import BcryptPasswordHasher
 from main import Overrides, create_app
+from market.domain.cooperative import Cooperative
+from market.infrastructure.persistence.sqlalchemy_cooperative_repository import (
+    SqlAlchemyCooperativeRepository,
+)
 from market.infrastructure.persistence.sqlalchemy_price_repository import SqlAlchemyPriceRepository
 from shared.infrastructure.database import create_db_engine, create_session_factory, metadata
 from shared.infrastructure.settings import Settings
@@ -54,6 +58,9 @@ def seeded_sessions(sessions: sessionmaker[Session], clock: FixedClock) -> sessi
         cents = Decimal(f"{290 + 10 * math.sin(index / 8):.2f}")
         prices.save_daily_close(quotation(str(cents), day))
     SqlAlchemyInvitationCodeRepository(sessions).add_many([INVITATION_CODE])
+    catalog = SqlAlchemyCooperativeRepository(sessions)
+    for name in ("Coop. A", "CENFROCAFE"):
+        catalog.add(Cooperative.create(name, "Jaén", None))
     return sessions
 
 

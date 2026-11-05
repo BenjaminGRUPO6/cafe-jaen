@@ -21,6 +21,7 @@ def template_answer(action: str, data: dict[str, Any]) -> str:
         Action.GET_PRICE_HISTORY: _history,
         Action.GET_FORECAST: _forecast,
         Action.GET_SELLING_ADVICE: _selling_advice,
+        Action.GET_LOCAL_PRICES: _local_prices,
     }
     builder = builders.get(action)  # type: ignore[call-overload]
     return builder(data) if builder else NO_INFORMATION
@@ -86,3 +87,28 @@ def _forecast(data: dict[str, Any]) -> str:
 
 def _selling_advice(data: dict[str, Any]) -> str:
     return f"{data['verdict']}. {data['reason']} {data['disclaimer']}"
+
+
+def _local_prices(data: dict[str, Any]) -> str:
+    """Último precio que pagó cada cooperativa por tipo de café (lo anota el equipo)."""
+    latest: dict[tuple[str, str], dict[str, Any]] = {}
+    for item in data.get("observations", []):
+        key = (item["cooperative"], item["coffee_type"])
+        if key not in latest or item["observed_at"] > latest[key]["observed_at"]:
+            latest[key] = item
+    if not latest:
+        return (
+            "Todavía no hay precios de cooperativas anotados en los últimos 30 días. "
+            "El equipo los registra preguntando directamente a cada cooperativa."
+        )
+    parts = [
+        f"{item['cooperative']} ({_COFFEE_NAMES.get(item['coffee_type'], item['coffee_type'])}): "
+        f"S/ {soles(item['paid_soles'])} el {spanish_date(item['observed_at'][:10])}, "
+        f"el {percent(item['ratio_pct'])} % de la bolsa"
+        for item in sorted(latest.values(), key=lambda i: i["observed_at"], reverse=True)[:6]
+    ]
+    return (
+        "Últimos precios por quintal de pergamino anotados por el equipo: "
+        + "; ".join(parts)
+        + ". Pueden cambiar según la calidad de cada lote."
+    )
