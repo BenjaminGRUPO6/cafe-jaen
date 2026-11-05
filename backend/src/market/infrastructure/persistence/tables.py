@@ -1,4 +1,15 @@
-from sqlalchemy import Boolean, Column, Date, DateTime, Integer, Numeric, String, Table, true
+from sqlalchemy import (
+    Boolean,
+    Column,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    Numeric,
+    String,
+    Table,
+    true,
+)
 
 from shared.infrastructure.database import metadata
 
@@ -10,6 +21,36 @@ live_quotes = Table(
     Column("quoted_at", DateTime(timezone=True), nullable=False, index=True),
     Column("cents_per_pound", Numeric(10, 4), nullable=False),
     Column("sources", String(120), nullable=False),
+)
+
+# Cada consulta del Recolector y lo que marcó cada web (pestaña «Bolsa» del equipo)
+price_collections = Table(
+    "price_collections",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("collected_at", DateTime(timezone=True), nullable=False, index=True),
+    Column("median_cents", Numeric(10, 4), nullable=True),
+    Column("published_cents", Numeric(10, 4), nullable=True),
+    Column("published_quoted_at", DateTime(timezone=True), nullable=True),
+)
+
+source_readings = Table(
+    "source_readings",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column(
+        "collection_id",
+        Integer,
+        ForeignKey("price_collections.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    ),
+    Column("source", String(40), nullable=False),
+    Column("status", String(20), nullable=False),
+    Column("cents_per_pound", Numeric(10, 4), nullable=True),
+    Column("quoted_at", DateTime(timezone=True), nullable=True),
+    Column("deviation_pct", Numeric(8, 2), nullable=True),
+    Column("detail", String(200), nullable=True),
 )
 
 # Cierres diarios: el último precio de cada día (histórico de 30/90 días y pronóstico)

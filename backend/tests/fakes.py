@@ -16,6 +16,7 @@ from market.domain.cooperative import Cooperative
 from market.domain.errors import SourceUnavailableError
 from market.domain.local_price import LocalPriceObservation
 from market.domain.quotation import ExchangeRate, LiveQuote, Quotation
+from market.domain.source_reading import PriceCollection
 from orchestration.domain.trace import AgentTrace
 from shared.domain.agent_message import AgentMessage
 
@@ -162,6 +163,16 @@ class InMemoryPriceRepository:
         self.quotations: list[Quotation] = []
         self.rates: dict[date, ExchangeRate] = {}
         self.local: list[LocalPriceObservation] = []
+        self.collections: list[PriceCollection] = []
+
+    def add_collection(self, collection: PriceCollection) -> None:
+        self.collections.append(collection)
+
+    def collections_between(self, start: datetime, end: datetime) -> list[PriceCollection]:
+        return sorted(
+            (c for c in self.collections if start <= c.collected_at < end),
+            key=lambda c: c.collected_at,
+        )
 
     def add_local_observation(self, observation: LocalPriceObservation) -> LocalPriceObservation:
         saved = replace(observation, id=len(self.local) + 1)

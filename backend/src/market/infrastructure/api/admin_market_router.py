@@ -6,13 +6,15 @@ agentes: por eso llaman a los casos de uso directamente y no pasan por el superv
 """
 
 from collections.abc import Callable
+from datetime import date
+from decimal import Decimal
 from typing import Any, TypeVar
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
 from market.application.correct_local_price import CorrectLocalPrice
-from market.application.get_price_log import GetPriceLog
+from market.application.get_price_log import GetPriceLog, PriceLogEntry
 from market.application.manage_cooperatives import CooperativeData, ManageCooperatives
 from market.domain.cooperative import Cooperative
 from market.domain.errors import MarketError, NotFoundError
@@ -77,20 +79,9 @@ def build_admin_market_router(
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
     @router.get("/admin/price-log", dependencies=admin)
-    def log(limit: int = Query(60, ge=1, le=300)) -> dict[str, Any]:
-        return {
-            "entries": [
-                {
-                    "quoted_at": e.quoted_at.isoformat(),
-                    "cents_per_pound": float(e.cents_per_pound),
-                    "exchange_rate": float(e.exchange_rate) if e.exchange_rate else None,
-                    "price_soles": float(e.price_soles) if e.price_soles else None,
-                    "sources": list(e.sources),
-                    "local_soles": {t.value: float(v) for t, v in e.local_soles.items()},
-                }
-                for e in price_log.execute(limit)
-            ]
-        }
+    def log(day: date | None = None) -> dict[str, Any]:
+        """Historial de un día (hora de Lima); sin `day`, el de hoy."""
+        return {"entries": [_entry(e) for e in price_log.execute(day)]}
 
     return router
 
@@ -103,6 +94,34 @@ def _handle(action: Callable[[], T]) -> T:
         raise HTTPException(status.HTTP_404_NOT_FOUND, str(error)) from None
     except MarketError as error:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(error)) from None
+
+
+def _entry(e: PriceLogEntry) -> dict[str, Any]:
+    return {
+        "quoted_at": e.at.isoformat(),
+        "published": e.published,
+        "cents_per_pound": _num(e.cents_per_pound),
+        "median_cents": _num(e.median_cents),
+        "exchange_rate": _num(e.exchange_rate),
+        "price_soles": _num(e.price_soles),
+        "sources": list(e.sources),
+        "local_soles": {t.value: float(v) for t, v in e.local_soles.items()},
+        "readings": [
+            {
+                "source": r.source,
+                "status": r.status.value,
+                "cents_per_pound": _num(r.cents_per_pound),
+                "quoted_at": r.quoted_at.isoformat() if r.quoted_at else None,
+                "deviation_pct": _num(r.deviation_pct),
+                "detail": r.detail,
+            }
+            for r in e.readings
+        ],
+    }
+
+
+def _num(value: Decimal | None) -> float | None:
+    return float(value) if value is not None else None
 
 
 def _data(body: CooperativeRequest) -> CooperativeData:

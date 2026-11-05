@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { CoffeeType } from "../../shared/api/types";
+import { InfoNote } from "../../shared/components/InfoNote";
 import { StatusMessage } from "../../shared/components/StatusMessage";
 import { formatCents, formatDateTime, formatNumber, formatSoles } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
@@ -7,85 +8,158 @@ import { useAutoReload } from "../../shared/hooks/useAutoReload";
 import { Segmented } from "../../shared/motion/Segmented";
 import { texts } from "../../shared/texts/es";
 import { AdminTabs } from "./AdminTabs";
-
-interface PriceLogEntry {
-  quoted_at: string;
-  cents_per_pound: number;
-  exchange_rate: number | null;
-  price_soles: number | null;
-  sources: string[];
-  local_soles: Partial<Record<CoffeeType, number>>;
-}
+import { summarizeDay, todayInput, type PriceLogEntry } from "./priceLog";
+import { SourceReadings } from "./SourceReadings";
 
 const TYPES: CoffeeType[] = ["convencional", "organico", "especial"];
 const REFRESH_MS = 30_000; // el Recolector consulta cada minuto
+const PAGE = 100; // filas que se muestran antes de «Mostrar más»
 
-/** Historial de lo que consultó el Recolector (24 h), con el estimado del tipo de café elegido. */
+/**
+ * Historial minuto a minuto de la bolsa en un día: precio publicado, estimado en Jaén del tipo
+ * de café elegido y, en cada fila, lo que marcó cada web (por qué se publicó ese precio).
+ */
 export function PriceLogPage() {
+  const today = todayInput(new Date());
+  const [day, setDay] = useState(today);
+  const [coffeeType, setCoffeeType] = useState<CoffeeType>("convencional");
+  const [visible, setVisible] = useState(PAGE);
   const { data, error, reload } = useApi<{ entries: PriceLogEntry[] }>(
-    "/admin/price-log?limit=120",
+    `/admin/price-log?day=${day}`,
   );
   useAutoReload(reload, REFRESH_MS);
-  // Una columna por tipo no entra en un celular: se elige el tipo y se muestra su estimado
-  const [coffeeType, setCoffeeType] = useState<CoffeeType>("convencional");
+  const summary = data ? summarizeDay(data.entries) : null;
 
   return (
     <section>
       <AdminTabs />
       <h1>{texts.priceLog.title}</h1>
       <p className="muted">{texts.priceLog.intro}</p>
-      {!data ? (
+      <InfoNote label={texts.priceLog.howChosen}>
+        <ol>
+          {texts.priceLog.howChosenSteps.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+      </InfoNote>
+      <div className="price-log__controls">
+        <label className="price-log__day">
+          {texts.priceLog.day}
+          <input
+            type="date"
+            value={day}
+            max={today}
+            onChange={(event) => {
+              setDay(event.target.value || today);
+              setVisible(PAGE);
+            }}
+          />
+        </label>
+        <Segmented
+          label={texts.admin.coffeeType}
+          value={coffeeType}
+          onChange={setCoffeeType}
+          options={TYPES.map((type) => ({ value: type, label: texts.local.coffeeTypes[type] }))}
+        />
+      </div>
+      {!data || !summary ? (
         <StatusMessage loading={!error} error={error} onRetry={reload} />
       ) : data.entries.length === 0 ? (
         <p className="card muted">{texts.priceLog.empty}</p>
       ) : (
         <>
-          <Segmented
-            label={texts.admin.coffeeType}
-            value={coffeeType}
-            onChange={setCoffeeType}
-            options={TYPES.map((type) => ({ value: type, label: texts.local.coffeeTypes[type] }))}
-          />
-          <div className="price-log" role="region" aria-label={texts.priceLog.title} tabIndex={0}>
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">{texts.priceLog.time}</th>
-                  <th scope="col">{texts.priceLog.exchange}</th>
-                  <th scope="col" className="price-log__local">
-                    {texts.priceLog.local(texts.local.coffeeTypes[coffeeType])}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.entries.map((entry) => (
-                  <tr key={entry.quoted_at}>
-                    <th scope="row">
-                      {formatDateTime(new Date(entry.quoted_at))}
-                      <small>{entry.sources.join(", ")}</small>
-                    </th>
-                    <td>
-                      {entry.price_soles !== null ? formatSoles(entry.price_soles) : "—"}
-                      <small>
-                        {formatCents(entry.cents_per_pound)}
-                        {entry.exchange_rate !== null &&
-                          ` · ${texts.priceLog.rate(formatNumber(entry.exchange_rate, 3))}`}
-                      </small>
-                    </td>
-                    <td>
-                      {entry.local_soles[coffeeType] !== undefined ? (
-                        formatSoles(entry.local_soles[coffeeType])
-                      ) : (
-                        <small>{texts.priceLog.noEstimate}</small>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="stats">
+            <Stat label={texts.priceLog.collections} value={String(summary.collections)} />
+            <Stat label={texts.priceLog.withDiscarded} value={String(summary.withDiscarded)} />
+            <Stat label={texts.priceLog.withFailures} value={String(summary.withFailures)} />
           </div>
+          <ul className="price-log" aria-label={texts.priceLog.title}>
+            {data.entries.slice(0, visible).map((entry, index) => (
+              <LogRow
+                key={`${entry.quoted_at}-${index}`}
+                entry={entry}
+                coffeeType={coffeeType}
+                latest={index === 0 && day === today}
+              />
+            ))}
+          </ul>
+          {visible < data.entries.length && (
+            <button
+              type="button"
+              className="button button--secondary price-log__more"
+              onClick={() => setVisible((n) => n + PAGE)}
+            >
+              {texts.priceLog.more(data.entries.length - visible)}
+            </button>
+          )}
         </>
       )}
     </section>
+  );
+}
+
+function LogRow({
+  entry,
+  coffeeType,
+  latest,
+}: {
+  entry: PriceLogEntry;
+  coffeeType: CoffeeType;
+  latest: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const local = entry.local_soles[coffeeType];
+  const rowClass = [
+    "price-log__row",
+    latest ? "price-log__row--latest" : "",
+    entry.published ? "" : "price-log__row--rejected",
+  ].join(" ");
+  return (
+    <li className={rowClass}>
+      <div className="price-log__main">
+        <div>
+          <strong>{formatDateTime(new Date(entry.quoted_at))}</strong>
+          <small>{agreement(entry)}</small>
+        </div>
+        <div className="price-log__local">
+          <small>{texts.priceLog.local(texts.local.coffeeTypes[coffeeType])}</small>
+          {local !== undefined ? formatSoles(local) : <small>{texts.priceLog.noEstimate}</small>}
+        </div>
+        <p className="price-log__exchange">
+          {texts.priceLog.exchangeLine(
+            entry.price_soles !== null ? formatSoles(entry.price_soles) : "—",
+            entry.cents_per_pound !== null ? formatCents(entry.cents_per_pound) : "—",
+          )}
+          {entry.exchange_rate !== null &&
+            ` · ${texts.priceLog.rate(formatNumber(entry.exchange_rate, 3))}`}
+        </p>
+      </div>
+      <button
+        type="button"
+        className="price-log__toggle"
+        aria-expanded={open}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {open ? texts.priceLog.hideSources : texts.priceLog.showSources(entry.readings.length)}
+      </button>
+      {open && <SourceReadings readings={entry.readings} medianCents={entry.median_cents} />}
+    </li>
+  );
+}
+
+/** «2 de 3 webs coinciden», o las fuentes guardadas si la cotización no tiene detalle. */
+function agreement(entry: PriceLogEntry): string {
+  if (!entry.published) return texts.priceLog.notPublished;
+  if (entry.readings.length === 0) return entry.sources.join(", ");
+  const used = entry.readings.filter((reading) => reading.status === "usada").length;
+  return texts.priceLog.agreement(used, entry.readings.length);
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="stat">
+      <span className="stat__label">{label}</span>
+      <span className="stat__value">{value}</span>
+    </div>
   );
 }

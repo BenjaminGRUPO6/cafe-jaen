@@ -131,12 +131,13 @@ def test_price_log_shows_each_quote_in_soles_and_per_coffee_type(
     prices: InMemoryPriceRepository,
 ) -> None:
     prices.add_live_quote(live("310", NOW - timedelta(minutes=1)))
-    prices.add_live_quote(live("200", NOW - timedelta(days=2)))  # fuera de las 24 horas
+    prices.add_live_quote(live("200", NOW - timedelta(days=2)))  # otro día
     prices.add_local_observation(observation("912"))  # 912 / 1140 = 80 % de la bolsa
 
-    entries = GetPriceLog(prices, PriceConverter(), LocalPriceEstimator(), CLOCK).execute(10)
+    entries = GetPriceLog(prices, PriceConverter(), LocalPriceEstimator(), CLOCK).execute()
 
     assert [e.cents_per_pound for e in entries] == [Decimal("310"), Decimal("300")]
+    assert all(e.published and e.readings == () for e in entries)  # sin detalle de fuentes
     assert entries[1].price_soles == Decimal("1140.89")
     assert entries[1].local_soles == {CoffeeType.CONVENTIONAL: Decimal("912.71")}
     assert CoffeeType.ORGANIC not in entries[0].local_soles  # sin precios anotados: sin estimado

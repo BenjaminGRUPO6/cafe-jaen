@@ -1,15 +1,18 @@
 import logging
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
+from decimal import Decimal
+from statistics import median
 from typing import TypeVar
 
-from market.domain.consensus import Consensus
+from market.domain.consensus import Consensus, ConsensusResult
 from market.domain.errors import MarketError, SourceUnavailableError
 from market.domain.market_hours import MarketHours
 from market.domain.ports.price_repository import PriceRepository
 from market.domain.ports.sources import ExchangeRateProvider, QuotationSource
 from market.domain.price_validator import PriceValidator
 from market.domain.quotation import LiveQuote, Quotation
+from market.domain.source_reading import build_collection
 from shared.domain.ports.clock import Clock
 
 logger = logging.getLogger(__name__)
@@ -72,22 +75,33 @@ class CollectPrices:
         report.exchange_rate_saved = True
 
     def _collect_quotation(self, report: CollectionReport) -> None:
-        quotes = self._fetch_all_sources(report)
+        quotes, failures = self._fetch_all_sources(report)
+        middle = Decimal(median(q.cents_per_pound for q in quotes)) if quotes else None
+        result: ConsensusResult | None = None
+        published: LiveQuote | None = None
         try:
             result = self._consensus.consolidate(quotes)
             report.sources_discarded = list(result.discarded)
             for name in result.discarded:
                 self._register_issue(report, f"{name}: se aleja de las demás fuentes; se descarta")
             self._validator.validate(result.quote, self._repository.last_live_quote())
+            published = result.quote
         except MarketError as error:
             # No se publica nada: el caficultor sigue viendo el último valor válido
             self._register_issue(report, f"Cotización: {error}")
-            return
-        self._save(result.quote)
-        report.quotation_saved = True
+        if published:
+            self._save(published)
+            report.quotation_saved = True
+        # Cada consulta queda registrada con lo que marcó cada web (pestaña «Bolsa» del equipo)
+        self._repository.add_collection(
+            build_collection(self._clock.now(), quotes, failures, result, middle, published)
+        )
 
-    def _fetch_all_sources(self, report: CollectionReport) -> list[LiveQuote]:
+    def _fetch_all_sources(
+        self, report: CollectionReport
+    ) -> tuple[list[LiveQuote], list[tuple[str, str]]]:
         quotes: list[LiveQuote] = []
+        failures: list[tuple[str, str]] = []
         for source in self._sources:
             try:
                 quotes.append(source.fetch_latest())
@@ -95,7 +109,8 @@ class CollectPrices:
             except SourceUnavailableError as error:
                 # Una web caída no detiene la recolección: se sigue con las demás
                 self._register_issue(report, f"{source.name}: {error}")
-        return quotes
+                failures.append((source.name, str(error)))
+        return quotes, failures
 
     def _save(self, quote: LiveQuote) -> None:
         self._repository.add_live_quote(quote)

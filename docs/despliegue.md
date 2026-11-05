@@ -65,8 +65,9 @@ Con esa cuenta aparece en la app el enlace **«Equipo»** con cinco pestañas:
 - **Códigos:** generamos códigos de invitación para el GE y borramos los que no se usaron.
 - **Participantes:** quiénes del GE se registraron, con qué código, cuándo y su último ingreso.
   Se actualiza sola cada 10 segundos.
-- **Bolsa:** cada consulta del Recolector en las últimas 24 horas, con el estimado en Jaén del
-  tipo de café elegido.
+- **Bolsa:** historial minuto a minuto (se guarda siempre; se elige el día) con el precio
+  publicado, el estimado en Jaén del tipo de café elegido y, en «Ver fuentes», lo que marcó
+  cada web: usada, descartada (se alejó más de 1 % de la mediana) o sin respuesta.
 
 Los caficultores no ven «Equipo» y la API les responde 403 si intentan entrar.
 

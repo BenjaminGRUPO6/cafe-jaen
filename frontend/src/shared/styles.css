@@ -1166,46 +1166,133 @@ a {
 }
 
 /* Historial de la bolsa: tabla con desplazamiento lateral en el celular */
-.price-log {
-  overflow-x: auto;
-  border-radius: var(--radio);
+.price-log__controls {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+}
+.price-log__day {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 650;
+}
+.price-log__day input {
+  font: inherit;
+  padding: 0.45rem 0.7rem;
+  border: 2px solid var(--linea);
+  border-radius: var(--radio-chico);
   background: var(--papel);
 }
-.price-log table {
-  width: 100%;
-  border-collapse: collapse;
+.price-log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.price-log__row {
+  background: var(--papel);
+  border-radius: var(--radio-chico);
+  padding: 0.7rem 0.8rem;
+  border-left: 5px solid transparent;
+}
+.price-log__row--latest {
+  border-left-color: var(--hoja);
+  background: var(--hoja-clara);
+}
+.price-log__row--rejected {
+  border-left-color: var(--cereza);
+  background: var(--cereza-clara);
+}
+.price-log__main {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.75rem;
+  font-size: 0.9rem;
+}
+.price-log__exchange {
+  grid-column: 1 / -1;
+  margin: 0.15rem 0 0;
   font-size: 0.85rem;
 }
-.price-log th,
-.price-log td {
-  padding: 0.55rem 0.5rem;
-  text-align: left;
-  vertical-align: top;
-  border-bottom: 1px solid var(--linea);
-}
-.price-log thead th {
-  position: sticky;
-  top: 0;
-  background: var(--espresso);
-  color: var(--papel);
-}
-.price-log tbody th {
-  font-weight: 700;
-}
-/* La columna «En Jaén» es la que el equipo compara: va resaltada a la derecha */
-.price-log td:last-child {
-  font-weight: 700;
-  text-align: right;
-  white-space: nowrap;
-}
-.price-log thead .price-log__local {
-  text-align: right;
-}
-.price-log small {
+.price-log__main small {
   display: block;
   color: var(--corteza);
-  font-weight: 400;
+  font-size: 0.8rem;
 }
-.price-log tbody tr:first-child {
-  background: var(--hoja-clara);
+.price-log__local {
+  text-align: right;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.price-log__toggle {
+  margin-top: 0.4rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--cielo);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.price-log__more {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+.readings {
+  margin-top: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--linea);
+}
+.readings__median,
+.readings__empty {
+  margin: 0 0 0.4rem;
+  font-size: 0.85rem;
+  color: var(--corteza);
+}
+.readings__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+.reading {
+  padding: 0.45rem 0.6rem;
+  border-radius: 10px;
+  background: var(--niebla);
+  border-left: 4px solid var(--linea);
+}
+.reading--used {
+  border-left-color: var(--hoja);
+}
+.reading--discarded {
+  border-left-color: var(--cereza);
+}
+.reading--failed {
+  border-left-color: var(--corteza);
+  opacity: 0.85;
+}
+.reading__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.reading__status {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+.reading--used .reading__status {
+  color: var(--hoja);
+}
+.reading--discarded .reading__status {
+  color: var(--cereza);
+}
+.reading__detail {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: var(--corteza);
 }

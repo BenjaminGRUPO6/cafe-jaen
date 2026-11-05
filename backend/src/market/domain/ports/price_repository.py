@@ -4,6 +4,7 @@ from typing import Protocol
 
 from market.domain.local_price import LocalPriceObservation
 from market.domain.quotation import ExchangeRate, LiveQuote, Quotation
+from market.domain.source_reading import PriceCollection
 
 
 class PriceRepository(Protocol):
@@ -14,6 +15,13 @@ class PriceRepository(Protocol):
 
     def live_quotes_between(self, start: datetime, end: datetime) -> list[LiveQuote]:
         """Cotizaciones en vivo en ese intervalo, de la más antigua a la más reciente."""
+        ...
+
+    # ---- registro de cada consulta con lo que marcó cada web (equipo)
+    def add_collection(self, collection: PriceCollection) -> None: ...
+
+    def collections_between(self, start: datetime, end: datetime) -> list[PriceCollection]:
+        """Consultas en ese intervalo, de la más antigua a la más reciente."""
         ...
 
     # ---- cierres diarios (histórico y pronóstico)

@@ -7,11 +7,14 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from market.domain.local_price import CoffeeType, LocalPriceObservation
 from market.domain.quotation import ExchangeRate, LiveQuote, Quotation
+from market.domain.source_reading import PriceCollection, ReadingStatus, SourceReading
 from market.infrastructure.persistence.tables import (
     exchange_rates,
     live_quotes,
     local_price_observations,
+    price_collections,
     quotations,
+    source_readings,
 )
 
 SOURCE_SEPARATOR = ", "
@@ -49,6 +52,68 @@ class SqlAlchemyPriceRepository:
         )
         with self._sessions() as session:
             return [_to_live_quote(row) for row in session.execute(query)]
+
+    # ---------------------------------------------------------------- registro de consultas
+    def add_collection(self, collection: PriceCollection) -> None:
+        with self._sessions() as session, session.begin():
+            collection_id = session.execute(
+                insert(price_collections)
+                .values(
+                    collected_at=collection.collected_at.astimezone(UTC),
+                    median_cents=collection.median_cents,
+                    published_cents=collection.published_cents,
+                    published_quoted_at=_to_utc(collection.published_quoted_at),
+                )
+                .returning(price_collections.c.id)
+            ).scalar_one()
+            if collection.readings:
+                session.execute(
+                    insert(source_readings),
+                    [
+                        {
+                            "collection_id": collection_id,
+                            "source": r.source[:40],
+                            "status": r.status.value,
+                            "cents_per_pound": r.cents_per_pound,
+                            "quoted_at": _to_utc(r.quoted_at),
+                            "deviation_pct": r.deviation_pct,
+                            "detail": r.detail,
+                        }
+                        for r in collection.readings
+                    ],
+                )
+
+    def collections_between(self, start: datetime, end: datetime) -> list[PriceCollection]:
+        query = (
+            select(price_collections)
+            .where(price_collections.c.collected_at >= start.astimezone(UTC))
+            .where(price_collections.c.collected_at < end.astimezone(UTC))
+            .order_by(price_collections.c.collected_at, price_collections.c.id)
+        )
+        with self._sessions() as session:
+            rows = session.execute(query).all()
+            ids = [row.id for row in rows]
+            readings: dict[int, list[SourceReading]] = {i: [] for i in ids}
+            if ids:
+                reading_rows = session.execute(
+                    select(source_readings)
+                    .where(source_readings.c.collection_id.in_(ids))
+                    .order_by(source_readings.c.id)
+                )
+                for r in reading_rows:
+                    readings[r.collection_id].append(_to_reading(r))
+        return [
+            PriceCollection(
+                collected_at=_utc(row.collected_at),
+                readings=tuple(readings[row.id]),
+                median_cents=row.median_cents,
+                published_cents=row.published_cents,
+                published_quoted_at=(
+                    _utc(row.published_quoted_at) if row.published_quoted_at else None
+                ),
+            )
+            for row in rows
+        ]
 
     # ---------------------------------------------------------------- cierres diarios
     def save_daily_close(self, quotation: Quotation) -> None:
@@ -152,6 +217,21 @@ class SqlAlchemyPriceRepository:
         )
         with self._sessions() as session:
             return [_to_rate(row) for row in session.execute(query)]
+
+
+def _to_utc(moment: datetime | None) -> datetime | None:
+    return moment.astimezone(UTC) if moment else None
+
+
+def _to_reading(row: Row) -> SourceReading:  # type: ignore[type-arg]
+    return SourceReading(
+        source=row.source,
+        status=ReadingStatus(row.status),
+        cents_per_pound=row.cents_per_pound,
+        quoted_at=_utc(row.quoted_at) if row.quoted_at else None,
+        deviation_pct=row.deviation_pct,
+        detail=row.detail,
+    )
 
 
 def _utc(moment: datetime) -> datetime:

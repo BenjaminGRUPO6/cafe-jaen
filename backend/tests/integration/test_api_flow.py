@@ -300,6 +300,13 @@ def test_team_sees_the_price_log(client: TestClient, admin_headers: dict[str, st
 
     assert entries and entries[0]["cents_per_pound"] == 300.0
     assert entries[0]["sources"] == ["Yahoo Finance", "Stooq"]
+    # Cada consulta guarda lo que marcó cada web, para entender por qué se publicó ese precio
+    readings = entries[0]["readings"]
+    assert [(r["source"], r["status"]) for r in readings] == [
+        ("Yahoo Finance", "usada"),
+        ("Stooq", "usada"),
+    ]
+    assert entries[0]["median_cents"] == 300.0
 
 
 def test_team_deletes_only_unused_invitation_codes(

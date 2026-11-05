@@ -4,6 +4,19 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.5] — Historial de la bolsa con el detalle de cada web
+
+### Agregado
+- Cada consulta del Recolector queda registrada (migración 0006: `price_collections` y
+  `source_readings`), se publique o no: lo que marcó cada web, su distancia a la mediana y si
+  fue usada, descartada o quedó sin respuesta.
+- «Equipo → Bolsa»: historial minuto a minuto por día, con «Ver fuentes» en cada fila, resumen
+  del día y la nota «¿Cómo se elige el precio?».
+- Modo demostración con tres webs sintéticas que compiten (a veces una se descarta o no responde).
+
+### Cambiado
+- Las 5 pestañas de «Equipo» siempre visibles en celular y PC (dos filas).
+
 ## [v1.4] — Transparencia, cooperativas de Jaén y gestión desde «Equipo»
 
 ### Agregado

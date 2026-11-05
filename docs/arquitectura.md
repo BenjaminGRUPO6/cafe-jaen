@@ -40,8 +40,17 @@ multiagente con patrón supervisor**. Un solo despliegue, dividido en módulos i
 5. `PriceValidator` rechaza saltos mayores a ±10 % frente al último precio válido.
 6. Se guarda la cotización en `live_quotes` (con su hora y sus fuentes) y se actualiza el
    cierre del día en `quotations` (histórico y pronóstico).
-7. `GET /api/prices/stream` (Server-Sent Events) detecta la cotización nueva y la envía al
+7. **Cada consulta queda registrada** en `price_collections` y `source_readings` (migración
+   0006), se publique o no: lo que marcó cada web, su distancia a la mediana y si fue
+   **usada**, **descartada** o quedó **sin respuesta** (con el motivo). El equipo lo revisa en
+   «Equipo → Bolsa» para entender por qué se publicó cada precio.
+8. `GET /api/prices/stream` (Server-Sent Events) detecta la cotización nueva y la envía al
    celular, que se actualiza solo. Cada 15 s manda un «latido» para que la conexión no se corte.
+
+En modo demostración (`QUOTATION_SOURCES=["demo"]`) hay **tres webs sintéticas** que comparten
+un precio de base con pequeñas diferencias; de vez en cuando una se aleja (y se descarta) o no
+responde, así se puede ver el consenso funcionando. Agregar una web real es agregar un adaptador
+de `QuotationSource` en `market/infrastructure/sources/` y su nombre en `QUOTATION_SOURCES`.
 
 > **Sobre el «tiempo real»:** los datos de ICE segundo a segundo requieren licencia. Las webs
 > gratuitas publican con algunos minutos de retraso; por eso cada precio guarda y muestra la

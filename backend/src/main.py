@@ -68,7 +68,7 @@ from market.infrastructure.persistence.sqlalchemy_cooperative_repository import 
 )
 from market.infrastructure.persistence.sqlalchemy_price_repository import SqlAlchemyPriceRepository
 from market.infrastructure.sources.bcrp_exchange_rate_provider import BcrpExchangeRateProvider
-from market.infrastructure.sources.demo_quotation_source import DemoQuotationSource
+from market.infrastructure.sources.demo_quotation_source import demo_panel
 from market.infrastructure.sources.stooq_quotation_source import StooqQuotationSource
 from market.infrastructure.sources.yahoo_quotation_source import YahooQuotationSource
 from orchestration.application.dispatch_request import DispatchRequest
@@ -251,12 +251,13 @@ def _quotation_sources(
         closes = prices.last_quotations(limit=1)
         return quote.cents_per_pound if quote else (closes[0].cents_per_pound if closes else None)
 
-    available: dict[str, QuotationSource] = {
-        "yahoo": YahooQuotationSource(),
-        "stooq": StooqQuotationSource(timezone=settings.stooq_timezone),
-        "demo": DemoQuotationSource(last_known),  # solo desarrollo sin internet
+    available: dict[str, list[QuotationSource]] = {
+        "yahoo": [YahooQuotationSource()],
+        "stooq": [StooqQuotationSource(timezone=settings.stooq_timezone)],
+        # Solo demostración: tres webs sintéticas que compiten (se ve el consenso en «Bolsa»)
+        "demo": list(demo_panel(last_known)),
     }
-    return [available[name] for name in settings.quotation_sources]
+    return [source for name in settings.quotation_sources for source in available[name]]
 
 
 def _time(text: str) -> time:
