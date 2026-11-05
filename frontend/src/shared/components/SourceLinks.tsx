@@ -1,4 +1,4 @@
-import { REFERENCE_SOURCES, isDemoSource, quoteSourceLinks } from "../sources";
+import { REFERENCE_SOURCES, quoteSourceLinks } from "../sources";
 import { ExternalIcon } from "../motion/icons";
 import { texts } from "../texts/es";
 
@@ -10,7 +10,7 @@ export function SourceLinks({ sources }: { sources: string[] }) {
       <h2 id="sources-title" className="sources__title">
         {texts.sources.title}
       </h2>
-      {isDemoSource(sources) && <p className="muted">{texts.sources.demo}</p>}
+      <p className="muted">{texts.sources.intro}</p>
       <ul className="sources__list">
         {links.map((link) => (
           <li key={link.name}>

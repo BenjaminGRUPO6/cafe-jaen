@@ -2,19 +2,16 @@
 PY := backend/.venv/bin/python
 RUN := cd backend && PYTHONPATH=src .venv/bin/python
 
-.PHONY: setup demo start start-real test check admin reset cycle live backtest codes spike load
+.PHONY: setup datos start test check admin reset cycle live backtest codes spike load
 
 setup:  ## Instala todo (igual que: python dev.py setup)
 	python3 dev.py setup
 
-demo:  ## Datos de demostración (igual que: python dev.py demo)
-	python3 dev.py demo
+datos:  ## Histórico real y primer pronóstico (igual que: python dev.py datos)
+	python3 dev.py datos
 
-start:  ## API y app juntas en modo demostración (igual que: python dev.py start)
+start:  ## API y app juntas con precios reales (igual que: python dev.py start)
 	python3 dev.py start
-
-start-real:  ## API y app con precios reales de Yahoo y Stooq
-	python3 dev.py start --real
 
 test:  ## Pruebas del backend y del frontend
 	python3 dev.py test

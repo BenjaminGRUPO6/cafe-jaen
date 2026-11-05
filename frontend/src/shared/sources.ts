@@ -33,15 +33,11 @@ export const REFERENCE_SOURCES: SourceLink[] = [
   },
 ];
 
-/**
- * Enlaces de las webs que respaldaron un precio. En modo demostración el precio es sintético,
- * así que se muestran todas las webs que la app consulta con datos reales.
- */
+/** Las webs de la bolsa que consulta la app; primero las que respaldaron el precio mostrado. */
 export function quoteSourceLinks(sources: string[]): SourceLink[] {
-  if (isDemoSource(sources)) return Object.values(QUOTE_SOURCES);
-  return sources.flatMap((source) => (QUOTE_SOURCES[source] ? [QUOTE_SOURCES[source]] : []));
-}
-
-export function isDemoSource(sources: string[]): boolean {
-  return sources.some((source) => source.startsWith("DEMO"));
+  const all = Object.values(QUOTE_SOURCES);
+  return [
+    ...all.filter((link) => sources.includes(link.name)),
+    ...all.filter((link) => !sources.includes(link.name)),
+  ];
 }

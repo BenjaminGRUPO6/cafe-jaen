@@ -85,7 +85,8 @@ export const texts = {
   },
   sources: {
     title: "Fuentes",
-    demo: "Esta versión de demostración usa un precio sintético que se mueve todo el día. Con datos reales, la app consulta estas fuentes:",
+    intro:
+      "Datos reales y públicos: el precio de la bolsa sale de estas webs y el tipo de cambio, del BCRP.",
   },
   local: {
     title: "Precio estimado en Jaén",

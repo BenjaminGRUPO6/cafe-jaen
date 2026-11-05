@@ -14,19 +14,6 @@
 
 Reproducir: `PYTHONPATH=src python scripts/evaluate_forecast_models.py --days 1825`
 
-## Resultados con datos SINTÉTICOS (solo para verificar el procedimiento)
-
-Datos generados por `seed_demo_data.py` (caminata aleatoria, 523 días hábiles).
-**No usar en la tesis.**
-
-| Modelo | MAPE 7 días | MAPE 15 días | MAPE 30 días |
-|---|---|---|---|
-| ELM | 1,39 % | 1,35 % | 1,69 % |
-| Ingenuo con deriva | 1,19 % | 1,45 % | 1,60 % |
-
-En una caminata aleatoria no hay patrón que aprender, así que es esperable que la ELM no supere
-claramente al modelo ingenuo. Con datos reales el resultado puede ser distinto.
-
 ## Resultados con datos REALES (completar)
 
 > Ejecutar después de `load_price_history.py --years 5` y pegar la tabla aquí.

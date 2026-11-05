@@ -33,13 +33,13 @@
   cada web. Si una web cambia, solo se reemplaza su adaptador.
 - Datos segundo a segundo de ICE requieren licencia: queda como mejora futura.
 
-## Sin internet (desarrollo y demostraciones)
+## Solo datos reales
 
-`python dev.py demo` carga datos SINTÉTICOS (incluidos precios de cooperativas de ejemplo) y
-`python dev.py start` levanta la API con la fuente `demo` y la bolsa «abierta» todo el día, junto
-con la app, para ver el precio moverse en vivo. **Nunca** usar en el experimento: allí se usa
-`DATABASE_URL` de PostgreSQL y las fuentes reales (`python dev.py start --real` o el despliegue
-con Docker).
+Desde la v1.6 la app no tiene datos sintéticos ([decisión 0010](decisiones/0010-solo-datos-reales.md)):
+en local y en Render consulta Yahoo Finance y Stooq (bolsa de Nueva York) y el BCRP. En local,
+`python dev.py datos` carga el histórico real de 5 años y genera el primer pronóstico (necesita
+internet). La migración 0007 borró de las bases existentes todo lo que había generado la antigua
+demostración (fuentes «DEMO …», «Cooperativa Demo N», sus pronósticos y los códigos DEMO sin usar).
 
 ## Durante el experimento
 

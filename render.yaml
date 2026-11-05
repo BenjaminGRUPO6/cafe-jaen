@@ -14,16 +14,10 @@ services:
     envVars:
       - key: JWT_SECRET
         generateValue: true
-      # Modo demostración: precio sintético que se mueve todo el día y códigos DEMO-0001…0010.
-      # Para precios reales: QUOTATION_SOURCES=["yahoo","stooq"], horario 04:15–13:30 y DEMO_DATA=false
-      - key: DEMO_DATA
-        value: "true"
+      # Solo datos reales: la bolsa de Nueva York en Yahoo Finance y Stooq (04:15–13:30, hora de
+      # Nueva York, de lunes a viernes) y el tipo de cambio del BCRP.
       - key: QUOTATION_SOURCES
-        value: '["demo"]'
-      - key: MARKET_OPENS
-        value: "00:00"
-      - key: MARKET_CLOSES
-        value: "23:59"
+        value: '["yahoo","stooq"]'
       # Base de datos: se carga a mano en Environment (no se versiona porque lleva contraseña).
       # Con la URL de una base PostgreSQL gratuita (Neon) los datos son permanentes; sin ella,
       # la app usa SQLite dentro del contenedor y los datos se reinician en cada despliegue.

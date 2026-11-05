@@ -5,7 +5,7 @@
   "features": {
     "ghcr.io/devcontainers/features/node:1": { "version": "22" }
   },
-  "postCreateCommand": "python dev.py setup && python dev.py demo",
+  "postCreateCommand": "python dev.py setup && python dev.py datos",
   "postAttachCommand": "echo 'Para iniciar la app: python dev.py start'",
   "forwardPorts": [5173, 8000],
   "portsAttributes": {

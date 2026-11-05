@@ -17,18 +17,6 @@ Para cada día hábil del periodo evaluado:
 make backtest      # 250 días hábiles, umbrales 1 %, 2 % y 3 %
 ```
 
-## Resultado con datos SINTÉTICOS (solo para comprobar que el script funciona)
-
-Base de datos de demostración (`make demo`, caminata aleatoria), 120 días hábiles:
-
-| Umbral | Vender ahora | Esperar | Sin señal clara | Acierto de la regla | «Vender siempre» |
-|---|---|---|---|---|---|
-| 1 % | 9 | 1 | 110 | 60,0 % | 49,2 % |
-| 3 % | 0 | 0 | 120 | — | 49,2 % |
-
-Con una caminata aleatoria no hay nada que pronosticar: la regla casi siempre se abstiene
-(«sin señal clara»), que es el comportamiento esperado. **Estos números no sirven para la tesis.**
-
 ## Resultado con datos reales (completar)
 
 Cargar 5 años reales (`load_price_history.py --years 5`) y ejecutar `make backtest`.

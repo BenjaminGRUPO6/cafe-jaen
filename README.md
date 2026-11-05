@@ -11,7 +11,7 @@ la recomendación **«¿Vendo ahora o espero?»** y un **asesor** que responde e
 Detrás, seis agentes coordinados por un supervisor mantienen los datos al día sin intervención
 humana.
 
-> **Versión:** v1.5 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
+> **Versión:** v1.6 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
 > **Arquitectura:** monolito modular hexagonal + sistema multiagente con supervisor
 
 | Integrante | GitHub | Rol en XP | Lidera |
@@ -28,17 +28,17 @@ humana.
   <img src="docs/img/capturas/07-asesor.png" width="200" alt="Asesor">
 </p>
 
-## Demo en línea
+## App en línea
 
 | | |
 |---|---|
-| **App publicada (Render)** | [https://cafe-jaen-oa58.onrender.com](https://cafe-jaen-oa58.onrender.com) · códigos de invitación `DEMO-0001` a `DEMO-0010` |
+| **App publicada (Render)** | [https://cafe-jaen-oa58.onrender.com](https://cafe-jaen-oa58.onrender.com) · el equipo genera los códigos de invitación en «Equipo → Códigos» |
 | **Edición en el navegador (Codespaces)** | **Code → Codespaces → Create codespace on main** y luego `python dev.py start` |
 
-Publicamos la app en el plan gratuito de Render con un precio de demostración, una base
-PostgreSQL gratuita (Neon) para que los registros sean permanentes y una cuenta del equipo que se
-crea sola al arrancar. Si estuvo un rato
-sin visitas, tarda alrededor de un minuto en despertar. Cada `git push` a `main` la vuelve a
+Publicamos la app en el plan gratuito de Render **solo con datos reales**: la bolsa de Nueva York
+desde Yahoo Finance y Stooq, el tipo de cambio del BCRP y los precios que anotamos de las
+cooperativas de Jaén. Usamos una base PostgreSQL gratuita (Neon) para que los registros sean
+permanentes y una cuenta del equipo que se crea sola al arrancar. Si estuvo un rato sin visitas, tarda alrededor de un minuto en despertar. Cada `git push` a `main` la vuelve a
 desplegar sola. Cómo lo configuramos: [docs/despliegue.md](docs/despliegue.md).
 
 ---
@@ -198,7 +198,7 @@ cafe-jaen-sistema/
 │   │   ├── advisor/               ← asesor (Asesor)
 │   │   └── orchestration/         ← supervisor (LangGraph) y planificador
 │   ├── migrations/                ← Alembic 0001–0003
-│   ├── scripts/                   ← demo, admin, ciclo diario, arranque en producción, carga
+│   ├── scripts/                   ← histórico real, admin, códigos, ciclo diario, arranque
 │   ├── tests/                     ← unit/ · integration/ · acceptance/ · load/
 │   └── .importlinter              ← contratos de arquitectura
 ├── frontend/                      ← PWA (React + Vite + Framer Motion)
@@ -231,7 +231,7 @@ market/
 ├── application/     collect_prices.py · get_live_price.py · get_price_history.py · record_local_price.py
 │   └── agents/      collector_agent.py (Recolector) · analyst_agent.py (Analista)
 └── infrastructure/
-    ├── sources/     yahoo · stooq · demo · bcrp           ← adaptadores de las webs
+    ├── sources/     yahoo · stooq · bcrp                  ← adaptadores de las webs reales
     ├── persistence/ repositorios SQLAlchemy
     └── api/         market_router.py (/prices/live, /history, /stream, /admin/local-prices)
 ```
@@ -273,14 +273,17 @@ market/
 git clone https://github.com/jhon1212-beep/cafe-jaen-sistema.git
 cd cafe-jaen-sistema
 python dev.py setup     # instala backend y frontend, y crea backend/.env con un secreto aleatorio
-python dev.py demo      # datos de demostración, primer pronóstico y códigos DEMO-0001 a DEMO-0010
+python dev.py datos     # histórico REAL de 5 años (Yahoo/Stooq y BCRP) y primer pronóstico
+python dev.py admin 9XXXXXXXX   # cuenta del equipo (pide una contraseña)
+python dev.py codigos 5         # códigos de invitación para registrar caficultores
 python dev.py start     # levanta la API (puerto 8000) y la app (puerto 5173)
 ```
 
 Con eso, la app queda en **http://localhost:5173** y la documentación de la API en
-http://localhost:8000/docs. Para registrarse usamos un código `DEMO-0001` … `DEMO-0010` y
-cualquier celular de 9 dígitos. En modo demostración el precio cambia cada minuto aunque no haya
-internet ni la bolsa esté abierta. `Ctrl+C` detiene todo.
+http://localhost:8000/docs. Para registrarse se usa uno de los códigos generados y un celular de
+9 dígitos. Todo es real, así que **se necesita internet**, y el precio solo se mueve con la bolsa
+de Nueva York abierta (lunes a viernes, 04:15–13:30 hora de Nueva York); fuera de ese horario la
+app muestra el último precio con el aviso «Bolsa cerrada». `Ctrl+C` detiene todo.
 
 En macOS o Linux el comando puede ser `python3`; en Windows también funciona `py dev.py …`.
 
@@ -289,10 +292,10 @@ En macOS o Linux el comando puede ser `python3`; en Windows también funciona `p
 | Comando | Qué hace |
 |---|---|
 | `python dev.py setup` | Instala todo (una sola vez) |
-| `python dev.py demo` | Prepara los datos de demostración |
-| `python dev.py start` | API + app en modo demostración |
-| `python dev.py start --real` | API + app con precios reales (Yahoo y Stooq; necesita internet) |
+| `python dev.py datos` | Carga el histórico real (5 años) y genera el primer pronóstico; si ya está cargado, no repite nada |
+| `python dev.py start` | API + app con precios reales (Yahoo Finance y Stooq; necesita internet) |
 | `python dev.py admin 9XXXXXXXX` | Crea una cuenta del equipo para anotar precios de cooperativas («Equipo») |
+| `python dev.py codigos 10` | Genera códigos de invitación para el grupo experimental |
 | `python dev.py test` | Pruebas del backend y del frontend |
 | `python dev.py check` | Todo lo que revisa la CI (estilo, tipos, arquitectura, pruebas, build) |
 | `python dev.py reset` | Borra la base de datos local para empezar de cero |
@@ -306,13 +309,14 @@ En macOS o Linux el comando puede ser `python3`; en Windows también funciona `p
 | `Cannot find native binding` | Con Vite 8 y Node 22.11 npm omitía un binario de Windows. Bajamos a Vite 6 y `setup` reinstala `node_modules` desde cero |
 | Aviso `npm warn EBADENGINE eslint-visitor-keys` | Es solo un aviso de una herramienta de revisión de código; no afecta a la app |
 | El puerto 8000 o 5173 está ocupado | Cerrar la otra app que lo usa (o una terminal anterior que quedó abierta) |
-| «Código no válido» al registrarse | Cada código sirve una sola vez: `python dev.py reset` y luego `python dev.py demo` |
-| No aparece el «Precio estimado en Jaén» | Ejecutar `python dev.py demo` (carga cooperativas de ejemplo) o anotarlas con una cuenta del equipo |
+| «Código no válido» al registrarse | Cada código sirve una sola vez: generar otro con `python dev.py codigos 1` o en «Equipo → Códigos» |
+| No aparece el «Precio estimado en Jaén» | Aún no hay precios de cooperativas: los anotamos en «Equipo → Precios» después de preguntar a cada cooperativa |
+| El precio no cambia | La bolsa está cerrada (fines de semana, feriados de EE. UU. o fuera de 04:15–13:30 hora de Nueva York): es el último precio real |
 
-### Datos reales y producción
+### Datos y producción
 
-- **Precios reales:** con `python dev.py start --real` la app consulta Yahoo Finance y Stooq cuando la bolsa de Nueva York está abierta (04:15–13:30, hora de Nueva York).
-- **Histórico real:** lo cargamos con `scripts/load_price_history.py --years 5`.
+- **Solo datos reales:** la app consulta Yahoo Finance y Stooq cada minuto con la bolsa de Nueva York abierta y el tipo de cambio del BCRP ([decisión 0010](docs/decisiones/0010-solo-datos-reales.md)).
+- **Histórico real:** `python dev.py datos` (o `scripts/load_price_history.py --years 5`): Yahoo Finance y, si no responde, Stooq.
 - **App publicada:** `render.yaml` + `Dockerfile` despliegan la app y la API en un solo servicio de Render ([docs/despliegue.md](docs/despliegue.md)).
 - **Producción con PostgreSQL:** `docker-compose.yml` levanta PostgreSQL y la API, y `DATABASE_URL` apunta a PostgreSQL.
 - **Operación:** en [docs/operacion.md](docs/operacion.md) documentamos la carga de datos y los respaldos.
@@ -320,7 +324,7 @@ En macOS o Linux el comando puede ser `python3`; en Windows también funciona `p
 ## Cómo trabajamos con Git y GitHub
 
 - El historial tiene **un commit por tarea de ingeniería (T01–T42)** y una etiqueta por cada
-  iteración o entrega: `v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1`, `v1.2`, `v1.3`, `v1.4` y `v1.5`.
+  iteración o entrega: `v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1`, `v1.2`, `v1.3`, `v1.4`, `v1.5` y `v1.6`.
 - Cada tarea la trabajamos en una rama `feature/huXX-descripcion` y la integramos con un PR que
   revisa el compañero. La CI tiene que quedar en verde antes de unir el PR.
 - Integramos a `main` al menos una vez al día (integración continua).
@@ -389,7 +393,7 @@ Acordamos estas reglas al inicio del proyecto:
 |---|---|
 | [docs/arquitectura.md](docs/arquitectura.md) | Capas, módulos, agentes y flujos |
 | [docs/paleta.md](docs/paleta.md) | Paleta «Cosecha», tipografías, contraste y animaciones |
-| [docs/decisiones/](docs/decisiones/) | Nuestras decisiones de arquitectura (ADR 0001–0009) |
+| [docs/decisiones/](docs/decisiones/) | Nuestras decisiones de arquitectura (ADR 0001–0010) |
 | [docs/xp/](docs/xp/) | Iteraciones, tareas T01–T42, trazabilidad y pruebas de aceptación |
 | [docs/metafora.md](docs/metafora.md) · [docs/tarjetas-crc.md](docs/tarjetas-crc.md) | Metáfora del sistema y tarjetas CRC (XP) |
 | [docs/estandar-de-codigo.md](docs/estandar-de-codigo.md) | Idioma, nombres, buenas prácticas y Git |

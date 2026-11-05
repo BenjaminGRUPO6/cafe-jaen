@@ -8,7 +8,10 @@ import pytest
 
 from market.domain.errors import SourceUnavailableError
 from market.infrastructure.sources.bcrp_exchange_rate_provider import parse_bcrp_response
-from market.infrastructure.sources.stooq_quotation_source import parse_stooq_csv
+from market.infrastructure.sources.stooq_quotation_source import (
+    parse_stooq_csv,
+    parse_stooq_history,
+)
 
 SAMPLE = {
     "config": {"title": "Tipo de cambio"},
@@ -49,40 +52,24 @@ def test_unexpected_stooq_format_is_a_source_failure(text: str) -> None:
         parse_stooq_csv(text, WARSAW)
 
 
-# ---------------------------------------------------------------- fuente DEMO (sin internet)
-def test_demo_source_moves_a_little_and_is_labeled_synthetic() -> None:
-    from market.infrastructure.sources.demo_quotation_source import DemoQuotationSource
-
-    demo = DemoQuotationSource(lambda: Decimal("385"), seed=1)
-    first, second = demo.fetch_latest(), demo.fetch_latest()
-
-    assert first.sources == ("DEMO (sintético)",)
-    assert abs(first.cents_per_pound - 385) < 3  # parte del último precio conocido
-    assert abs(second.cents_per_pound - first.cents_per_pound) < 3
-    assert second.quoted_at >= first.quoted_at
-
-
-def test_demo_panel_sources_share_the_base_price_and_can_disagree_or_fail() -> None:
-    import pytest
-
-    from market.domain.errors import SourceUnavailableError
-    from market.infrastructure.sources.demo_quotation_source import (
-        DemoMarket,
-        DemoPanelSource,
-        demo_panel,
+# ---------------------------------------------------------------- histórico diario de Stooq
+def test_stooq_daily_history_is_read_from_its_csv() -> None:
+    text = (
+        "Date,Open,High,Low,Close,Volume\n"
+        "2026-11-02,395.1,399.0,390.2,397.45,1200\n"
+        "2026-11-03,N/D,N/D,N/D,N/D,0\n"
+        "2026-11-04,398.0,401.5,396.0,400.10,1500\n"
     )
 
-    market = DemoMarket(lambda: Decimal("300"), seed=1, clock=lambda: 0.0)
-    calm = DemoPanelSource("A", market, seed=2).fetch_latest()
-    odd = DemoPanelSource("B", market, outlier_rate=1.0, seed=3).fetch_latest()
+    history = parse_stooq_history(text)
 
-    assert abs(calm.cents_per_pound - Decimal("300")) / Decimal("300") < Decimal("0.01")
-    deviation = abs(odd.cents_per_pound - calm.cents_per_pound) / calm.cents_per_pound
-    assert Decimal("0.01") < deviation < Decimal("0.04")  # el consenso la descartará
-    with pytest.raises(SourceUnavailableError):
-        DemoPanelSource("C", market, failure_rate=1.0).fetch_latest()
-    assert [s.name for s in demo_panel(lambda: None)] == [
-        "DEMO A (sintético)",
-        "DEMO B (sintético)",
-        "DEMO C (sintético)",
+    assert [(q.quoted_on, q.cents_per_pound) for q in history] == [
+        (date(2026, 11, 2), Decimal("397.45")),
+        (date(2026, 11, 4), Decimal("400.10")),
     ]
+    assert {q.source for q in history} == {"Stooq"}
+
+
+def test_stooq_history_without_rows_is_a_source_failure() -> None:
+    with pytest.raises(SourceUnavailableError):
+        parse_stooq_history("No data")

@@ -1,6 +1,7 @@
+from datetime import date
 from typing import Protocol
 
-from market.domain.quotation import ExchangeRate, LiveQuote
+from market.domain.quotation import ExchangeRate, LiveQuote, Quotation
 
 
 class QuotationSource(Protocol):
@@ -19,3 +20,17 @@ class ExchangeRateProvider(Protocol):
     """Puerto de salida: obtiene el tipo de cambio más reciente."""
 
     def fetch_latest(self) -> ExchangeRate: ...
+
+
+class DailyHistorySource(Protocol):
+    """Puerto de salida: una web con los cierres diarios del contrato C (carga del histórico)."""
+
+    name: str
+
+    def fetch_daily_history(self, start: date) -> list[Quotation]: ...
+
+
+class ExchangeRateHistoryProvider(Protocol):
+    """Puerto de salida: tipos de cambio de un rango de fechas (carga del histórico)."""
+
+    def fetch_history(self, start: date, end: date) -> list[ExchangeRate]: ...

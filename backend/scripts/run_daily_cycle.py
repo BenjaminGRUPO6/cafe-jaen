@@ -1,7 +1,7 @@
 """Ejecuta una vez el ciclo autónomo (cierre → histórico → pronóstico).
 
 Con --live ejecuta solo una recolección en vivo (lo que el planificador hace cada minuto).
-Útil para la demostración y para generar el primer pronóstico tras la carga inicial.
+Lo usa el arranque en producción para generar el primer pronóstico tras cargar el histórico real.
 """
 
 import argparse

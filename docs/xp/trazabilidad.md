@@ -14,7 +14,7 @@
 | HU10 Producción | `Dockerfile`, `docker-compose.yml`, `migrations/` (0001–0003) | build de Vite | `tests/load/locustfile.py` (PA-10-3); PA-10-1 y 10-2 al desplegar |
 | HU12 Precio estimado en Jaén | `market/domain/local_price.py`, `market/application/record_local_price.py`, `get_live_price.py` (`local_estimates`), `market_router.py` (`/admin/local-prices`), `identity` (rol admin), `shared/infrastructure/api/dependencies.py` (`build_require_admin`), `scripts/create_admin.py`, migración 0003 | `features/live/LocalEstimateCard.tsx`, `features/admin/AdminPage.tsx`, `features/auth/RequireAdmin.tsx` | `unit/market/test_local_price.py` (PA-12-2, PA-12-3), `integration::test_only_the_team_can_record_cooperative_prices` (PA-12-1), `test_jwt_token_service.py`, `roleFromToken.test.ts`; PA-12-4 manual |
 | HU15 Interfaz dinámica | — | `shared/styles.css`, `shared/motion/*` (Ticker, Sparkline, Reveal, Segmented, PageTransition), `shared/components/Brand.tsx`, todas las pantallas | `shared/motion/Ticker.test.tsx` (PA-15-4); PA-15-1 a 15-3: [paleta.md](../paleta.md) y capturas |
-| HU16 Ejecución local en un paso | `dev.py`, `shared/infrastructure/settings.py` (SQLite), `scripts/seed_demo_data.py`, `.github/dependabot.yml` | — | `python dev.py check` y CI (PA-16-3); PA-16-1 y 16-2: README |
+| HU16 Ejecución local en un paso | `dev.py`, `shared/infrastructure/settings.py` (SQLite), `scripts/load_price_history.py` (histórico real), `.github/dependabot.yml` | — | `python dev.py check` y CI (PA-16-3); PA-16-1 y 16-2: README |
 | HU11 Manual e inducción | — | `docs/manual/` | PA-11-1 y 11-2: con el Cliente |
 
 Estado de cada prueba de aceptación: ver la sección «Pruebas de aceptación» de cada `iteracion-N/README.md`.

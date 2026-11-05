@@ -4,11 +4,12 @@
 Solo usa la biblioteca estándar de Python, así que funciona antes de instalar nada.
 
     python dev.py setup     instala todo (una sola vez)
-    python dev.py demo      prepara la base de datos con datos de demostración
+    python dev.py datos     carga el histórico REAL (Yahoo/Stooq y BCRP) y el primer pronóstico
     python dev.py start     levanta la API y la app juntas (Ctrl+C para detener)
     python dev.py test      pruebas del backend y del frontend
     python dev.py check     todo lo que revisa la integración continua (CI)
     python dev.py admin 9XXXXXXXX   crea una cuenta del equipo (rol administrador)
+    python dev.py codigos 10        genera códigos de invitación para el grupo experimental
     python dev.py reset     borra la base de datos local para empezar de cero
 """
 
@@ -30,13 +31,6 @@ FRONTEND = ROOT / "frontend"
 VENV = BACKEND / ".venv"
 IS_WINDOWS = os.name == "nt"
 LOCAL_DB = BACKEND / "cafe_jaen.db"
-
-# Modo demostración: precio sintético que se mueve cada minuto y bolsa «abierta» todo el día
-DEMO_ENV = {
-    "QUOTATION_SOURCES": '["demo"]',
-    "MARKET_OPENS": "00:00",
-    "MARKET_CLOSES": "23:59",
-}
 
 
 def venv_bin(name: str) -> str:
@@ -107,35 +101,47 @@ def cmd_setup(_: argparse.Namespace) -> None:
     run([venv_bin("python"), "-m", "pip", "install", "-e", ".[dev]"], BACKEND)
     run([npm(), "ci"], FRONTEND)
     ensure_env_file()
-    print("\n✓ Listo. Siguiente paso: python dev.py demo")
+    print("\n✓ Listo. Siguiente paso: python dev.py datos")
 
 
 def migrate() -> None:
     run([venv_bin("alembic"), "upgrade", "head"], BACKEND)
 
 
-def cmd_demo(_: argparse.Namespace) -> None:
+def cmd_data(_: argparse.Namespace) -> None:
+    """Solo datos reales: necesita internet (Yahoo Finance o Stooq, y BCRP)."""
     ensure_env_file()
     migrate()
-    run([venv_bin("python"), "scripts/seed_demo_data.py"], BACKEND)
-    run([venv_bin("python"), "scripts/run_daily_cycle.py"], BACKEND, DEMO_ENV)
-    print("\n✓ Datos de demostración listos. Código de invitación: DEMO-0001")
-    print("  Siguiente paso: python dev.py start")
+    run([venv_bin("python"), "scripts/load_price_history.py", "--years", "5"], BACKEND)
+    run([venv_bin("python"), "scripts/run_daily_cycle.py"], BACKEND)
+    print("\n✓ Histórico real y primer pronóstico listos.")
+    print("  Siguiente paso: python dev.py admin 9XXXXXXXX   y luego   python dev.py start")
 
 
-def cmd_start(args: argparse.Namespace) -> None:
+def cmd_codes(args: argparse.Namespace) -> None:
+    ensure_env_file()
+    migrate()
+    run(
+        [venv_bin("python"), "scripts/create_invitation_codes.py", "--count", str(args.count)],
+        BACKEND,
+    )
+
+
+def cmd_start(_: argparse.Namespace) -> None:
     check_node_version()
     ensure_env_file()
     migrate()
-    api_env = {**os.environ, "PYTHONPATH": "src", **({} if args.real else DEMO_ENV)}
+    api_env = {**os.environ, "PYTHONPATH": "src"}
     api = subprocess.Popen(
         [venv_bin("uvicorn"), "main:app", "--reload", "--app-dir", "src", "--port", "8000"],
         cwd=BACKEND,
         env=api_env,
     )
     web = subprocess.Popen([npm(), "run", "dev", "--", "--port", "5173"], cwd=FRONTEND)
-    mode = "precios reales (Yahoo y Stooq)" if args.real else "demostración (precio sintético)"
-    print(f"\n☕ Café Jaén en modo {mode}")
+    print("\n☕ Café Jaén con precios reales (Yahoo Finance, Stooq y BCRP)")
+    print(
+        "   La bolsa de Nueva York abre de lunes a viernes de 04:15 a 13:30 (hora de Nueva York)."
+    )
     print("   App: http://localhost:5173   ·   API: http://localhost:8000/docs")
     print("   Ctrl+C para detener las dos.\n", flush=True)
     try:
@@ -184,7 +190,7 @@ def cmd_admin(args: argparse.Namespace) -> None:
 def cmd_reset(_: argparse.Namespace) -> None:
     if LOCAL_DB.exists():
         LOCAL_DB.unlink()
-        print(f"✓ Se borró {LOCAL_DB.relative_to(ROOT)}. Ejecuta: python dev.py demo")
+        print(f"✓ Se borró {LOCAL_DB.relative_to(ROOT)}. Ejecuta: python dev.py datos")
     else:
         print("No hay base de datos local que borrar.")
 
@@ -195,15 +201,18 @@ def main() -> None:
     )
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("setup", help="instala todo (una sola vez)").set_defaults(func=cmd_setup)
-    commands.add_parser("demo", help="datos de demostración").set_defaults(func=cmd_demo)
-    start = commands.add_parser("start", help="levanta la API y la app")
-    start.add_argument("--real", action="store_true", help="usa precios reales en vez de la demo")
-    start.set_defaults(func=cmd_start)
+    commands.add_parser("datos", help="histórico real y primer pronóstico").set_defaults(
+        func=cmd_data
+    )
+    commands.add_parser("start", help="levanta la API y la app").set_defaults(func=cmd_start)
     commands.add_parser("test", help="pruebas").set_defaults(func=cmd_test)
     commands.add_parser("check", help="todo lo que revisa la CI").set_defaults(func=cmd_check)
     admin = commands.add_parser("admin", help="crea una cuenta del equipo")
     admin.add_argument("phone", help="número de celular de 9 dígitos")
     admin.set_defaults(func=cmd_admin)
+    codes = commands.add_parser("codigos", help="genera códigos de invitación del GE")
+    codes.add_argument("count", type=int, nargs="?", default=10, help="cuántos (10 por defecto)")
+    codes.set_defaults(func=cmd_codes)
     commands.add_parser("reset", help="borra la base de datos local").set_defaults(func=cmd_reset)
     args = parser.parse_args()
     args.func(args)

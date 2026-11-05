@@ -4,6 +4,24 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.6] — Solo datos reales
+
+### Cambiado
+- La app trabaja **solo con datos reales** ([decisión 0010](docs/decisiones/0010-solo-datos-reales.md)):
+  Yahoo Finance y Stooq para la bolsa de Nueva York y el BCRP para el tipo de cambio. Se
+  eliminaron la fuente sintética, las tres webs simuladas y el script de datos de demostración.
+- Al arrancar en Render se carga el histórico real de 5 años (Yahoo Finance y, si no responde,
+  Stooq) y se genera el pronóstico; en local, `python dev.py datos`.
+- `dev.py`: `datos` reemplaza a `demo`, `start` usa siempre precios reales y `codigos N` genera
+  códigos de invitación.
+
+### Eliminado
+- Migración 0007: quita de las bases existentes lo que generó la demostración (fuentes «DEMO …»,
+  «Cooperativa Demo N», sus pronósticos y los códigos DEMO sin usar). Conserva usuarios,
+  cooperativas reales, precios anotados por el equipo y datos reales.
+- Resultados de la evaluación de modelos y de la prueba retrospectiva calculados con datos
+  sintéticos: quedan pendientes de recalcular con el histórico real.
+
 ## [v1.5] — Historial de la bolsa con el detalle de cada web
 
 ### Agregado

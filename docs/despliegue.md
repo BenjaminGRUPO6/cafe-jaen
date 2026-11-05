@@ -17,7 +17,7 @@ GitHub (main) ──push──► Render construye el Dockerfile de la raíz
                          ├─ etapa 1: node 22 compila el front-end (PWA)
                          └─ etapa 2: python 3.12 + API FastAPI que también entrega la app
                                     └─ scripts/start_server.sh
-                                       migraciones → datos demo → uvicorn
+                                       migraciones → cuenta del equipo → histórico real → uvicorn
 ```
 
 - **Un solo servicio y una sola URL:** la API (`/api/...`) y la app comparten dominio, así que no
@@ -25,8 +25,10 @@ GitHub (main) ──push──► Render construye el Dockerfile de la raíz
   (`backend/src/shared/infrastructure/api/spa.py`).
 - **Infraestructura como código:** `render.yaml` (Blueprint) declara el servicio y sus variables;
   el `JWT_SECRET` lo genera Render.
-- **Modo demostración:** precio sintético que se mueve todo el día y códigos **DEMO-0001 a
-  DEMO-0010**. El script de datos es idempotente: si los datos ya existen, no los duplica.
+- **Solo datos reales:** la bolsa de Nueva York desde Yahoo Finance y Stooq, y el tipo de cambio
+  del BCRP. Al arrancar se carga el histórico real de 5 años (si ya está, no se repite) y se
+  genera el pronóstico. Si las webs no responden en ese momento, la API arranca igual y el
+  Recolector vuelve a intentar cada minuto con la bolsa abierta.
 
 ### Cómo lo publicamos
 
@@ -36,14 +38,16 @@ GitHub (main) ──push──► Render construye el Dockerfile de la raíz
 4. El primer build tardó unos minutos. En los *Logs* se ve el arranque:
 
    ```
-   Datos de demostración cargados. Códigos de invitación: DEMO-0001 a DEMO-0010
+   Cuenta del equipo 9XXXXXXXX: creada.
+   Histórico real: 1255 cierres diarios (Yahoo Finance) · 1238 tipos de cambio del BCRP
+   Recolección: {'market_open': True, 'quotation_saved': True, 'sources_ok': ['Yahoo Finance', 'Stooq'], …}
    Pronóstico generado: True
    Uvicorn running on http://0.0.0.0:10000
    ==> Your service is live
    ```
 
-5. Con el servicio en **Live**, abrimos la URL y nos registramos con un código `DEMO-0001` …
-   `DEMO-0010` (cada código sirve una vez).
+5. Con el servicio en **Live**, entramos con la cuenta del equipo, generamos códigos en
+   «Equipo → Códigos» y con ellos se registran los caficultores (cada código sirve una vez).
 
 ### Cuenta del equipo y datos permanentes
 
@@ -73,7 +77,7 @@ Los caficultores no ven «Equipo» y la API les responde 403 si intentan entrar.
 
 **Base de datos permanente (Neon, gratis):** creamos un proyecto en <https://neon.tech>, copiamos
 la *connection string* y la pegamos en `DATABASE_URL`. Al arrancar, la app crea las tablas sola
-(migraciones de Alembic), carga los datos de demostración una sola vez y crea la cuenta del equipo.
+(migraciones de Alembic), carga el histórico real una sola vez y crea la cuenta del equipo.
 Desde ahí, los registros sobreviven a los reinicios y a los despliegues. La misma base se puede
 abrir desde el panel de Neon (*Tables*) para ver los usuarios en tiempo real.
 
@@ -83,9 +87,10 @@ abrir desde el panel de Neon (*Tables*) para ver los usuarios en tiempo real.
   1 minuto en despertar. Antes de una presentación, abrimos la URL 2–3 minutos antes.
 - **Sin `DATABASE_URL`, los datos se reinician** en cada despliegue o al despertar, porque SQLite
   vive dentro del contenedor. Con la base de Neon (sección anterior) son permanentes.
-- **Precios reales** en lugar del sintético: en *Environment* se cambia `QUOTATION_SOURCES` a
-  `["yahoo","stooq"]`, `MARKET_OPENS` a `04:15`, `MARKET_CLOSES` a `13:30` y `DEMO_DATA` a `false`
-  (requiere cargar el histórico real; ver `docs/operacion.md`).
+- **Horario de la bolsa:** el precio solo cambia de lunes a viernes de 04:15 a 13:30 (hora de
+  Nueva York). Fuera de ese horario la app muestra el último precio real con «Bolsa cerrada».
+- **Webs gratuitas:** Yahoo Finance a veces limita las consultas desde servidores en la nube.
+  Si eso pasa, el Recolector sigue con Stooq; en «Equipo → Bolsa» se ve qué web no respondió.
 
 ### Cómo actualizamos la app publicada
 
@@ -104,7 +109,7 @@ Configuramos `.devcontainer/` para que el proyecto se abra listo en el navegador
 
 1. En GitHub: **Code** → pestaña **Codespaces** → **Create codespace on main**.
 2. Se abre VS Code en el navegador y la primera vez instala todo solo (`python dev.py setup` y
-   `python dev.py demo`), en unos 5 minutos.
+   `python dev.py datos`), en unos 5 minutos.
 3. En la terminal: `python dev.py start`. La app se abre en otra pestaña (puerto 5173).
 4. Al editar, por ejemplo, `frontend/src/shared/texts/es.ts` o `frontend/src/shared/styles.css` y
    guardar, la app se actualiza al instante sin recargar.

@@ -18,6 +18,6 @@ compañero en otra computadora y mantener las dependencias al día.
   Actions); la CI lo valida antes de aceptarlo.
 - `.python-version` (3.12) y `frontend/.nvmrc` (22) fijan las versiones esperadas.
 
-**Consecuencias.** De cero a la app corriendo: `python dev.py setup`, `python dev.py demo`,
+**Consecuencias.** De cero a la app corriendo: `python dev.py setup`, `python dev.py datos`,
 `python dev.py start`. SQLite no se usa para el experimento (allí va PostgreSQL con copias de
 seguridad, HU10). Las pruebas siguen usando SQLite en memoria, como antes.

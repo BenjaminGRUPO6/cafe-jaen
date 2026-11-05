@@ -32,7 +32,7 @@
 | T37 | HU12 | Pantalla «Equipo» para anotar precios y tarjeta «Precio estimado en Jaén» con filtro por tipo | Desarrollo | 1 | Reyes G., L. B. | Terminada | features/admin/AdminPage.tsx · features/live/LocalEstimateCard.tsx · features/auth/RequireAdmin.tsx |
 | T39 | HU15 | Sistema de diseño v2: paleta «Cosecha», tipografías, bloques (bento) y barra inferior flotante | Mejora | 1 | Reyes G., L. B. | Terminada | shared/styles.css · docs/paleta.md · shared/components/Brand.tsx |
 | T40 | HU15 | Animaciones con Framer Motion: precio que rueda, línea del día, pastillas, veredicto, rangos, chat y carga | Desarrollo | 1 | Chavez C., J. X. | Terminada | shared/motion/ (Ticker, Sparkline, Reveal, Segmented, PageTransition) · pantallas |
-| T41 | HU16 | dev.py multiplataforma (setup, demo, start, test, check, admin, reset), SQLite por defecto y demo con cooperativas | Configuración | 1 | Reyes G., L. B. | Terminada | dev.py · settings.py (SQLite) · scripts/seed_demo_data.py · decisiones/0008 |
+| T41 | HU16 | dev.py multiplataforma (setup, demo, start, test, check, admin, reset), SQLite por defecto y demo con cooperativas | Configuración | 1 | Reyes G., L. B. | Terminada | dev.py · settings.py (SQLite) · decisiones/0008 (la demo se reemplazó por datos reales en v1.6, decisión 0010) |
 | T42 | HU16 | Dependabot, versiones fijadas (.python-version, .nvmrc) y README con arquitectura y paso a paso | Documentación | 0.5 | Chavez C., J. X. | Terminada | .github/dependabot.yml · .python-version · frontend/.nvmrc · README.md |
 
 ## Pruebas de aceptación

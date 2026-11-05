@@ -44,7 +44,7 @@ Cada tarea tiene un commit propio en el historial de Git (`git log --oneline`).
 | T38 | It2 | HU06 | Pronóstico estimado en Jaén por tipo de café en la pantalla «7 días» (alineado con la TPP) | 1 | Chavez C., J. X. | features/forecast/localForecast.ts · ForecastPage.tsx · decisiones/0009 |
 | T39 | It3 | HU15 | Sistema de diseño v2: paleta «Cosecha», tipografías, bloques (bento) y barra inferior flotante | 1 | Reyes G., L. B. | shared/styles.css · docs/paleta.md · shared/components/Brand.tsx |
 | T40 | It3 | HU15 | Animaciones con Framer Motion: precio que rueda, línea del día, pastillas, veredicto, rangos, chat y carga | 1 | Chavez C., J. X. | shared/motion/ (Ticker, Sparkline, Reveal, Segmented, PageTransition) · pantallas |
-| T41 | It3 | HU16 | dev.py multiplataforma (setup, demo, start, test, check, admin, reset), SQLite por defecto y demo con cooperativas | 1 | Reyes G., L. B. | dev.py · settings.py (SQLite) · scripts/seed_demo_data.py · decisiones/0008 |
+| T41 | It3 | HU16 | dev.py multiplataforma (setup, demo, start, test, check, admin, reset), SQLite por defecto y demo con cooperativas | 1 | Reyes G., L. B. | dev.py · settings.py (SQLite) · decisiones/0008 (la demo se reemplazó por datos reales en v1.6, decisión 0010) |
 | T42 | It3 | HU16 | Dependabot, versiones fijadas (.python-version, .nvmrc) y README con arquitectura y paso a paso | 0.5 | Chavez C., J. X. | .github/dependabot.yml · .python-version · frontend/.nvmrc · README.md |
 
 **Total:** 42.5 puntos ≈ 170 horas.
