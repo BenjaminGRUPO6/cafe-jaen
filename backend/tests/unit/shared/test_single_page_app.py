@@ -1,12 +1,14 @@
 """La API entrega la app compilada en el despliegue de un solo servicio (Render)."""
 
+import asyncio
 from pathlib import Path
 
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from starlette.exceptions import HTTPException
 
-from shared.infrastructure.api.spa import mount_single_page_app
+from shared.infrastructure.api.spa import SinglePageApp, mount_single_page_app
 
 
 @pytest.fixture
@@ -53,3 +55,16 @@ def test_unknown_api_route_is_not_the_app(client: TestClient) -> None:
 def test_missing_build_fails_with_clear_message(tmp_path: Path) -> None:
     with pytest.raises(RuntimeError, match="compila el front-end"):
         mount_single_page_app(FastAPI(), str(tmp_path))
+
+
+@pytest.mark.parametrize("path", ["api/no-existe", "api\\no-existe", "api"])
+def test_api_paths_are_rejected_on_any_platform(tmp_path: Path, path: str) -> None:
+    # En Windows Starlette entrega «api\\no-existe»; en Linux, «api/no-existe»
+    (tmp_path / "index.html").write_text("<html></html>", encoding="utf-8")
+    app = SinglePageApp(directory=tmp_path, html=True)
+    scope = {"type": "http", "method": "GET", "headers": []}
+
+    with pytest.raises(HTTPException) as error:
+        asyncio.run(app.get_response(path, scope))
+
+    assert error.value.status_code == 404

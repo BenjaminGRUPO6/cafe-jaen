@@ -19,8 +19,10 @@ class SinglePageApp(StaticFiles):
     """Archivos estáticos con respaldo a index.html para las rutas del front-end (/decision…)."""
 
     async def get_response(self, path: str, scope: Scope) -> Response:
-        # Las rutas /api desconocidas deben responder 404, no la app
-        if path == "api" or path.startswith("api/"):
+        # Las rutas /api desconocidas deben responder 404, no la app.
+        # En Windows Starlette entrega la ruta con «\\»: se normaliza antes de comparar
+        normalized = path.replace("\\", "/")
+        if normalized == "api" or normalized.startswith("api/"):
             raise HTTPException(status_code=404)
         try:
             return await super().get_response(path, scope)
