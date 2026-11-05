@@ -7,6 +7,7 @@ import { useApi } from "../../shared/hooks/useApi";
 import { EditIcon, ExternalIcon, TrashIcon } from "../../shared/motion/icons";
 import { texts } from "../../shared/texts/es";
 import { AdminTabs } from "./AdminTabs";
+import { SyntheticDataCard } from "./SyntheticDataCard";
 
 interface CooperativeForm {
   name: string;
@@ -44,6 +45,7 @@ export function CooperativesPage() {
         </p>
       )}
       <StatusMessage loading={loading} error={error} onRetry={reload} />
+      <SyntheticDataCard onChanged={reload} />
       {data && (
         <ul className="card observations">
           {data.cooperatives.map((c) => (

@@ -19,6 +19,7 @@ DEFAULT_WINDOW = timedelta(days=30)
 MIN_RATIO = Decimal("0.40")  # por debajo, casi seguro es un error al escribir el precio
 MAX_RATIO = Decimal("1.20")
 FEW_OBSERVATIONS = 3  # con menos, la app avisa que el estimado tiene pocos datos
+SYNTHETIC_MARK = "sintético"  # marca de los precios de demostración
 
 
 class CoffeeType(StrEnum):
@@ -66,6 +67,7 @@ class LocalEstimate:
     observations: int
     first_day: date
     last_day: date
+    synthetic: int = 0  # cuántos de esos precios son sintéticos (demostración)
 
     @property
     def few_data(self) -> bool:
@@ -89,6 +91,7 @@ class LocalPriceEstimator:
             # La mediana no se deja llevar por un precio raro cuando hay pocos datos
             ratio = Decimal(median(o.ratio for o in own))
             days = sorted(o.observed_at.date() for o in own)
+            synthetic = sum(1 for o in own if is_synthetic(o.cooperative))
             estimates.append(
                 LocalEstimate(
                     coffee_type,
@@ -97,6 +100,12 @@ class LocalPriceEstimator:
                     len(own),
                     days[0],
                     days[-1],
+                    synthetic,
                 )
             )
         return estimates
+
+
+def is_synthetic(cooperative: str) -> bool:
+    """Las cooperativas de demostración llevan «sintético» en el nombre (synthetic_data.py)."""
+    return SYNTHETIC_MARK in cooperative.lower()

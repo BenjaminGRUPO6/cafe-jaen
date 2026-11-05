@@ -74,6 +74,11 @@ function GeneralEstimate({
         {texts.local.unit} · {texts.local.ratio(pct)}
       </p>
       {estimate.few_data && <p className="banner">{texts.local.fewData}</p>}
+      {(estimate.synthetic_observations ?? 0) > 0 && (
+        <p className="banner banner--synthetic" role="note">
+          {texts.local.synthetic(estimate.synthetic_observations ?? 0, estimate.observations)}
+        </p>
+      )}
       <p className="muted">
         {texts.local.basis(
           estimate.observations,

@@ -98,6 +98,7 @@ def _estimate_to_dict(estimate: LocalEstimate) -> dict[str, Any]:
         "first_day": estimate.first_day.isoformat(),
         "last_day": estimate.last_day.isoformat(),
         "few_data": estimate.few_data,
+        "synthetic_observations": estimate.synthetic,
     }
 
 

@@ -4,6 +4,16 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.7] — Datos sintéticos de demostración, claramente marcados
+
+### Agregado
+- «Equipo → Cooperativas → Datos sintéticos para la demostración»: carga 6 cooperativas
+  «Cooperativa JAENPERU sintético A…F» con unos 60 días de precios (≈ 650) calculados sobre el
+  precio REAL de la bolsa de cada día; se vuelven a generar o se borran con un toque
+  (`/api/admin/synthetic-data`, caso de uso `ManageSyntheticData`).
+- El estimado en Jaén avisa cuántos de los precios usados son sintéticos.
+- El precio de la bolsa, el tipo de cambio y el histórico siguen siendo solo reales.
+
 ## [v1.6] — Solo datos reales
 
 ### Cambiado

@@ -27,6 +27,7 @@ export interface LocalEstimate {
   first_day: string;
   last_day: string;
   few_data: boolean;
+  synthetic_observations?: number; // precios sintéticos de demostración entre los usados
 }
 
 export interface LocalPriceObservation {

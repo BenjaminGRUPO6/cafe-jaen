@@ -65,7 +65,9 @@ Con esa cuenta aparece en la app el enlace **«Equipo»** con cinco pestañas:
 - **Precios:** anotamos lo que paga cada cooperativa (y corregimos o borramos un dato mal
   escrito); el «Precio estimado en Jaén» se recalcula al instante.
 - **Cooperativas:** catálogo con las cooperativas de Jaén; agregamos, editamos o archivamos. Al
-  archivar una que ya tiene precios, sus datos se conservan para no perder el historial.
+  archivar una que ya tiene precios, sus datos se conservan para no perder el historial. Aquí
+  también cargamos o borramos los **datos sintéticos para la demostración** (6 cooperativas
+  «Cooperativa JAENPERU sintético A…F» con unos 60 días de precios sobre la bolsa real).
 - **Códigos:** generamos códigos de invitación para el GE y borramos los que no se usaron.
 - **Participantes:** quiénes del GE se registraron, con qué código, cuándo y su último ingreso.
   Se actualiza sola cada 10 segundos.

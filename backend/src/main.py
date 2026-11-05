@@ -54,6 +54,7 @@ from market.application.get_live_price import GetLivePrice
 from market.application.get_price_history import GetPriceHistory
 from market.application.get_price_log import GetPriceLog
 from market.application.manage_cooperatives import ManageCooperatives
+from market.application.manage_synthetic_data import ManageSyntheticData
 from market.application.record_local_price import RecordLocalPrice
 from market.domain.consensus import Consensus
 from market.domain.local_price import LocalPriceEstimator
@@ -220,6 +221,7 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
             ManageCooperatives(cooperatives),
             CorrectLocalPrice(prices),
             GetPriceLog(prices, converter, LocalPriceEstimator(), clock),
+            ManageSyntheticData(prices, cooperatives, converter, clock),
             require_user,
             build_require_admin(tokens),
         ),

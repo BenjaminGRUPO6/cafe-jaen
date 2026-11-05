@@ -1,6 +1,6 @@
 """Dobles de prueba (fakes) de los puertos: permiten probar el núcleo sin BD ni internet."""
 
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field, replace
 from datetime import date, datetime, timedelta
 from decimal import Decimal
@@ -189,6 +189,18 @@ class InMemoryPriceRepository:
 
     def delete_local_observation(self, observation_id: int) -> None:
         self.local = [o for o in self.local if o.id != observation_id]
+
+    def add_local_observations(self, observations: Sequence[LocalPriceObservation]) -> None:
+        for observation in observations:
+            self.add_local_observation(observation)
+
+    def count_local_observations_of(self, cooperatives: Sequence[str]) -> int:
+        return sum(1 for o in self.local if o.cooperative in cooperatives)
+
+    def delete_local_observations_of(self, cooperatives: Sequence[str]) -> int:
+        before = len(self.local)
+        self.local = [o for o in self.local if o.cooperative not in cooperatives]
+        return before - len(self.local)
 
     def local_observations_since(self, moment: datetime) -> list[LocalPriceObservation]:
         recent = [o for o in self.local if o.observed_at >= moment]

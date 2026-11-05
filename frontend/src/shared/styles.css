@@ -1296,3 +1296,29 @@ a {
   font-size: 0.82rem;
   color: var(--corteza);
 }
+
+/* ---------- Datos sintéticos de demostración ---------- */
+.synthetic__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.synthetic__on {
+  background: var(--grano);
+}
+.button--danger {
+  background: var(--cereza);
+  color: var(--papel);
+  border-color: var(--cereza);
+}
+.banner--synthetic {
+  background: var(--papel);
+  border: 2px dashed var(--espresso);
+  font-size: 0.9rem;
+}
+.banner--error {
+  background: var(--cereza-clara);
+  color: var(--cereza);
+  font-weight: 650;
+}

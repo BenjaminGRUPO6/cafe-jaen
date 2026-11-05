@@ -1,8 +1,9 @@
+from collections.abc import Sequence
 from dataclasses import replace
 from datetime import UTC, date, datetime
 from decimal import Decimal
 
-from sqlalchemy import Row, delete, insert, select, update
+from sqlalchemy import Row, delete, func, insert, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from market.domain.local_price import CoffeeType, LocalPriceObservation
@@ -182,6 +183,44 @@ class SqlAlchemyPriceRepository:
         table = local_price_observations
         with self._sessions() as session, session.begin():
             session.execute(delete(table).where(table.c.id == observation_id))
+
+    def add_local_observations(self, observations: Sequence[LocalPriceObservation]) -> None:
+        if not observations:
+            return
+        with self._sessions() as session, session.begin():
+            session.execute(
+                insert(local_price_observations),
+                [
+                    {
+                        "observed_at": o.observed_at.astimezone(UTC),
+                        "cooperative": o.cooperative,
+                        "coffee_type": o.coffee_type.value,
+                        "paid_soles": o.paid_soles,
+                        "exchange_soles": o.exchange_soles,
+                    }
+                    for o in observations
+                ],
+            )
+
+    def count_local_observations_of(self, cooperatives: Sequence[str]) -> int:
+        table = local_price_observations
+        if not cooperatives:
+            return 0
+        query = select(func.count()).where(table.c.cooperative.in_(list(cooperatives)))
+        with self._sessions() as session:
+            return int(session.execute(query).scalar_one())
+
+    def delete_local_observations_of(self, cooperatives: Sequence[str]) -> int:
+        table = local_price_observations
+        if not cooperatives:
+            return 0
+        names = list(cooperatives)
+        with self._sessions() as session, session.begin():
+            removed = session.execute(
+                select(func.count()).where(table.c.cooperative.in_(names))
+            ).scalar_one()
+            session.execute(delete(table).where(table.c.cooperative.in_(names)))
+        return int(removed)
 
     # ---------------------------------------------------------------- tipo de cambio
     def add_exchange_rate(self, rate: ExchangeRate) -> None:

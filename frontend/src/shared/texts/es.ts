@@ -96,6 +96,8 @@ export const texts = {
       `Calculado con ${n} ${n === 1 ? "precio" : "precios"} de cooperativas ` +
       (from === to ? `(del ${from}).` : `(del ${from} al ${to}).`),
     fewData: "Todavía hay pocos precios anotados: tómalo como una idea aproximada.",
+    synthetic: (n: number, total: number) =>
+      `Demostración: ${n} de ${total} precios usados son sintéticos (no son de cooperativas reales).`,
     note: "Es lo que suelen pagar las cooperativas por quintal de pergamino, según la bolsa de hoy.",
     empty: "Todavía no hay precios de cooperativas anotados.",
     unit: "por quintal de pergamino",
@@ -107,6 +109,21 @@ export const texts = {
     website: "Ver web",
     coopsNote:
       "Último precio que anotamos de cada cooperativa (últimos 30 días). Puede variar según la calidad de tu lote.",
+  },
+  synthetic: {
+    title: "Datos sintéticos para la demostración",
+    intro:
+      "Agrega 6 cooperativas «Cooperativa JAENPERU sintético A…F» con unos 60 días de precios inventados, calculados sobre el precio REAL de la bolsa de cada día. Sirven para mostrar la app; bórralos antes de trabajar con el grupo experimental.",
+    none: "No hay datos sintéticos cargados.",
+    loaded: (coops: number, prices: number) =>
+      `Cargados: ${coops} cooperativas sintéticas con ${prices} precios.`,
+    load: "Cargar datos sintéticos",
+    reload: "Volver a generar",
+    remove: "Borrar datos sintéticos",
+    confirmRemove: "Toca otra vez para borrar",
+    done: (coops: number, prices: number) =>
+      `Listo: ${coops} cooperativas sintéticas con ${prices} precios.`,
+    removed: (prices: number) => `Se borraron ${prices} precios sintéticos y sus cooperativas.`,
   },
   cooperatives: {
     tab: "Cooperativas",

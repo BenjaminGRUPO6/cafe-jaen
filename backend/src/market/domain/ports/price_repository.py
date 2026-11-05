@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Protocol
@@ -62,3 +63,12 @@ class PriceRepository(Protocol):
     def update_local_paid(self, observation_id: int, paid_soles: Decimal) -> None: ...
 
     def delete_local_observation(self, observation_id: int) -> None: ...
+
+    # ---- precios sintéticos de demostración (en bloque)
+    def add_local_observations(self, observations: Sequence[LocalPriceObservation]) -> None: ...
+
+    def count_local_observations_of(self, cooperatives: Sequence[str]) -> int: ...
+
+    def delete_local_observations_of(self, cooperatives: Sequence[str]) -> int:
+        """Borra todos los precios de esas cooperativas y devuelve cuántos borró."""
+        ...

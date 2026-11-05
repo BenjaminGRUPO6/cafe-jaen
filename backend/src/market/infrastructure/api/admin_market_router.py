@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 from market.application.correct_local_price import CorrectLocalPrice
 from market.application.get_price_log import GetPriceLog, PriceLogEntry
 from market.application.manage_cooperatives import CooperativeData, ManageCooperatives
+from market.application.manage_synthetic_data import ManageSyntheticData, SyntheticStatus
 from market.domain.cooperative import Cooperative
 from market.domain.errors import MarketError, NotFoundError
 
@@ -37,6 +38,7 @@ def build_admin_market_router(
     cooperatives: ManageCooperatives,
     corrections: CorrectLocalPrice,
     price_log: GetPriceLog,
+    synthetic: ManageSyntheticData,
     require_user: Callable[..., str],
     require_admin: Callable[..., str],
 ) -> APIRouter:
@@ -78,6 +80,19 @@ def build_admin_market_router(
         _handle(lambda: corrections.delete(observation_id))
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+    # ---- precios sintéticos de demostración (solo el equipo los carga o los borra)
+    @router.get("/admin/synthetic-data", dependencies=admin)
+    def synthetic_status() -> dict[str, int]:
+        return _status(synthetic.status())
+
+    @router.post("/admin/synthetic-data", dependencies=admin)
+    def load_synthetic() -> dict[str, int]:
+        return _status(_handle(synthetic.load))
+
+    @router.delete("/admin/synthetic-data", dependencies=admin)
+    def remove_synthetic() -> dict[str, int]:
+        return _status(_handle(synthetic.remove))
+
     @router.get("/admin/price-log", dependencies=admin)
     def log(day: date | None = None) -> dict[str, Any]:
         """Historial de un día (hora de Lima); sin `day`, el de hoy."""
@@ -118,6 +133,10 @@ def _entry(e: PriceLogEntry) -> dict[str, Any]:
             for r in e.readings
         ],
     }
+
+
+def _status(status: SyntheticStatus) -> dict[str, int]:
+    return {"cooperatives": status.cooperatives, "observations": status.observations}
 
 
 def _num(value: Decimal | None) -> float | None:

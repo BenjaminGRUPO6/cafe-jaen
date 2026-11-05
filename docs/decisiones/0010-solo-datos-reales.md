@@ -15,7 +15,11 @@ experimento, y los indicadores de la tesis (TAI, NCP y TPP) deben medirse sobre 
 - La migración 0007 borra de las bases existentes lo que generó la demostración y los
   pronósticos calculados sobre ese histórico; conserva usuarios, cooperativas reales y precios
   anotados por el equipo.
-- Los precios de cooperativas son solo los que el equipo anota tras preguntar a cada una.
+- Los precios de cooperativas son los que el equipo anota tras preguntar a cada una. Para
+  **demostraciones**, el equipo puede cargar desde «Equipo → Cooperativas» precios sintéticos de
+  6 cooperativas llamadas «Cooperativa JAENPERU sintético A…F», calculados sobre el precio
+  **real** de la bolsa de cada día. La app avisa en el estimado cuántos precios son sintéticos y
+  se borran con un toque antes de trabajar con el grupo experimental.
 
 **Consecuencias:** el precio solo se mueve con la bolsa de Nueva York abierta (lunes a viernes,
 04:15–13:30 hora de Nueva York); el estimado en Jaén aparece cuando el equipo anota precios de
