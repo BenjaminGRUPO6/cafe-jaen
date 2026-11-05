@@ -68,6 +68,7 @@ from orchestration.infrastructure.persistence.sqlalchemy_trace_repository import
 from orchestration.infrastructure.scheduler.daily_cycle_scheduler import start_scheduler
 from shared.domain.ports.clock import Clock
 from shared.infrastructure.api.dependencies import build_require_admin, build_require_user
+from shared.infrastructure.api.spa import mount_single_page_app
 from shared.infrastructure.database import create_db_engine, create_session_factory
 from shared.infrastructure.settings import Settings, get_settings
 from shared.infrastructure.system_clock import SystemClock
@@ -202,6 +203,10 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     @app.get("/api/health", tags=["health"])
     def health() -> dict[str, str]:
         return {"status": "ok"}
+
+    # Despliegue en un solo servicio: la API también entrega la app (va al final)
+    if settings.static_dir:
+        mount_single_page_app(app, settings.static_dir)
 
     return app
 

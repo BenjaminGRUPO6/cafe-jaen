@@ -1,7 +1,8 @@
 """Datos SINTÉTICOS para desarrollo local sin internet (NO usar en el experimento).
 
 Genera 2 años de cierres diarios, las cotizaciones minuto a minuto del último día hábil,
-precios de cooperativas DE EJEMPLO para el «Precio estimado en Jaén» y el código DEMO-0001.
+precios de cooperativas DE EJEMPLO para el «Precio estimado en Jaén» y los códigos
+DEMO-0001 a DEMO-0010. Si los datos ya existen, no hace nada (se puede ejecutar al arrancar).
 Para que el precio «se mueva» en vivo sin internet, `python dev.py start` arranca la API
 con QUOTATION_SOURCES='["demo"]' (ver README).
 Uso:  python dev.py demo
@@ -32,8 +33,15 @@ DEMO_RATIOS = {
 }
 
 
+DEMO_CODES = [f"DEMO-{number:04d}" for number in range(1, 11)]
+
+
 def main() -> None:
     sessions = create_session_factory(create_db_engine(get_settings().database_url))
+    codes = SqlAlchemyInvitationCodeRepository(sessions)
+    if codes.get(DEMO_CODES[0]) is not None:
+        print("Los datos de demostración ya estaban cargados.")
+        return
     prices = SqlAlchemyPriceRepository(sessions)
     rng = random.Random(7)
     cents, rate = 250.0, 3.75
@@ -76,8 +84,8 @@ def main() -> None:
                 )
             )
 
-    SqlAlchemyInvitationCodeRepository(sessions).add_many(["DEMO-0001"])
-    print("Datos de demostración cargados. Código de invitación: DEMO-0001")
+    codes.add_many(DEMO_CODES)
+    print("Datos de demostración cargados. Códigos de invitación: DEMO-0001 a DEMO-0010")
 
 
 if __name__ == "__main__":

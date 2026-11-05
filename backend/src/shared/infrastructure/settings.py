@@ -49,6 +49,8 @@ class Settings(BaseSettings):
 
     # API
     cors_origins: list[str] = ["http://localhost:5173"]
+    # Carpeta del front-end compilado. Vacía en local (lo sirve Vite); en Render, /app/static
+    static_dir: str = ""
 
 
 @lru_cache

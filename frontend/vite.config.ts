@@ -40,7 +40,9 @@ export default defineConfig({
   ],
   server: {
     // En desarrollo, /api se redirige al backend
-    proxy: { "/api": "http://localhost:8000" },
+    proxy: { "/api": "http://127.0.0.1:8000" },
+    // Permite abrir la app desde la URL que da GitHub Codespaces
+    allowedHosts: [".app.github.dev"],
   },
   test: {
     environment: "jsdom",

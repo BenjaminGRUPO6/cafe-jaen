@@ -4,6 +4,22 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.2] — App publicada en línea y edición en el navegador
+
+### Agregado
+- Despliegue gratuito en **Render** de un solo servicio: `Dockerfile` de dos etapas (compila la PWA
+  y la entrega desde la API), `render.yaml` (Blueprint) y `backend/scripts/start_server.sh`
+  (migraciones → datos de demostración → API). Cada `git push` a `main` vuelve a desplegar.
+- La API sirve la app compilada cuando se define `STATIC_DIR` (`shared/infrastructure/api/spa.py`),
+  con respaldo a `index.html` para las rutas del front-end y 404 para las rutas `/api` desconocidas.
+- **GitHub Codespaces** (`.devcontainer/`): el proyecto listo en el navegador para editar y ver los
+  cambios al instante.
+- Guía [docs/despliegue.md](docs/despliegue.md).
+
+### Cambiado
+- `seed_demo_data.py` es idempotente y crea los códigos `DEMO-0001` a `DEMO-0010`.
+- Vite acepta las URL de Codespaces y redirige `/api` a `127.0.0.1:8000`.
+
 ## [v1.1] — Interfaz dinámica, pronóstico en Jaén y ejecución local en un paso
 
 ### Cambiado

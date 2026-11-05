@@ -9,7 +9,7 @@ su tipo de café, el gráfico del precio, un **pronóstico a 7 días**, la recom
 ahora o espero?»** y un **asesor** que responde en lenguaje sencillo. Detrás, seis agentes
 coordinados por un supervisor mantienen los datos al día sin intervención humana.
 
-> **Versión:** v1.1 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
+> **Versión:** v1.2 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
 > **Arquitectura:** monolito modular hexagonal + sistema multiagente con supervisor
 
 | Integrante | GitHub | Rol en XP | Lidera |
@@ -25,6 +25,16 @@ coordinados por un supervisor mantienen los datos al día sin intervención huma
   <img src="docs/img/capturas/05-vendo.png" width="200" alt="¿Vendo ahora o espero?">
   <img src="docs/img/capturas/07-asesor.png" width="200" alt="Asesor">
 </p>
+
+## Pruébalo en línea
+
+| | |
+|---|---|
+| **App publicada (Render)** | `https://cafe-jaen.onrender.com` (la URL exacta la muestra Render) · códigos de invitación `DEMO-0001` a `DEMO-0010` |
+| **Editar en el navegador (Codespaces)** | **Code → Codespaces → Create codespace on main**, luego `python dev.py start` |
+
+La app publicada usa un precio de demostración y se despierta en ~1 minuto si estuvo sin visitas.
+Cada `git push` a `main` la vuelve a desplegar sola. Paso a paso: [docs/despliegue.md](docs/despliegue.md).
 
 ---
 
@@ -253,7 +263,7 @@ git --version
 ### 2. Descarga el proyecto
 
 ```bash
-git clone https://github.com/<usuario>/cafe-jaen.git
+git clone https://github.com/jhon1212-beep/cafe-jaen-sistema.git
 cd cafe-jaen
 ```
 
@@ -321,7 +331,8 @@ En macOS/Linux también existen atajos con `make` (`make start`, `make check`, `
 
 - **Precios reales:** `python dev.py start --real` consulta Yahoo Finance y Stooq cuando la bolsa de Nueva York está abierta (04:15–13:30, hora de Nueva York).
 - **Histórico real:** carga el histórico con `scripts/load_price_history.py --years 5`.
-- **Producción:** `docker-compose.yml` levanta PostgreSQL y la API, y `DATABASE_URL` apunta a PostgreSQL.
+- **Publicada gratis:** `render.yaml` + `Dockerfile` despliegan la app y la API en un solo servicio de Render ([docs/despliegue.md](docs/despliegue.md)).
+- **Producción con PostgreSQL:** `docker-compose.yml` levanta PostgreSQL y la API, y `DATABASE_URL` apunta a PostgreSQL.
 - **Más detalle:** [docs/operacion.md](docs/operacion.md) explica la carga de datos, los respaldos y el despliegue.
 
 ## Subirlo a GitHub como evidencia
@@ -333,7 +344,7 @@ cada iteración (`v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1`).
 2. Desde la carpeta del proyecto:
 
    ```bash
-   git remote add origin https://github.com/<usuario>/cafe-jaen.git
+   git remote add origin https://github.com/jhon1212-beep/cafe-jaen-sistema.git
    git push -u origin main
    git push origin --tags
    ```
@@ -411,6 +422,7 @@ Las tareas en pareja (T02, T14, T34) cuentan para ambos. El detalle por tarea es
 | [docs/xp/](docs/xp/) | Iteraciones, tareas T01–T42, trazabilidad y pruebas de aceptación |
 | [docs/metafora.md](docs/metafora.md) · [docs/tarjetas-crc.md](docs/tarjetas-crc.md) | Metáfora del sistema y tarjetas CRC (XP) |
 | [docs/estandar-de-codigo.md](docs/estandar-de-codigo.md) | Idioma, nombres, buenas prácticas y Git |
-| [docs/operacion.md](docs/operacion.md) | Despliegue, carga de datos y respaldos |
+| [docs/despliegue.md](docs/despliegue.md) | Publicar gratis en Render y editar en línea con Codespaces |
+| [docs/operacion.md](docs/operacion.md) | Carga de datos, respaldos y operación |
 | [docs/manual/](docs/manual/) | Manual de usuario y guía de inducción (Word) |
 | [CHANGELOG.md](CHANGELOG.md) | Cambios de cada versión |

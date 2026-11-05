@@ -1,0 +1,32 @@
+# Despliegue gratuito en Render (Blueprint). Ver docs/despliegue.md.
+# Cada `git push` a main vuelve a desplegar la app automáticamente.
+services:
+  - type: web
+    name: cafe-jaen
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /api/health
+    envVars:
+      - key: JWT_SECRET
+        generateValue: true
+      # Modo demostración: precio sintético que se mueve todo el día y códigos DEMO-0001…0010.
+      # Para precios reales: QUOTATION_SOURCES=["yahoo","stooq"], horario 04:15–13:30 y DEMO_DATA=false
+      - key: DEMO_DATA
+        value: "true"
+      - key: QUOTATION_SOURCES
+        value: '["demo"]'
+      - key: MARKET_OPENS
+        value: "00:00"
+      - key: MARKET_CLOSES
+        value: "23:59"
+      # SQLite dentro del contenedor: se reinicia en cada despliegue (suficiente para la demo).
+      # Para datos permanentes: una base PostgreSQL gratuita (Neon) en DATABASE_URL
+      - key: DATABASE_URL
+        value: sqlite:///./cafe_jaen.db
+      - key: LLM_PROVIDER
+        value: keyword

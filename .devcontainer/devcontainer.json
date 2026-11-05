@@ -1,0 +1,25 @@
+{
+  // GitHub Codespaces: el proyecto completo en el navegador, listo para editar y ver los cambios al instante
+  "name": "Café Jaén",
+  "image": "mcr.microsoft.com/devcontainers/python:1-3.12-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": { "version": "22" }
+  },
+  "postCreateCommand": "python dev.py setup && python dev.py demo",
+  "postAttachCommand": "echo 'Para iniciar la app: python dev.py start'",
+  "forwardPorts": [5173, 8000],
+  "portsAttributes": {
+    "5173": { "label": "App Café Jaén", "onAutoForward": "openBrowser" },
+    "8000": { "label": "API", "onAutoForward": "silent" }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode"
+      ]
+    }
+  }
+}
