@@ -5,6 +5,7 @@ import { StatusMessage } from "../../shared/components/StatusMessage";
 import { formatPercent, formatSoles, formatTime } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
 import { texts } from "../../shared/texts/es";
+import { AdminTabs } from "../participants/AdminTabs";
 
 const TYPES: CoffeeType[] = ["convencional", "organico", "especial"];
 
@@ -44,6 +45,7 @@ export function AdminPage() {
 
   return (
     <section>
+      <AdminTabs />
       <h1>{texts.admin.title}</h1>
       <p className="muted">{texts.admin.intro}</p>
       <form className="form card" onSubmit={save}>

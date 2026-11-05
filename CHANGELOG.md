@@ -4,6 +4,18 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.3] — El equipo trabaja en la app publicada
+
+### Agregado
+- Cuenta del equipo creada al arrancar desde `ADMIN_PHONE` y `ADMIN_PASSWORD`
+  (`scripts/ensure_admin.py`, caso de uso `EnsureAdmin`): en Render no hace falta terminal.
+- Pestaña **«Participantes»** en «Equipo» (`/equipo/participantes`, solo administrador): quiénes
+  del GE se registraron, con qué código, cuándo y su último ingreso; se actualiza cada 10 s.
+- `GET /api/admin/participants` (caso de uso `ListParticipants`) y migración 0004 con la fecha
+  del último ingreso (`last_login_at`).
+- Base de datos permanente con PostgreSQL gratuito (Neon) en `DATABASE_URL`; la URL que entrega
+  Neon se acepta tal cual (`postgres://` o `postgresql://`).
+
 ## [v1.2] — App publicada en línea y edición en el navegador
 
 ### Agregado

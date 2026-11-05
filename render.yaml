@@ -24,9 +24,16 @@ services:
         value: "00:00"
       - key: MARKET_CLOSES
         value: "23:59"
-      # SQLite dentro del contenedor: se reinicia en cada despliegue (suficiente para la demo).
-      # Para datos permanentes: una base PostgreSQL gratuita (Neon) en DATABASE_URL
+      # Base de datos: se carga a mano en Environment (no se versiona porque lleva contraseña).
+      # Con la URL de una base PostgreSQL gratuita (Neon) los datos son permanentes; sin ella,
+      # la app usa SQLite dentro del contenedor y los datos se reinician en cada despliegue.
       - key: DATABASE_URL
-        value: sqlite:///./cafe_jaen.db
+        sync: false
       - key: LLM_PROVIDER
         value: keyword
+      # Cuenta del equipo (pantallas «Equipo» y «Participantes»): se carga a mano en Environment.
+      # Se crea sola al arrancar; nunca se escribe en el repositorio.
+      - key: ADMIN_PHONE
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false

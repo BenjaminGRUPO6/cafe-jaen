@@ -68,8 +68,23 @@ export const texts = {
     empty: "Todavía no hay precios de cooperativas anotados.",
     unit: "por quintal de pergamino",
   },
+  participants: {
+    tab: "Participantes",
+    title: "Participantes del grupo experimental",
+    intro: "Quiénes se registraron con su código y cuándo entraron. Se actualiza sola cada 10 s.",
+    registered: "Registrados",
+    codes: "Códigos usados",
+    activeToday: "Entraron hoy",
+    empty: "Todavía nadie se registró con un código de invitación.",
+    team: "Cuentas del equipo",
+    teamBadge: "Equipo",
+    registeredAt: (when: string) => `Registro: ${when}`,
+    lastLogin: (when: string) => `último ingreso: ${when}`,
+    neverLoggedIn: "no volvió a ingresar",
+  },
   admin: {
     nav: "Equipo",
+    tabPrices: "Precios",
     title: "Precios de las cooperativas",
     intro:
       "Pregunta a la cooperativa «¿a cuánto está el quintal ahora?» y anótalo aquí. La app guarda el precio de la bolsa de este momento y calcula el porcentaje.",

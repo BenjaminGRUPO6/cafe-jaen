@@ -3,6 +3,7 @@
 import pytest
 
 from identity.application.authenticate_user import AuthenticateUser
+from identity.application.list_participants import ListParticipants
 from identity.application.register_user import RegisterUser, RegisterUserCommand
 from identity.domain.errors import (
     ConsentNotAcceptedError,
@@ -115,7 +116,7 @@ def test_login_returns_token_for_valid_credentials(
     register: RegisterUser, users: InMemoryUserRepository
 ) -> None:
     user = register.execute(command())
-    authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer())
+    authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer(), FixedClock())
 
     assert authenticate.execute("987654321", "cafe2026!") == f"token-{user.id}-farmer"
 
@@ -127,7 +128,35 @@ def test_login_rejects_invalid_credentials(
     register: RegisterUser, users: InMemoryUserRepository, phone: str, password: str
 ) -> None:
     register.execute(command())
-    authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer())
+    authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer(), FixedClock())
 
     with pytest.raises(InvalidCredentialsError):
         authenticate.execute(phone, password)
+
+
+def test_login_records_the_last_login(
+    register: RegisterUser, users: InMemoryUserRepository
+) -> None:
+    user = register.execute(command())
+    clock = FixedClock()
+    authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer(), clock)
+
+    authenticate.execute("987654321", "cafe2026!")
+
+    assert users.logins[user.id] == clock.now()
+
+
+def test_participants_report_lists_users_and_codes(
+    register: RegisterUser, users: InMemoryUserRepository
+) -> None:
+    register.execute(command())
+    codes = InMemoryInvitationCodeRepository(
+        InvitationCode("JAEN-ABC234", used_by="x"), InvitationCode("JAEN-XYZ789")
+    )
+
+    report = ListParticipants(users, codes).execute()
+
+    assert [p.phone for p in report.participants] == ["987654321"]
+    assert report.participants[0].invitation_code == "JAEN-ABC234"
+    assert report.participants[0].last_login_at is None
+    assert (report.codes.total, report.codes.used) == (2, 1)

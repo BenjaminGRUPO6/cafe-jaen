@@ -3,6 +3,7 @@
 from decimal import Decimal
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -49,8 +50,20 @@ class Settings(BaseSettings):
 
     # API
     cors_origins: list[str] = ["http://localhost:5173"]
+    # Cuenta del equipo creada al arrancar (Render no tiene terminal en el plan gratuito)
+    admin_phone: str = ""
+    admin_password: str = ""
     # Carpeta del front-end compilado. Vacía en local (lo sirve Vite); en Render, /app/static
     static_dir: str = ""
+
+    @field_validator("database_url")
+    @classmethod
+    def _postgres_driver(cls, value: str) -> str:
+        """Neon y otros proveedores entregan «postgres://» o «postgresql://»: se usa psycopg2."""
+        for prefix in ("postgres://", "postgresql://"):
+            if value.startswith(prefix):
+                return "postgresql+psycopg2://" + value.removeprefix(prefix)
+        return value
 
 
 @lru_cache

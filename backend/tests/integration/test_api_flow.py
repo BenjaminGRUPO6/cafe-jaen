@@ -158,3 +158,26 @@ def test_advisor_answers_with_the_same_price_as_home(
 
     assert f"{live['price_soles']:.2f}".replace(".", ",") in reply["answer"]
     assert reply["used_tool"] == "get_live_price"
+
+
+def test_team_sees_participants_and_their_last_login(
+    client: TestClient, auth_headers: dict[str, str], admin_headers: dict[str, str]
+) -> None:
+    client.post("/api/auth/login", json={"phone": "987654321", "password": "cafe2026!"})
+
+    response = client.get("/api/admin/participants", headers=admin_headers)
+
+    body = response.json()
+    assert response.status_code == 200
+    farmer = next(p for p in body["participants"] if p["phone"] == "987654321")
+    assert farmer["role"] == "farmer"
+    assert farmer["invitation_code"] == INVITATION_CODE
+    assert farmer["last_login_at"] is not None
+    admin = next(p for p in body["participants"] if p["phone"] == "911111111")
+    assert admin["role"] == "admin"
+    assert admin["invitation_code"] is None
+    assert body["codes"] == {"total": 1, "used": 1}
+
+
+def test_farmers_cannot_see_participants(client: TestClient, auth_headers: dict[str, str]) -> None:
+    assert client.get("/api/admin/participants", headers=auth_headers).status_code == 403

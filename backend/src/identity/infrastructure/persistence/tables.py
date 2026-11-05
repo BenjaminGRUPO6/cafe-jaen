@@ -12,6 +12,7 @@ users = Table(
     Column("consent_accepted_at", DateTime(timezone=True), nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("role", String(10), nullable=False, server_default="farmer"),
+    Column("last_login_at", DateTime(timezone=True), nullable=True),
 )
 
 invitation_codes = Table(

@@ -10,6 +10,7 @@ import { RequireAuth } from "./features/auth/RequireAuth";
 import { DecisionPage } from "./features/decision/DecisionPage";
 import { ForecastPage } from "./features/forecast/ForecastPage";
 import { LivePricePage } from "./features/live/LivePricePage";
+import { ParticipantsPage } from "./features/participants/ParticipantsPage";
 import { AuthProvider } from "./shared/auth/AuthContext";
 import { Layout } from "./shared/components/Layout";
 import { StatusMessage } from "./shared/components/StatusMessage";
@@ -53,6 +54,14 @@ export function App() {
                 element={
                   <RequireAdmin>
                     <AdminPage />
+                  </RequireAdmin>
+                }
+              />
+              <Route
+                path="/equipo/participantes"
+                element={
+                  <RequireAdmin>
+                    <ParticipantsPage />
                   </RequireAdmin>
                 }
               />

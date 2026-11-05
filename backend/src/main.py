@@ -34,7 +34,9 @@ from forecasting.infrastructure.persistence.sqlalchemy_forecast_repository impor
     SqlAlchemyForecastRepository,
 )
 from identity.application.authenticate_user import AuthenticateUser
+from identity.application.list_participants import ListParticipants
 from identity.application.register_user import RegisterUser
+from identity.infrastructure.api.admin_router import build_participants_router
 from identity.infrastructure.api.auth_router import build_auth_router
 from identity.infrastructure.persistence.sqlalchemy_repositories import (
     SqlAlchemyInvitationCodeRepository,
@@ -99,10 +101,9 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     users = SqlAlchemyUserRepository(sessions)
     hasher = BcryptPasswordHasher()
     tokens = JwtTokenService(settings.jwt_secret, settings.session_days, clock)
-    register = RegisterUser(
-        users, SqlAlchemyInvitationCodeRepository(sessions), hasher, clock, settings.consent_version
-    )
-    authenticate = AuthenticateUser(users, hasher, tokens)
+    codes = SqlAlchemyInvitationCodeRepository(sessions)
+    register = RegisterUser(users, codes, hasher, clock, settings.consent_version)
+    authenticate = AuthenticateUser(users, hasher, tokens, clock)
 
     # ---------- market (Recolector y Analista): precio mundial en vivo
     prices = SqlAlchemyPriceRepository(sessions)
@@ -185,6 +186,10 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
 
     require_user = build_require_user(tokens)
     app.include_router(build_auth_router(register, authenticate, tokens), prefix="/api")
+    app.include_router(
+        build_participants_router(ListParticipants(users, codes), build_require_admin(tokens)),
+        prefix="/api",
+    )
     app.include_router(
         build_market_router(
             supervisor,

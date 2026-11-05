@@ -1,6 +1,8 @@
+from datetime import datetime
 from typing import Protocol
 
 from identity.domain.invitation_code import InvitationCode
+from identity.domain.participant import CodeSummary, Participant
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.user import User
 
@@ -15,6 +17,14 @@ class UserRepository(Protocol):
         """
         ...
 
+    def record_login(self, user_id: str, at: datetime) -> None: ...
+
+    def participants(self) -> list[Participant]:
+        """Todos los usuarios, del registro más reciente al más antiguo."""
+        ...
+
 
 class InvitationCodeRepository(Protocol):
     def get(self, code: str) -> InvitationCode | None: ...
+
+    def summary(self) -> CodeSummary: ...

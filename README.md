@@ -11,7 +11,7 @@ la recomendación **«¿Vendo ahora o espero?»** y un **asesor** que responde e
 Detrás, seis agentes coordinados por un supervisor mantienen los datos al día sin intervención
 humana.
 
-> **Versión:** v1.2 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
+> **Versión:** v1.3 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
 > **Arquitectura:** monolito modular hexagonal + sistema multiagente con supervisor
 
 | Integrante | GitHub | Rol en XP | Lidera |
@@ -35,7 +35,9 @@ humana.
 | **App publicada (Render)** | [https://cafe-jaen-oa58.onrender.com](https://cafe-jaen-oa58.onrender.com) · códigos de invitación `DEMO-0001` a `DEMO-0010` |
 | **Edición en el navegador (Codespaces)** | **Code → Codespaces → Create codespace on main** y luego `python dev.py start` |
 
-Publicamos la app en el plan gratuito de Render con un precio de demostración. Si estuvo un rato
+Publicamos la app en el plan gratuito de Render con un precio de demostración, una base
+PostgreSQL gratuita (Neon) para que los registros sean permanentes y una cuenta del equipo que se
+crea sola al arrancar. Si estuvo un rato
 sin visitas, tarda alrededor de un minuto en despertar. Cada `git push` a `main` la vuelve a
 desplegar sola. Cómo lo configuramos: [docs/despliegue.md](docs/despliegue.md).
 
@@ -75,6 +77,7 @@ Organizamos el producto en historias de usuario (XP). Estas son las que implemen
 | HU09 | Letra grande, se instala en el celular y muestra el último precio sin señal | — |
 | HU10–11 | Producción, manual de usuario e inducción | — |
 | HU12 | **Precio estimado en Jaén**: la bolsa × el porcentaje que pagan las cooperativas (los precios los anotamos nosotros en la pantalla «Equipo») | Analista |
+| Equipo | Área solo para administrador: **Precios** de cooperativas y **Participantes** del GE (quién se registró, con qué código y cuándo entró), en vivo | — |
 | HU15 | Interfaz dinámica: colores vivos, precio que rueda al cambiar, animaciones que responden al toque | — |
 | HU16 | Ejecución local en un paso (Windows, macOS, Linux), despliegue en línea y dependencias que se actualizan solas | — |
 
@@ -314,7 +317,7 @@ En macOS o Linux el comando puede ser `python3`; en Windows también funciona `p
 ## Cómo trabajamos con Git y GitHub
 
 - El historial tiene **un commit por tarea de ingeniería (T01–T42)** y una etiqueta por cada
-  iteración o entrega: `v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1` y `v1.2`.
+  iteración o entrega: `v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1`, `v1.2` y `v1.3`.
 - Cada tarea la trabajamos en una rama `feature/huXX-descripcion` y la integramos con un PR que
   revisa el compañero. La CI tiene que quedar en verde antes de unir el PR.
 - Integramos a `main` al menos una vez al día (integración continua).
@@ -329,7 +332,7 @@ python dev.py check
 ```
 
 - **Qué revisa:** ruff, mypy, import-linter, pytest con cobertura ≥ 80 %, ESLint, Prettier, Vitest y el build de Vite.
-- **Resultado actual:** 191 pruebas del backend (cobertura 97,6 %) y 17 del frontend.
+- **Resultado actual:** 205 pruebas del backend (cobertura 97,7 %) y 19 del frontend.
 - **TDD:** escribimos las reglas del dominio con la prueba primero.
 - **Criterios de aceptación:** cada historia tiene los suyos, y cada uno corresponde a una prueba de aceptación (PA-xx-x). El estado de cada PA, automatizada o manual, está en el README de cada iteración ([docs/xp/iteraciones.md](docs/xp/iteraciones.md)).
 - **Trazabilidad:** en [docs/xp/trazabilidad.md](docs/xp/trazabilidad.md) relacionamos cada historia con sus archivos y sus pruebas.

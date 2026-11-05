@@ -9,6 +9,7 @@ from zoneinfo import ZoneInfo
 
 from forecasting.domain.forecast import Forecast
 from identity.domain.invitation_code import InvitationCode
+from identity.domain.participant import CodeSummary, Participant
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.user import User
 from market.domain.errors import SourceUnavailableError
@@ -64,6 +65,7 @@ class InMemoryUserRepository:
     def __init__(self) -> None:
         self.users: dict[str, User] = {}
         self.redeemed: list[InvitationCode] = []
+        self.logins: dict[str, datetime] = {}
 
     def get_by_phone(self, phone: PhoneNumber) -> User | None:
         return next((u for u in self.users.values() if u.phone == phone), None)
@@ -73,6 +75,16 @@ class InMemoryUserRepository:
         if redeemed_code:
             self.redeemed.append(redeemed_code)
 
+    def record_login(self, user_id: str, at: datetime) -> None:
+        self.logins[user_id] = at
+
+    def participants(self) -> list[Participant]:
+        codes = {c.used_by: c.code for c in self.redeemed}
+        return [
+            Participant(u.phone.value, u.role, u.created_at, codes.get(u.id), self.logins.get(u.id))
+            for u in sorted(self.users.values(), key=lambda u: u.created_at, reverse=True)
+        ]
+
 
 class InMemoryInvitationCodeRepository:
     def __init__(self, *codes: InvitationCode) -> None:
@@ -80,6 +92,9 @@ class InMemoryInvitationCodeRepository:
 
     def get(self, code: str) -> InvitationCode | None:
         return self.codes.get(code)
+
+    def summary(self) -> CodeSummary:
+        return CodeSummary(len(self.codes), sum(c.is_used for c in self.codes.values()))
 
 
 class FakePasswordHasher:

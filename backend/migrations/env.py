@@ -6,7 +6,8 @@ from sqlalchemy import engine_from_config, pool
 from shared.infrastructure.settings import get_settings
 
 config = context.config
-config.set_main_option("sqlalchemy.url", get_settings().database_url)
+# configparser interpreta «%»: se escapa por si la contraseña de la base lo incluye
+config.set_main_option("sqlalchemy.url", get_settings().database_url.replace("%", "%%"))
 
 
 def run_migrations_offline() -> None:

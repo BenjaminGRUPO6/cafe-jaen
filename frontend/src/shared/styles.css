@@ -830,3 +830,73 @@ a {
     animation: none !important;
   }
 }
+
+/* ---------- Área del equipo: pestañas y participantes ---------- */
+.admin-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-bottom: 0.75rem;
+  border-radius: 999px;
+  background: var(--papel);
+}
+.admin-tabs__link {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 700;
+  color: var(--espresso);
+  text-decoration: none;
+}
+.admin-tabs__link.active {
+  background: var(--espresso);
+  color: var(--papel);
+}
+.participants {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.participants__row {
+  border-radius: var(--radio-chico);
+  padding: 0.75rem 0.9rem;
+  background: var(--papel);
+}
+.participants__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.participants__phone {
+  font-family: var(--display);
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+.participants__meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--corteza);
+}
+.participants__team {
+  font-size: 1.05rem;
+  margin: 0.5rem 0;
+}
+.participants__pulse {
+  display: inline-block;
+  vertical-align: middle;
+}
+.agent-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  background: var(--grano);
+}
+.agent-chip--strategist {
+  background: var(--espresso);
+  color: var(--papel);
+}

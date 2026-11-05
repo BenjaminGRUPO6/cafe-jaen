@@ -45,14 +45,37 @@ GitHub (main) ──push──► Render construye el Dockerfile de la raíz
 5. Con el servicio en **Live**, abrimos la URL y nos registramos con un código `DEMO-0001` …
    `DEMO-0010` (cada código sirve una vez).
 
+### Cuenta del equipo y datos permanentes
+
+El plan gratuito de Render no tiene terminal, así que la cuenta de administrador no se crea con
+`python dev.py admin`. La creamos con dos variables que el servicio lee al arrancar
+(`backend/scripts/ensure_admin.py`); si la cuenta ya existe, no la toca:
+
+| Variable (Render → *Environment*) | Valor |
+|---|---|
+| `ADMIN_PHONE` | Celular del equipo, 9 dígitos que empiezan con 9 |
+| `ADMIN_PASSWORD` | Contraseña de al menos 8 caracteres |
+| `DATABASE_URL` | URL de la base PostgreSQL gratuita de Neon (`postgresql://…?sslmode=require`) |
+
+Con esa cuenta aparecen en la app el enlace **«Equipo»** y sus dos pestañas:
+- **Precios:** anotamos lo que paga cada cooperativa; el «Precio estimado en Jaén» se recalcula.
+- **Participantes:** quiénes del GE se registraron, con qué código, cuándo y su último ingreso.
+  Se actualiza sola cada 10 segundos.
+
+Los caficultores no ven «Equipo» y la API les responde 403 si intentan entrar.
+
+**Base de datos permanente (Neon, gratis):** creamos un proyecto en <https://neon.tech>, copiamos
+la *connection string* y la pegamos en `DATABASE_URL`. Al arrancar, la app crea las tablas sola
+(migraciones de Alembic), carga los datos de demostración una sola vez y crea la cuenta del equipo.
+Desde ahí, los registros sobreviven a los reinicios y a los despliegues. La misma base se puede
+abrir desde el panel de Neon (*Tables*) para ver los usuarios en tiempo real.
+
 ### Limitaciones del plan gratuito
 
 - **Se duerme** tras unos 15 minutos sin visitas; la primera visita después tarda alrededor de
   1 minuto en despertar. Antes de una presentación, abrimos la URL 2–3 minutos antes.
-- **Los datos se reinician** en cada despliegue o al despertar, porque SQLite vive dentro del
-  contenedor. Al arrancar se vuelven a cargar los datos y los 10 códigos, pero las cuentas creadas
-  se pierden. Para datos permanentes basta con una base PostgreSQL gratuita (por ejemplo, Neon)
-  en la variable `DATABASE_URL` (formato `postgresql+psycopg2://…`).
+- **Sin `DATABASE_URL`, los datos se reinician** en cada despliegue o al despertar, porque SQLite
+  vive dentro del contenedor. Con la base de Neon (sección anterior) son permanentes.
 - **Precios reales** en lugar del sintético: en *Environment* se cambia `QUOTATION_SOURCES` a
   `["yahoo","stooq"]`, `MARKET_OPENS` a `04:15`, `MARKET_CLOSES` a `13:30` y `DEMO_DATA` a `false`
   (requiere cargar el histórico real; ver `docs/operacion.md`).
