@@ -832,25 +832,21 @@ a {
 }
 
 /* ---------- Área del equipo: pestañas y participantes ---------- */
+/* Las 5 pestañas pasan a una segunda fila si no entran: todas quedan visibles en celular y PC */
 .admin-tabs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.25rem;
-  max-width: 100%;
-  width: max-content;
   padding: 0.25rem;
   margin-bottom: 0.75rem;
-  border-radius: 999px;
+  border-radius: 24px;
   background: var(--papel);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.admin-tabs::-webkit-scrollbar {
-  display: none;
 }
 .admin-tabs__link {
-  flex: none;
   white-space: nowrap;
-  padding: 0.35rem 0.9rem;
+  text-align: center;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.2rem;
   border-radius: 999px;
   font-weight: 700;
   color: var(--espresso);
