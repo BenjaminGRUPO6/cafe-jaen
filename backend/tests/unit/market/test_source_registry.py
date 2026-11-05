@@ -16,6 +16,8 @@ def test_unknown_names_are_ignored() -> None:
     assert names(["demo", "stooq", "stooq"]) == ["Stooq"]
 
 
-def test_without_valid_webs_uses_yahoo_and_stooq() -> None:
-    assert names(["demo"]) == ["Yahoo Finance", "Stooq"]
-    assert names([]) == ["Yahoo Finance", "Stooq"]
+def test_without_valid_webs_uses_the_four_real_webs() -> None:
+    four = ["Yahoo Finance", "Stooq", "CNBC", "TradingView"]
+    assert names(["demo"]) == four
+    assert names([]) == four
+    assert names(["yahoo", "stooq", "cnbc", "tradingview"]) == four

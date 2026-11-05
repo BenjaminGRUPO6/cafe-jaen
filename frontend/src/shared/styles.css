@@ -1322,3 +1322,75 @@ a {
   color: var(--cereza);
   font-weight: 650;
 }
+
+/* ---------- Enlaces a fuentes y evaluación de fuentes ---------- */
+.source-name {
+  color: var(--cielo);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.price-log__row--unchanged {
+  opacity: 0.8;
+}
+.ranking {
+  margin: 1rem 0;
+}
+.ranking h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+}
+.ranking__list {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.ranking__item {
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  background: var(--niebla);
+  border-left: 4px solid var(--linea);
+}
+.ranking__item--best {
+  border-left-color: var(--hoja);
+}
+.ranking__top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.ranking__badge {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--hoja);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+.ranking__score {
+  margin-left: auto;
+  font-weight: 700;
+}
+.ranking__bar {
+  height: 6px;
+  margin: 0.35rem 0;
+  border-radius: 999px;
+  background: var(--linea);
+  overflow: hidden;
+}
+.ranking__bar span {
+  display: block;
+  height: 100%;
+  background: var(--hoja);
+}
+.ranking__detail,
+.ranking__formula {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--corteza);
+}
+.ranking__formula {
+  margin-top: 0.6rem;
+}

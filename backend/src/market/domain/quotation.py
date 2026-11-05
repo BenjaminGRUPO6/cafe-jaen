@@ -14,6 +14,8 @@ class LiveQuote:
     cents_per_pound: Decimal
     quoted_at: datetime
     sources: tuple[str, ...]
+    # False si la web no informa la hora de la bolsa (se anotó la hora de la consulta)
+    has_exchange_time: bool = True
 
     def __post_init__(self) -> None:
         if self.cents_per_pound <= 0:

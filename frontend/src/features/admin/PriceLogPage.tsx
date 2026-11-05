@@ -8,7 +8,8 @@ import { useAutoReload } from "../../shared/hooks/useAutoReload";
 import { Segmented } from "../../shared/motion/Segmented";
 import { texts } from "../../shared/texts/es";
 import { AdminTabs } from "./AdminTabs";
-import { summarizeDay, todayInput, type PriceLogEntry } from "./priceLog";
+import { summarizeDay, todayInput, type PriceLog, type PriceLogEntry } from "./priceLog";
+import { SourceRanking } from "./SourceRanking";
 import { SourceReadings } from "./SourceReadings";
 
 const TYPES: CoffeeType[] = ["convencional", "organico", "especial"];
@@ -24,9 +25,7 @@ export function PriceLogPage() {
   const [day, setDay] = useState(today);
   const [coffeeType, setCoffeeType] = useState<CoffeeType>("convencional");
   const [visible, setVisible] = useState(PAGE);
-  const { data, error, reload } = useApi<{ entries: PriceLogEntry[] }>(
-    `/admin/price-log?day=${day}`,
-  );
+  const { data, error, reload } = useApi<PriceLog>(`/admin/price-log?day=${day}`);
   useAutoReload(reload, REFRESH_MS);
   const summary = data ? summarizeDay(data.entries) : null;
 
@@ -73,6 +72,7 @@ export function PriceLogPage() {
             <Stat label={texts.priceLog.withDiscarded} value={String(summary.withDiscarded)} />
             <Stat label={texts.priceLog.withFailures} value={String(summary.withFailures)} />
           </div>
+          <SourceRanking ranking={data.ranking} />
           <ul className="price-log" aria-label={texts.priceLog.title}>
             {data.entries.slice(0, visible).map((entry, index) => (
               <LogRow
@@ -112,7 +112,10 @@ function LogRow({
   const rowClass = [
     "price-log__row",
     latest ? "price-log__row--latest" : "",
-    entry.published ? "" : "price-log__row--rejected",
+    entry.outcome === "publicada" || entry.outcome === "sin cambios"
+      ? ""
+      : "price-log__row--rejected",
+    entry.outcome === "sin cambios" ? "price-log__row--unchanged" : "",
   ].join(" ");
   return (
     <li className={rowClass}>
@@ -123,13 +126,19 @@ function LogRow({
         </div>
         <div className="price-log__local">
           <small>{texts.priceLog.local(texts.local.coffeeTypes[coffeeType])}</small>
-          {local !== undefined ? formatSoles(local) : <small>{texts.priceLog.noEstimate}</small>}
+          {local !== undefined ? (
+            formatSoles(local)
+          ) : (
+            <small>{entry.published ? texts.priceLog.noEstimate : "—"}</small>
+          )}
         </div>
         <p className="price-log__exchange">
-          {texts.priceLog.exchangeLine(
-            entry.price_soles !== null ? formatSoles(entry.price_soles) : "—",
-            entry.cents_per_pound !== null ? formatCents(entry.cents_per_pound) : "—",
-          )}
+          {entry.published || entry.median_cents === null
+            ? texts.priceLog.exchangeLine(
+                entry.price_soles !== null ? formatSoles(entry.price_soles) : "—",
+                entry.cents_per_pound !== null ? formatCents(entry.cents_per_pound) : "—",
+              )
+            : texts.priceLog.medianLine(formatCents(entry.median_cents))}
           {entry.exchange_rate !== null &&
             ` · ${texts.priceLog.rate(formatNumber(entry.exchange_rate, 3))}`}
         </p>
@@ -147,9 +156,15 @@ function LogRow({
   );
 }
 
-/** «2 de 3 webs coinciden», o las fuentes guardadas si la cotización no tiene detalle. */
+/** «2 de 4 webs coinciden», o por qué no se publicó (con el motivo real que guardó la API). */
 function agreement(entry: PriceLogEntry): string {
-  if (!entry.published) return texts.priceLog.notPublished;
+  if (entry.outcome === "sin cambios") return texts.priceLog.unchanged;
+  if (entry.outcome === "sin datos") return texts.priceLog.noData;
+  if (!entry.published) {
+    return entry.detail
+      ? texts.priceLog.notPublishedBecause(entry.detail)
+      : texts.priceLog.notPublished;
+  }
   if (entry.readings.length === 0) return entry.sources.join(", ");
   const used = entry.readings.filter((reading) => reading.status === "usada").length;
   return texts.priceLog.agreement(used, entry.readings.length);

@@ -96,7 +96,23 @@ def build_admin_market_router(
     @router.get("/admin/price-log", dependencies=admin)
     def log(day: date | None = None) -> dict[str, Any]:
         """Historial de un día (hora de Lima); sin `day`, el de hoy."""
-        return {"entries": [_entry(e) for e in price_log.execute(day)]}
+        log = price_log.execute(day)
+        return {
+            "entries": [_entry(e) for e in log.entries],
+            "ranking": [
+                {
+                    "source": r.source,
+                    "consultations": r.consultations,
+                    "answered": r.answered,
+                    "used": r.used,
+                    "discarded": r.discarded,
+                    "avg_delay_minutes": r.avg_delay_minutes,
+                    "avg_deviation_pct": r.avg_deviation_pct,
+                    "score": r.score,
+                }
+                for r in log.ranking
+            ],
+        }
 
     return router
 
@@ -115,6 +131,8 @@ def _entry(e: PriceLogEntry) -> dict[str, Any]:
     return {
         "quoted_at": e.at.isoformat(),
         "published": e.published,
+        "outcome": e.outcome.value,
+        "detail": e.detail,
         "cents_per_pound": _num(e.cents_per_pound),
         "median_cents": _num(e.median_cents),
         "exchange_rate": _num(e.exchange_rate),
@@ -129,6 +147,7 @@ def _entry(e: PriceLogEntry) -> dict[str, Any]:
                 "quoted_at": r.quoted_at.isoformat() if r.quoted_at else None,
                 "deviation_pct": _num(r.deviation_pct),
                 "detail": r.detail,
+                "has_exchange_time": r.has_exchange_time,
             }
             for r in e.readings
         ],

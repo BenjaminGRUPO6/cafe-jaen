@@ -32,6 +32,8 @@ price_collections = Table(
     Column("median_cents", Numeric(10, 4), nullable=True),
     Column("published_cents", Numeric(10, 4), nullable=True),
     Column("published_quoted_at", DateTime(timezone=True), nullable=True),
+    Column("outcome", String(20), nullable=False, server_default="publicada"),
+    Column("detail", String(200), nullable=True),
 )
 
 source_readings = Table(
@@ -51,6 +53,7 @@ source_readings = Table(
     Column("quoted_at", DateTime(timezone=True), nullable=True),
     Column("deviation_pct", Numeric(8, 2), nullable=True),
     Column("detail", String(200), nullable=True),
+    Column("has_exchange_time", Boolean, nullable=False, server_default=true()),
 )
 
 # Cierres diarios: el último precio de cada día (histórico de 30/90 días y pronóstico)

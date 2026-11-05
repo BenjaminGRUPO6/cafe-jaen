@@ -15,6 +15,13 @@ from market.domain.consensus import ConsensusResult
 from market.domain.quotation import LiveQuote
 
 
+class CollectionOutcome(StrEnum):
+    PUBLISHED = "publicada"  # hay un precio nuevo para el caficultor
+    UNCHANGED = "sin cambios"  # las webs repiten la última cotización ya publicada
+    REJECTED = "no publicada"  # las webs no coincidieron o el salto fue atípico
+    NO_DATA = "sin datos"  # ninguna web respondió
+
+
 class ReadingStatus(StrEnum):
     USED = "usada"  # coincidió con las demás y entró en la mediana
     DISCARDED = "descartada"  # se alejó más del máximo permitido de la mediana
@@ -31,6 +38,7 @@ class SourceReading:
     quoted_at: datetime | None = None  # hora de la cotización según esa web
     deviation_pct: Decimal | None = None  # distancia a la mediana de todas las webs, en %
     detail: str | None = None  # motivo si no respondió
+    has_exchange_time: bool = True  # False si la web no informa la hora de la bolsa
 
 
 @dataclass(frozen=True)
@@ -42,6 +50,8 @@ class PriceCollection:
     median_cents: Decimal | None  # mediana de todas las webs que respondieron
     published_cents: Decimal | None  # None si no se publicó (p. ej., las webs no coincidieron)
     published_quoted_at: datetime | None
+    outcome: CollectionOutcome = CollectionOutcome.PUBLISHED
+    detail: str | None = None  # motivo cuando no se publicó
 
     @property
     def published(self) -> bool:
@@ -55,6 +65,8 @@ def build_collection(
     result: ConsensusResult | None,
     median_cents: Decimal | None,
     published: LiveQuote | None,
+    outcome: CollectionOutcome = CollectionOutcome.PUBLISHED,
+    detail: str | None = None,
 ) -> PriceCollection:
     """Arma el registro de una consulta a partir de lo que respondió cada web.
 
@@ -69,6 +81,7 @@ def build_collection(
             cents_per_pound=quote.cents_per_pound,
             quoted_at=quote.quoted_at,
             deviation_pct=_deviation(quote.cents_per_pound, median_cents),
+            has_exchange_time=quote.has_exchange_time,
         )
         for quote in quotes
         for source in quote.sources
@@ -83,6 +96,8 @@ def build_collection(
         median_cents=median_cents,
         published_cents=published.cents_per_pound if published else None,
         published_quoted_at=published.quoted_at if published else None,
+        outcome=outcome,
+        detail=detail[:200] if detail else None,
     )
 
 

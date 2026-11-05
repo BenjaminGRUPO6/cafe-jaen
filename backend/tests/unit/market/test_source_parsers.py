@@ -73,3 +73,51 @@ def test_stooq_daily_history_is_read_from_its_csv() -> None:
 def test_stooq_history_without_rows_is_a_source_failure() -> None:
     with pytest.raises(SourceUnavailableError):
         parse_stooq_history("No data")
+
+
+# ---------------------------------------------------------------- CNBC y TradingView
+def test_cnbc_quote_is_read_with_the_exchange_time() -> None:
+    from market.infrastructure.sources.cnbc_quotation_source import parse_cnbc_quote
+
+    payload = {
+        "FormattedQuoteResult": {
+            "FormattedQuote": [
+                {"symbol": "@KC.1", "last": "280.75", "last_time": "2026-11-05T09:42:05.000-0500"}
+            ]
+        }
+    }
+
+    quote = parse_cnbc_quote(payload)
+
+    assert quote.cents_per_pound == Decimal("280.75")
+    assert quote.quoted_at.isoformat() == "2026-11-05T09:42:05-05:00"
+    assert quote.sources == ("CNBC",)
+    assert quote.has_exchange_time
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [{}, {"FormattedQuoteResult": {"FormattedQuote": [{"last": "UNCH"}]}}],
+)
+def test_unexpected_cnbc_format_is_a_source_failure(payload: dict[str, object]) -> None:
+    from market.infrastructure.sources.cnbc_quotation_source import parse_cnbc_quote
+
+    with pytest.raises(SourceUnavailableError):
+        parse_cnbc_quote(payload)
+
+
+def test_tradingview_scan_is_read_without_exchange_time() -> None:
+    from market.infrastructure.sources.tradingview_quotation_source import parse_tradingview_scan
+
+    quote = parse_tradingview_scan({"totalCount": 1, "data": [{"s": "ICEUS:KC1!", "d": [280.8]}]})
+
+    assert quote.cents_per_pound == Decimal("280.8")
+    assert quote.sources == ("TradingView",)
+    assert not quote.has_exchange_time
+
+
+def test_unexpected_tradingview_format_is_a_source_failure() -> None:
+    from market.infrastructure.sources.tradingview_quotation_source import parse_tradingview_scan
+
+    with pytest.raises(SourceUnavailableError):
+        parse_tradingview_scan({"data": []})

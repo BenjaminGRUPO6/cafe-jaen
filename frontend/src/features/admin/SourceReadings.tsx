@@ -1,4 +1,5 @@
 import { formatCents } from "../../shared/format";
+import { SourceName } from "../../shared/components/SourceName";
 import { texts } from "../../shared/texts/es";
 import type { SourceReading } from "./priceLog";
 
@@ -22,7 +23,9 @@ export function SourceReadings({
         {readings.map((reading) => (
           <li key={reading.source} className={`reading reading--${statusClass(reading.status)}`}>
             <div className="reading__top">
-              <strong>{reading.source}</strong>
+              <strong>
+                <SourceName name={reading.source} />
+              </strong>
               <span className="reading__status">{texts.priceLog.status[reading.status]}</span>
             </div>
             {reading.cents_per_pound !== null ? (
@@ -30,7 +33,12 @@ export function SourceReadings({
                 {formatCents(reading.cents_per_pound)}
                 {reading.deviation_pct !== null &&
                   ` · ${texts.priceLog.deviation(reading.deviation_pct)}`}
-                {reading.quoted_at && ` · ${texts.priceLog.sourceTime(clock(reading.quoted_at))}`}
+                {reading.quoted_at &&
+                  ` · ${
+                    reading.has_exchange_time
+                      ? texts.priceLog.sourceTime(clock(reading.quoted_at))
+                      : texts.priceLog.noExchangeTime
+                  }`}
               </p>
             ) : (
               <p className="reading__detail">{reading.detail ?? texts.priceLog.noAnswer}</p>

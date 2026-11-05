@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import date, datetime, time, timedelta
+from decimal import Decimal
 
 from market.domain.cooperative import Cooperative
 from market.domain.errors import MarketError
@@ -67,6 +68,19 @@ class ManageSyntheticData:
         self._prices.add_local_observations(generate_observations(exchange_days, names))
         return self.status()
 
+    def ensure_loaded(self, days: int = DEFAULT_DAYS) -> bool:
+        """Carga los datos sintéticos solo si aún no hay ninguno (idempotente).
+
+        Devuelve True cuando ya quedaron cargados; False si todavía falta el precio real.
+        """
+        if self.status().observations > 0:
+            return True
+        try:
+            self.load(days)
+        except NoRealExchangeError:
+            return False
+        return True
+
     def remove(self) -> SyntheticStatus:
         names = self._names()
         removed = self._prices.delete_local_observations_of(names)
@@ -79,17 +93,34 @@ class ManageSyntheticData:
         return [c.name for c in self._cooperatives.all() if is_synthetic(c.name)]
 
     def _exchange_days(self, days: int) -> list[ExchangeDay]:
-        """Precio real de la bolsa en S/ por quintal de cada día hábil de ese periodo."""
+        """Precio real de la bolsa en S/ por quintal de cada día hábil de ese periodo.
+
+        Usa los cierres diarios reales; si aún no hay histórico, el último precio real en vivo
+        (el mismo para todos los días: es real, pero no varía día a día).
+        """
         today = self._clock.today()
         zone = self._clock.now().tzinfo
         result = []
         for close in self._prices.quotations_since(today - timedelta(days=days)):
-            rate = self._prices.exchange_rate_on(close.quoted_on)
-            if rate is None or close.quoted_on > today:
-                continue
-            soles = self._converter.to_quintal(close.cents_per_pound, rate.soles_per_dollar).soles
-            result.append(ExchangeDay(_morning(close.quoted_on, zone), soles))
-        return result
+            soles = self._soles(close.cents_per_pound, close.quoted_on)
+            if soles is not None and close.quoted_on <= today:
+                result.append(ExchangeDay(_morning(close.quoted_on, zone), soles))
+        if result:
+            return result
+        live = self._prices.last_live_quote()
+        soles = self._soles(live.cents_per_pound, today) if live else None
+        if soles is None:
+            return []
+        business_days = [
+            today - timedelta(days=offset)
+            for offset in range(days)
+            if (today - timedelta(days=offset)).weekday() < 5
+        ]
+        return [ExchangeDay(_morning(day, zone), soles) for day in business_days]
+
+    def _soles(self, cents: Decimal, day: date) -> Decimal | None:
+        rate = self._prices.exchange_rate_on(day)
+        return self._converter.to_quintal(cents, rate.soles_per_dollar).soles if rate else None
 
 
 def _morning(day: date, zone: object) -> datetime:

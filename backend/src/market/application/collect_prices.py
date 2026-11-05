@@ -6,13 +6,13 @@ from statistics import median
 from typing import TypeVar
 
 from market.domain.consensus import Consensus, ConsensusResult
-from market.domain.errors import MarketError, SourceUnavailableError
+from market.domain.errors import DuplicateQuotationError, MarketError, SourceUnavailableError
 from market.domain.market_hours import MarketHours
 from market.domain.ports.price_repository import PriceRepository
 from market.domain.ports.sources import ExchangeRateProvider, QuotationSource
 from market.domain.price_validator import PriceValidator
 from market.domain.quotation import LiveQuote, Quotation
-from market.domain.source_reading import build_collection
+from market.domain.source_reading import CollectionOutcome, build_collection
 from shared.domain.ports.clock import Clock
 
 logger = logging.getLogger(__name__)
@@ -79,6 +79,7 @@ class CollectPrices:
         middle = Decimal(median(q.cents_per_pound for q in quotes)) if quotes else None
         result: ConsensusResult | None = None
         published: LiveQuote | None = None
+        outcome, detail = CollectionOutcome.PUBLISHED, None
         try:
             result = self._consensus.consolidate(quotes)
             report.sources_discarded = list(result.discarded)
@@ -86,15 +87,22 @@ class CollectPrices:
                 self._register_issue(report, f"{name}: se aleja de las demás fuentes; se descarta")
             self._validator.validate(result.quote, self._repository.last_live_quote())
             published = result.quote
+        except DuplicateQuotationError as error:
+            # Las webs repiten la última cotización: no es un error, el precio no cambió
+            outcome, detail = CollectionOutcome.UNCHANGED, str(error)
         except MarketError as error:
             # No se publica nada: el caficultor sigue viendo el último valor válido
             self._register_issue(report, f"Cotización: {error}")
+            outcome = CollectionOutcome.NO_DATA if not quotes else CollectionOutcome.REJECTED
+            detail = str(error)
         if published:
             self._save(published)
             report.quotation_saved = True
         # Cada consulta queda registrada con lo que marcó cada web (pestaña «Bolsa» del equipo)
         self._repository.add_collection(
-            build_collection(self._clock.now(), quotes, failures, result, middle, published)
+            build_collection(
+                self._clock.now(), quotes, failures, result, middle, published, outcome, detail
+            )
         )
 
     def _fetch_all_sources(

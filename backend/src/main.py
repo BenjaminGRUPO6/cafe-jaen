@@ -165,6 +165,7 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     router.register([collector, analyst, forecaster, strategist, advisor])
     live_collection = CollectLivePrices(supervisor)
     daily_cycle = RunDailyCycle(supervisor, settings.forecast_history_days)
+    synthetic_data = ManageSyntheticData(prices, cooperatives, converter, clock)
 
     def latest_quote_time() -> datetime | None:
         quote = prices.last_live_quote()
@@ -174,7 +175,11 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         scheduler = (
             start_scheduler(
-                live_collection, daily_cycle, settings.timezone, settings.daily_cycle_time
+                live_collection,
+                daily_cycle,
+                settings.timezone,
+                settings.daily_cycle_time,
+                synthetic_data.ensure_loaded if settings.demo_cooperatives else None,
             )
             if settings.scheduler_enabled
             else None
@@ -220,7 +225,7 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
             ManageCooperatives(cooperatives),
             CorrectLocalPrice(prices),
             GetPriceLog(prices, converter, LocalPriceEstimator(), clock),
-            ManageSyntheticData(prices, cooperatives, converter, clock),
+            synthetic_data,
             require_user,
             build_require_admin(tokens),
         ),

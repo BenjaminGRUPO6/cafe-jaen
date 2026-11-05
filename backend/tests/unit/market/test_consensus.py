@@ -47,3 +47,23 @@ def test_two_sources_that_disagree_publish_nothing() -> None:
 def test_without_sources_fails_clearly() -> None:
     with pytest.raises(NoQuotationError):
         Consensus().consolidate([])
+
+
+def test_a_web_without_exchange_time_does_not_hide_a_delayed_price() -> None:
+    from datetime import UTC, datetime
+
+    from market.domain.consensus import Consensus
+    from market.domain.quotation import LiveQuote
+
+    delayed = datetime(2026, 11, 5, 11, 31, tzinfo=UTC)
+    quotes = [
+        LiveQuote(Decimal("280.80"), delayed, ("Yahoo Finance",)),
+        LiveQuote(
+            Decimal("280.75"),
+            datetime(2026, 11, 5, 11, 56, tzinfo=UTC),
+            ("TradingView",),
+            has_exchange_time=False,
+        ),
+    ]
+
+    assert Consensus().consolidate(quotes).quote.quoted_at == delayed

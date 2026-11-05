@@ -8,7 +8,12 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from market.domain.local_price import CoffeeType, LocalPriceObservation
 from market.domain.quotation import ExchangeRate, LiveQuote, Quotation
-from market.domain.source_reading import PriceCollection, ReadingStatus, SourceReading
+from market.domain.source_reading import (
+    CollectionOutcome,
+    PriceCollection,
+    ReadingStatus,
+    SourceReading,
+)
 from market.infrastructure.persistence.tables import (
     exchange_rates,
     live_quotes,
@@ -64,6 +69,8 @@ class SqlAlchemyPriceRepository:
                     median_cents=collection.median_cents,
                     published_cents=collection.published_cents,
                     published_quoted_at=_to_utc(collection.published_quoted_at),
+                    outcome=collection.outcome.value,
+                    detail=collection.detail,
                 )
                 .returning(price_collections.c.id)
             ).scalar_one()
@@ -79,6 +86,7 @@ class SqlAlchemyPriceRepository:
                             "quoted_at": _to_utc(r.quoted_at),
                             "deviation_pct": r.deviation_pct,
                             "detail": r.detail,
+                            "has_exchange_time": r.has_exchange_time,
                         }
                         for r in collection.readings
                     ],
@@ -112,6 +120,8 @@ class SqlAlchemyPriceRepository:
                 published_quoted_at=(
                     _utc(row.published_quoted_at) if row.published_quoted_at else None
                 ),
+                outcome=CollectionOutcome(row.outcome),
+                detail=row.detail,
             )
             for row in rows
         ]
@@ -270,6 +280,7 @@ def _to_reading(row: Row) -> SourceReading:  # type: ignore[type-arg]
         quoted_at=_utc(row.quoted_at) if row.quoted_at else None,
         deviation_pct=row.deviation_pct,
         detail=row.detail,
+        has_exchange_time=row.has_exchange_time,
     )
 
 

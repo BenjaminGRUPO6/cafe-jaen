@@ -11,7 +11,7 @@ from market.domain.local_price import LocalPriceEstimator
 from market.domain.market_hours import MarketHours
 from market.domain.price_validator import PriceValidator
 from market.domain.quintal_price import PriceConverter
-from market.domain.source_reading import ReadingStatus
+from market.domain.source_reading import CollectionOutcome, ReadingStatus
 from tests.fakes import (
     FakeProvider,
     FixedClock,
@@ -70,7 +70,7 @@ def test_a_collection_without_agreement_is_recorded_but_not_published() -> None:
     (collection,) = prices.collections
     assert not collection.published
     assert prices.live == []
-    entries = GetPriceLog(prices, PriceConverter(), LocalPriceEstimator(), CLOCK).execute()
+    entries = GetPriceLog(prices, PriceConverter(), LocalPriceEstimator(), CLOCK).execute().entries
     assert len(entries) == 1
     assert not entries[0].published
     assert entries[0].price_soles is None
@@ -85,7 +85,28 @@ def test_price_log_attaches_readings_to_the_published_quote() -> None:
         prices, source("Yahoo Finance", live("300", moment)), source("Stooq", live("300", moment))
     )
 
-    entries = GetPriceLog(prices, PriceConverter(), LocalPriceEstimator(), CLOCK).execute()
+    entries = GetPriceLog(prices, PriceConverter(), LocalPriceEstimator(), CLOCK).execute().entries
     assert len(entries) == 1  # la cotización publicada no se repite como fila aparte
     assert entries[0].sources == ("Yahoo Finance", "Stooq")
     assert len(entries[0].readings) == 2
+
+
+def test_a_repeated_quote_is_recorded_as_unchanged_not_as_rejected() -> None:
+    prices = InMemoryPriceRepository()
+    moment = NOW - timedelta(minutes=25)
+    collect(prices, source("Yahoo Finance", live("280.80", moment)))
+    collect(prices, source("Yahoo Finance", live("280.80", moment)))  # la web repite la misma
+
+    first, second = prices.collections
+    assert first.outcome is CollectionOutcome.PUBLISHED
+    assert second.outcome is CollectionOutcome.UNCHANGED
+    assert second.detail
+
+
+def test_nothing_answered_is_recorded_as_no_data() -> None:
+    prices = InMemoryPriceRepository()
+
+    collect(prices, source("Stooq", SourceUnavailableError("timed out")))
+
+    (collection,) = prices.collections
+    assert collection.outcome is CollectionOutcome.NO_DATA

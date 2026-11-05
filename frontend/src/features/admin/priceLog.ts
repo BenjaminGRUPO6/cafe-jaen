@@ -8,11 +8,34 @@ export interface SourceReading {
   quoted_at: string | null;
   deviation_pct: number | null;
   detail: string | null;
+  has_exchange_time: boolean;
+}
+
+/** Resultado de una consulta: si se publicó, si la bolsa no cambió o por qué no se publicó. */
+export type CollectionOutcome = "publicada" | "sin cambios" | "no publicada" | "sin datos";
+
+/** Evaluación de una web en el día (la primera es la mejor). */
+export interface SourceScore {
+  source: string;
+  consultations: number;
+  answered: number;
+  used: number;
+  discarded: number;
+  avg_delay_minutes: number | null;
+  avg_deviation_pct: number | null;
+  score: number;
+}
+
+export interface PriceLog {
+  entries: PriceLogEntry[];
+  ranking: SourceScore[];
 }
 
 export interface PriceLogEntry {
   quoted_at: string;
   published: boolean;
+  outcome: CollectionOutcome;
+  detail: string | null;
   cents_per_pound: number | null;
   median_cents: number | null;
   exchange_rate: number | null;

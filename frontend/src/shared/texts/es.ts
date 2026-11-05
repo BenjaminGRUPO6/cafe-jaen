@@ -181,8 +181,27 @@ export const texts = {
     noEstimate: "sin precios",
     local: (type: string) => `En Jaén · ${type}`,
     notPublished: "No se publicó: las webs no coincidieron",
+    notPublishedBecause: (reason: string) => `No se publicó: ${reason}`,
+    unchanged: "Sin cambios: la bolsa marcó la misma cotización que ya estaba publicada",
+    noData: "Sin datos: ninguna web respondió",
+    noExchangeTime: "sin hora de la bolsa",
+    ranking: {
+      title: "Evaluación de fuentes del día",
+      intro:
+        "Las webs reales de la bolsa de Nueva York que consulta el Recolector, ordenadas de mejor a peor en el día elegido. Toca el nombre para abrir su página.",
+      best: "Mejor fuente",
+      score: (value: string) => `${value} / 100`,
+      answered: (answered: number, total: number) => `Respondió ${answered} de ${total}`,
+      used: (used: number, answered: number) => `coincidió ${used} de ${answered}`,
+      delay: (minutes: string) => `${minutes} min de retraso`,
+      noDelay: "sin hora de la bolsa",
+      deviation: (pct: string) => `desvío medio ${pct} %`,
+      formula:
+        "Puntaje = 40 × respuesta + 40 × coincidencia con las demás + 20 × qué tan al día está (0 si nunca respondió; la mitad si no informa la hora de la bolsa).",
+    },
     agreement: (used: number, total: number) => `${used} de ${total} webs coinciden`,
     exchangeLine: (soles: string, cents: string) => `Bolsa ${soles} · ${cents}`,
+    medianLine: (cents: string) => `Las webs marcaron ${cents} (mediana)`,
     showSources: (n: number) => (n > 0 ? `Ver fuentes (${n})` : "Ver fuentes"),
     hideSources: "Ocultar fuentes",
     noReadings:

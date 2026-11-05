@@ -117,3 +117,32 @@ def test_estimate_tells_how_many_prices_are_synthetic() -> None:
     )
 
     assert (estimate.observations, estimate.synthetic) == (2, 1)
+
+
+def test_without_daily_history_uses_the_last_real_live_price() -> None:
+    from market.domain.quotation import LiveQuote
+
+    prices, coops = InMemoryPriceRepository(), InMemoryCooperativeRepository()
+    prices.add_live_quote(LiveQuote(Decimal("280.75"), CLOCK.now(), ("Yahoo Finance",)))
+    prices.add_exchange_rate(ExchangeRate(Decimal("3.466"), TODAY, "BCRP"))
+
+    status = manager(prices, coops).load()
+
+    assert status.observations > 300
+    exchange = {o.exchange_soles for o in prices.local}
+    assert len(exchange) == 1  # el mismo precio real para todos los días
+
+
+def test_ensure_loaded_waits_for_the_real_price_and_never_loads_twice() -> None:
+    from market.domain.quotation import LiveQuote
+
+    prices, coops = InMemoryPriceRepository(), InMemoryCooperativeRepository()
+    use_case = manager(prices, coops)
+    assert use_case.ensure_loaded() is False  # sin precio real todavía
+
+    prices.add_live_quote(LiveQuote(Decimal("280.75"), CLOCK.now(), ("Yahoo Finance",)))
+    prices.add_exchange_rate(ExchangeRate(Decimal("3.466"), TODAY, "BCRP"))
+    assert use_case.ensure_loaded() is True
+    loaded = len(prices.local)
+    assert use_case.ensure_loaded() is True
+    assert len(prices.local) == loaded

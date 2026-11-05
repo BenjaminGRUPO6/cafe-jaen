@@ -21,6 +21,7 @@ import { priceSteps } from "./priceFormula";
 import { RevealGroup, RevealItem } from "../../shared/motion/Reveal";
 import { Sparkline } from "../../shared/motion/Sparkline";
 import { Ticker } from "../../shared/motion/Ticker";
+import { SourceNames } from "../../shared/components/SourceName";
 import { texts } from "../../shared/texts/es";
 import { loadLastPrice, saveLastPrice } from "./lastPriceCache";
 import { LocalEstimateCard } from "./LocalEstimateCard";
@@ -87,7 +88,7 @@ export function LivePricePage() {
       {price && (
         <>
           <p className="footnote">
-            {texts.common.source}: {price.sources.join(", ")}.{" "}
+            {texts.common.source}: <SourceNames names={price.sources} />.{" "}
             {texts.live.quotedAt(formatTime(price.quoted_at), formatDate(price.date))}.{" "}
             {texts.live.delayNote}
           </p>

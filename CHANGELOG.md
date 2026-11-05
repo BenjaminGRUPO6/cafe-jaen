@@ -4,6 +4,27 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.8] — Cuatro webs reales evaluadas, fuentes con enlace y cooperativas de demostración
+
+### Agregado
+- Dos webs reales más de la bolsa de Nueva York: **CNBC** (@KC.1) y **TradingView**
+  (ICEUS:KC1!). El Recolector consulta ahora Yahoo Finance, Stooq, CNBC y TradingView.
+- «Equipo → Bolsa → Evaluación de fuentes del día»: puntaje de 0 a 100 por web
+  (40 × respuesta + 40 × coincidencia con las demás + 20 × qué tan al día está) y la etiqueta
+  «Mejor fuente» (`source_ranking.rank_sources`).
+- Todas las fuentes se muestran como enlaces que abren su página: en el historial de la bolsa,
+  en la evaluación y en la nota «Fuente:» del precio (también el BCRP).
+- `DEMO_COOPERATIVES=true`: al arrancar (y luego cada 5 minutos hasta lograrlo) se cargan una
+  sola vez los precios sintéticos «Cooperativa JAENPERU sintético A…F», así el estimado en Jaén
+  y el pronóstico en Jaén muestran datos en la demostración.
+
+### Corregido
+- El historial ya no dice «las webs no coincidieron» cuando la bolsa solo repitió la misma
+  cotización: cada consulta guarda su resultado (publicada, sin cambios, no publicada o sin
+  datos) y el motivo real (migración 0009).
+- Si aún no hay cierres diarios, los datos sintéticos usan el último precio real en vivo.
+- Las webs que no informan la hora de la bolsa (TradingView) no adelantan la hora publicada.
+
 ## [v1.7.1] — Arranque a prueba de configuración antigua
 
 ### Corregido

@@ -134,7 +134,7 @@ def test_price_log_shows_each_quote_in_soles_and_per_coffee_type(
     prices.add_live_quote(live("200", NOW - timedelta(days=2)))  # otro día
     prices.add_local_observation(observation("912"))  # 912 / 1140 = 80 % de la bolsa
 
-    entries = GetPriceLog(prices, PriceConverter(), LocalPriceEstimator(), CLOCK).execute()
+    entries = GetPriceLog(prices, PriceConverter(), LocalPriceEstimator(), CLOCK).execute().entries
 
     assert [e.cents_per_pound for e in entries] == [Decimal("310"), Decimal("300")]
     assert all(e.published and e.readings == () for e in entries)  # sin detalle de fuentes

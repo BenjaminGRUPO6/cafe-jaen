@@ -36,7 +36,7 @@ humana.
 | **Edición en el navegador (Codespaces)** | **Code → Codespaces → Create codespace on main** y luego `python dev.py start` |
 
 Publicamos la app en el plan gratuito de Render **solo con datos reales**: la bolsa de Nueva York
-desde Yahoo Finance y Stooq, el tipo de cambio del BCRP y los precios que anotamos de las
+desde Yahoo Finance, Stooq, CNBC y TradingView, el tipo de cambio del BCRP y los precios que anotamos de las
 cooperativas de Jaén. Usamos una base PostgreSQL gratuita (Neon) para que los registros sean
 permanentes y una cuenta del equipo que se crea sola al arrancar. Si estuvo un rato sin visitas, tarda alrededor de un minuto en despertar. Cada `git push` a `main` la vuelve a
 desplegar sola. Cómo lo configuramos: [docs/despliegue.md](docs/despliegue.md).
@@ -293,7 +293,7 @@ En macOS o Linux el comando puede ser `python3`; en Windows también funciona `p
 |---|---|
 | `python dev.py setup` | Instala todo (una sola vez) |
 | `python dev.py datos` | Carga el histórico real (5 años) y genera el primer pronóstico; si ya está cargado, no repite nada |
-| `python dev.py start` | API + app con precios reales (Yahoo Finance y Stooq; necesita internet) |
+| `python dev.py start` | API + app con precios reales (Yahoo Finance, Stooq, CNBC y TradingView; necesita internet) |
 | `python dev.py admin 9XXXXXXXX` | Crea una cuenta del equipo para anotar precios de cooperativas («Equipo») |
 | `python dev.py codigos 10` | Genera códigos de invitación para el grupo experimental |
 | `python dev.py test` | Pruebas del backend y del frontend |
@@ -315,7 +315,7 @@ En macOS o Linux el comando puede ser `python3`; en Windows también funciona `p
 
 ### Datos y producción
 
-- **Solo datos reales:** la app consulta Yahoo Finance y Stooq cada minuto con la bolsa de Nueva York abierta y el tipo de cambio del BCRP ([decisión 0010](docs/decisiones/0010-solo-datos-reales.md)).
+- **Solo datos reales:** la app consulta Yahoo Finance, Stooq, CNBC y TradingView cada minuto con la bolsa de Nueva York abierta y el tipo de cambio del BCRP ([decisión 0010](docs/decisiones/0010-solo-datos-reales.md)).
 - **Histórico real:** `python dev.py datos` (o `scripts/load_price_history.py --years 5`): Yahoo Finance y, si no responde, Stooq.
 - **App publicada:** `render.yaml` + `Dockerfile` despliegan la app y la API en un solo servicio de Render ([docs/despliegue.md](docs/despliegue.md)).
 - **Producción con PostgreSQL:** `docker-compose.yml` levanta PostgreSQL y la API, y `DATABASE_URL` apunta a PostgreSQL.

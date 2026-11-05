@@ -14,10 +14,14 @@ services:
     envVars:
       - key: JWT_SECRET
         generateValue: true
-      # Solo datos reales: la bolsa de Nueva York en Yahoo Finance y Stooq (04:15–13:30, hora de
-      # Nueva York, de lunes a viernes) y el tipo de cambio del BCRP.
+      # Bolsa de Nueva York en cuatro webs reales (04:15–13:30, hora de Nueva York, de lunes a
+      # viernes) y el tipo de cambio del BCRP.
       - key: QUOTATION_SOURCES
-        value: '["yahoo","stooq"]'
+        value: '["yahoo","stooq","cnbc","tradingview"]'
+      # Demostración: precios SINTÉTICOS de cooperativas («Cooperativa JAENPERU sintético A…F»)
+      # sobre la bolsa real. Poner "false" y borrarlos en «Equipo» antes del experimento.
+      - key: DEMO_COOPERATIVES
+        value: "true"
       # Base de datos: se carga a mano en Environment (no se versiona porque lleva contraseña).
       # Con la URL de una base PostgreSQL gratuita (Neon) los datos son permanentes; sin ella,
       # la app usa SQLite dentro del contenedor y los datos se reinician en cada despliegue.

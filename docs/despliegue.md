@@ -25,7 +25,7 @@ GitHub (main) ──push──► Render construye el Dockerfile de la raíz
   (`backend/src/shared/infrastructure/api/spa.py`).
 - **Infraestructura como código:** `render.yaml` (Blueprint) declara el servicio y sus variables;
   el `JWT_SECRET` lo genera Render.
-- **Solo datos reales:** la bolsa de Nueva York desde Yahoo Finance y Stooq, y el tipo de cambio
+- **Solo datos reales:** la bolsa de Nueva York desde Yahoo Finance, Stooq, CNBC y TradingView, y el tipo de cambio
   del BCRP. Al arrancar se carga el histórico real de 5 años (si ya está, no se repite) y se
   genera el pronóstico. Si las webs no responden en ese momento, la API arranca igual y el
   Recolector vuelve a intentar cada minuto con la bolsa abierta.
@@ -121,3 +121,11 @@ Configuramos `.devcontainer/` para que el proyecto se abra listo en el navegador
 
 Los cambios hechos en el codespace se guardan con `git add`, `git commit` y `git push`, igual que
 en local; ese push también actualiza la app publicada en Render.
+
+## Cooperativas de demostración (v1.8)
+
+Con `DEMO_COOPERATIVES=true` la app carga una sola vez los precios **sintéticos** «Cooperativa
+JAENPERU sintético A…F» en cuanto tiene el precio real de la bolsa (al arrancar o, si todavía no
+lo tiene, reintentando cada 5 minutos). La bolsa y el tipo de cambio siguen siendo reales. Antes
+del experimento con caficultores ponemos `DEMO_COOPERATIVES=false` y los borramos en
+«Equipo → Cooperativas».

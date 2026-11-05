@@ -34,8 +34,11 @@ class Consensus:
         price = Decimal(median(q.cents_per_pound for q in agreeing)).quantize(Decimal("0.0001"))
         merged = LiveQuote(
             cents_per_pound=price,
-            # La hora publicada es la de la fuente más reciente entre las que coinciden
-            quoted_at=max(q.quoted_at for q in agreeing),
+            # La hora publicada es la de la fuente más reciente entre las que coinciden; las webs
+            # que no informan la hora de la bolsa solo cuentan si ninguna otra la informa
+            quoted_at=max(
+                q.quoted_at for q in ([q for q in agreeing if q.has_exchange_time] or agreeing)
+            ),
             sources=tuple(s for q in agreeing for s in q.sources),
         )
         return ConsensusResult(merged, discarded)

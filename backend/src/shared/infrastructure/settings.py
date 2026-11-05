@@ -20,7 +20,7 @@ class Settings(BaseSettings):
 
     # Mercado: precio mundial en vivo (HU02, HU03)
     local_price_factor: Decimal = Decimal("1")  # ajuste por diferencial y rendimiento local
-    quotation_sources: list[str] = ["yahoo", "stooq"]  # webs consultadas (ver el spike T01)
+    quotation_sources: list[str] = ["yahoo", "stooq", "cnbc", "tradingview"]  # webs reales
     stooq_timezone: str = "Europe/Warsaw"
     source_max_deviation: Decimal = Decimal("0.01")  # fuente a más de 1 % de la mediana: fuera
     max_quote_change: Decimal = Decimal("0.10")  # salto máximo aceptado entre cotizaciones
@@ -50,6 +50,9 @@ class Settings(BaseSettings):
 
     # API
     cors_origins: list[str] = ["http://localhost:5173"]
+    # Demostración: carga al arrancar precios SINTÉTICOS de cooperativas («Cooperativa JAENPERU
+    # sintético A…F») si no hay ninguno. La bolsa y el tipo de cambio siguen siendo reales.
+    demo_cooperatives: bool = False
     # Cuenta del equipo creada al arrancar (Render no tiene terminal en el plan gratuito)
     admin_phone: str = ""
     admin_password: str = ""

@@ -4,6 +4,8 @@ import { summarizeDay, todayInput, type PriceLogEntry } from "./priceLog";
 const entry = (published: boolean, statuses: string[]): PriceLogEntry => ({
   quoted_at: "2026-11-05T10:00:00-05:00",
   published,
+  outcome: published ? "publicada" : "no publicada",
+  detail: null,
   cents_per_pound: published ? 300 : null,
   median_cents: 300,
   exchange_rate: 3.75,
@@ -17,6 +19,7 @@ const entry = (published: boolean, statuses: string[]): PriceLogEntry => ({
     quoted_at: null,
     deviation_pct: 0,
     detail: null,
+    has_exchange_time: true,
   })),
 });
 
