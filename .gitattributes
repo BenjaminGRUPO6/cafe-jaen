@@ -1,0 +1,13 @@
+# Todos los archivos de texto se guardan y se descargan con saltos de línea LF, también en
+# Windows. Así Prettier, ruff y el script de arranque de Docker (start_server.sh) ven el mismo
+# archivo en cualquier computadora.
+* text=auto eol=lf
+
+# Archivos binarios: nunca se convierten
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
+*.docx binary
+*.xlsx binary
+*.pdf binary
