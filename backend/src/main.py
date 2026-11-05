@@ -10,6 +10,7 @@ from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
+from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -35,14 +36,14 @@ from forecasting.infrastructure.persistence.sqlalchemy_forecast_repository impor
 )
 from identity.application.authenticate_user import AuthenticateUser
 from identity.application.delete_participant import DeleteParticipant
-from identity.application.email_verification import SendVerificationCode, VerifyAccount
 from identity.application.list_participants import ListParticipants
 from identity.application.manage_invitation_codes import ManageInvitationCodes
 from identity.application.register_user import RegisterUser
-from identity.domain.ports.email_sender import EmailSender
+from identity.application.verify_account import SendVerificationCode, VerifyAccount
+from identity.domain.ports.code_sender import CodeSender
 from identity.infrastructure.api.admin_router import build_participants_router
 from identity.infrastructure.api.auth_router import build_auth_router
-from identity.infrastructure.email.senders import build_email_sender
+from identity.infrastructure.messaging.code_senders import build_code_senders
 from identity.infrastructure.persistence.sqlalchemy_repositories import (
     SqlAlchemyInvitationCodeRepository,
     SqlAlchemyUserRepository,
@@ -92,6 +93,11 @@ from shared.infrastructure.api.spa import mount_single_page_app
 from shared.infrastructure.database import create_db_engine, create_session_factory
 from shared.infrastructure.settings import Settings, get_settings
 from shared.infrastructure.system_clock import SystemClock
+from support.application.support_inbox import FarmerSupport, TeamSupport
+from support.infrastructure.api.support_router import build_support_router
+from support.infrastructure.persistence.sqlalchemy_support_repository import (
+    SqlAlchemySupportRepository,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 # El planificador corre cada minuto: solo se registran sus advertencias y errores
@@ -106,7 +112,7 @@ class Overrides:
     exchange_rate_provider: ExchangeRateProvider | None = None
     live_exchange_sources: Sequence[LiveExchangeRateSource] | None = None
     language_model: LanguageModel | None = None
-    email_sender: EmailSender | None = None
+    code_senders: Sequence[CodeSender] | None = None
     clock: Clock | None = None
 
 
@@ -124,16 +130,24 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     codes = SqlAlchemyInvitationCodeRepository(sessions)
     register = RegisterUser(users, codes, hasher, clock, settings.consent_version)
     verifications = SqlAlchemyVerificationRepository(sessions)
-    email_sender = overrides.email_sender or build_email_sender(
-        settings.brevo_api_key,
-        settings.smtp_host,
-        settings.smtp_port,
-        settings.smtp_user,
-        settings.smtp_password,
-        settings.email_sender,
-        settings.email_sender_name,
+    code_senders = (
+        overrides.code_senders
+        if overrides.code_senders is not None
+        else build_code_senders(
+            whatsapp_token=settings.whatsapp_token,
+            whatsapp_phone_number_id=settings.whatsapp_phone_number_id,
+            whatsapp_template=settings.whatsapp_template,
+            whatsapp_language=settings.whatsapp_template_language,
+            brevo_api_key=settings.brevo_api_key,
+            smtp_host=settings.smtp_host,
+            smtp_port=settings.smtp_port,
+            smtp_user=settings.smtp_user,
+            smtp_password=settings.smtp_password,
+            sender_email=settings.email_sender,
+            sender_name=settings.email_sender_name,
+        )
     )
-    send_code = SendVerificationCode(users, verifications, email_sender, clock, secrets.choice)
+    send_code = SendVerificationCode(users, verifications, code_senders, clock, secrets.choice)
     verify = VerifyAccount(users, verifications, tokens, clock)
     authenticate = AuthenticateUser(users, hasher, tokens, clock)
 
@@ -232,7 +246,10 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
 
     require_user = build_require_user(tokens, is_active)
     require_admin = build_require_admin(tokens, is_active)
-    app.include_router(build_auth_router(register, authenticate, send_code, verify), prefix="/api")
+    app.include_router(
+        build_auth_router(register, authenticate, send_code, verify, settings.team_whatsapp),
+        prefix="/api",
+    )
     app.include_router(
         build_participants_router(
             ListParticipants(users, codes, verifications),
@@ -259,6 +276,30 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
             CorrectLocalPrice(prices),
             GetPriceLog(prices, converter, LocalPriceEstimator(), clock),
             synthetic_data,
+            require_user,
+            require_admin,
+        ),
+        prefix="/api",
+    )
+
+    # ---------- support («Atención»): el celular y correo se piden al módulo de usuarios aquí,
+    # en la raíz de composición, para que los módulos no dependan entre sí
+    def describe_user(user_id: str) -> dict[str, Any] | None:
+        user = users.get_by_id(user_id)
+        if user is None:
+            return None
+        return {
+            "phone": user.phone.value,
+            "email": user.email.value if user.email else None,
+            "role": user.role.value,
+        }
+
+    support = SqlAlchemySupportRepository(sessions)
+    app.include_router(
+        build_support_router(
+            FarmerSupport(support, clock),
+            TeamSupport(support, clock),
+            describe_user,
             require_user,
             require_admin,
         ),

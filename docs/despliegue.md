@@ -130,7 +130,7 @@ lo tiene, reintentando cada 5 minutos). La bolsa y el tipo de cambio siguen sien
 del experimento con caficultores ponemos `DEMO_COOPERATIVES=false` y los borramos en
 «Equipo → Cooperativas».
 
-## Verificación por correo (v1.10)
+## Verificación de la cuenta (v1.10–v1.11)
 
 Al registrarse, cada persona recibe un código de 6 dígitos en su correo y debe escribirlo para
 entrar. El plan gratis de Render bloquea el envío por SMTP (puertos 25, 465 y 587), por eso el
@@ -147,3 +147,18 @@ Si el correo no sale (sin clave, límite diario o caída de Brevo), la app no se
 aparece en «Equipo → Participantes» y se lo enviamos al caficultor por WhatsApp. En local
 también se puede usar Gmail por SMTP con una «contraseña de aplicación» (`SMTP_USER`,
 `SMTP_PASSWORD`).
+
+### Por WhatsApp (prioridad desde v1.11)
+
+El código se envía primero por WhatsApp al celular registrado; el correo es opcional y sirve de
+respaldo y para ingresar. Hay dos formas:
+
+- **Sin costo (recomendada para el piloto)**: ponemos `TEAM_WHATSAPP` (nuestro celular, 9 dígitos)
+  en Render. Cuando alguien se registra, en «Equipo → Participantes» aparece su código con el
+  botón «Enviar código por WhatsApp», que abre nuestro WhatsApp con el mensaje listo. El
+  caficultor también puede escribirnos con «Pedir mi código por WhatsApp».
+- **Automática**: con la API oficial de WhatsApp Business (Meta Cloud API). Hay que crear una
+  app en developers.facebook.com, un número de WhatsApp Business y una plantilla de categoría
+  *Autenticación* llamada `codigo_verificacion` en español, y poner `WHATSAPP_TOKEN` y
+  `WHATSAPP_PHONE_NUMBER_ID` en Render. Meta cobra cada mensaje de autenticación y el número de
+  prueba solo envía a 5 celulares registrados, por eso la dejamos como opcional.

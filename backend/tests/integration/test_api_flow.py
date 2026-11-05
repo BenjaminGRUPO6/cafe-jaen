@@ -9,7 +9,7 @@ import json
 from fastapi.testclient import TestClient
 
 from tests.conftest import INVITATION_CODE
-from tests.fakes import FakeEmailSender
+from tests.fakes import FakeCodeSender
 
 
 def test_health(client: TestClient) -> None:
@@ -332,8 +332,8 @@ def test_team_deletes_only_unused_invitation_codes(
     assert used.status_code == 409
 
 
-def test_registration_needs_the_emailed_code_before_entering(
-    client: TestClient, email_outbox: FakeEmailSender, admin_headers: dict[str, str]
+def test_registration_needs_the_code_before_entering(
+    client: TestClient, code_outbox: FakeCodeSender, admin_headers: dict[str, str]
 ) -> None:
     (code,) = client.post(
         "/api/admin/invitation-codes", json={"count": 1}, headers=admin_headers
@@ -351,23 +351,24 @@ def test_registration_needs_the_emailed_code_before_entering(
     participants = client.get("/api/admin/participants", headers=admin_headers).json()
     pending = next(p for p in participants["participants"] if p["phone"] == "944555666")
     verified = client.post(
-        "/api/auth/verify", json={"phone": "944555666", "code": email_outbox.last_code()}
+        "/api/auth/verify", json={"phone": "944555666", "code": code_outbox.last_code()}
     )
 
     assert registered == {
         "verification_required": True,
         "phone": "944555666",
         "email": "ma***@gmail.com",
-        "email_sent": True,
+        "delivered_by": "whatsapp",
+        "team_whatsapp": None,
     }
-    assert blocked.status_code == 403
-    assert pending["verified"] is False and pending["pending_code"] == email_outbox.last_code()
+    assert blocked.status_code == 403 and blocked.json()["phone"] == "944555666"
+    assert pending["verified"] is False and pending["pending_code"] == code_outbox.last_code()
     assert verified.status_code == 200 and "access_token" in verified.json()
 
 
 def test_team_creates_team_codes_and_deletes_accounts(
     client: TestClient,
-    email_outbox: FakeEmailSender,
+    code_outbox: FakeCodeSender,
     auth_headers: dict[str, str],
     admin_headers: dict[str, str],
 ) -> None:
@@ -385,7 +386,7 @@ def test_team_creates_team_codes_and_deletes_accounts(
         },
     )
     token = client.post(
-        "/api/auth/verify", json={"phone": "933222111", "code": email_outbox.last_code()}
+        "/api/auth/verify", json={"phone": "933222111", "code": code_outbox.last_code()}
     ).json()["access_token"]
     second_admin = {"Authorization": f"Bearer {token}"}
     farmer = next(
@@ -402,3 +403,66 @@ def test_team_creates_team_codes_and_deletes_accounts(
     assert client.get("/api/prices/live", headers=auth_headers).status_code == 401
     codes = client.get("/api/admin/invitation-codes", headers=second_admin).json()["codes"]
     assert next(c for c in codes if c["code"] == INVITATION_CODE)["used"] is False
+
+
+def test_email_is_optional_and_works_to_log_in(
+    client: TestClient, code_outbox: FakeCodeSender, admin_headers: dict[str, str]
+) -> None:
+    codes = client.post(
+        "/api/admin/invitation-codes", json={"count": 2}, headers=admin_headers
+    ).json()["codes"]
+    without_email = client.post(
+        "/api/auth/register",
+        json={
+            "invitation_code": codes[0],
+            "phone": "922333444",
+            "password": "cafe2026!",
+            "consent_accepted": True,
+        },
+    )
+    client.post(
+        "/api/auth/register",
+        json={
+            "invitation_code": codes[1],
+            "phone": "922333555",
+            "email": "rosa@gmail.com",
+            "password": "cafe2026!",
+            "consent_accepted": True,
+        },
+    )
+    client.post("/api/auth/verify", json={"phone": "922333555", "code": code_outbox.last_code()})
+
+    by_email = client.post(
+        "/api/auth/login", json={"identifier": "Rosa@Gmail.com", "password": "cafe2026!"}
+    )
+    by_phone = client.post(
+        "/api/auth/login", json={"identifier": "922333555", "password": "cafe2026!"}
+    )
+
+    assert without_email.status_code == 201 and without_email.json()["email"] is None
+    assert by_email.status_code == 200 and by_phone.status_code == 200
+
+
+def test_farmers_write_to_the_team_and_read_the_answer(
+    client: TestClient, auth_headers: dict[str, str], admin_headers: dict[str, str]
+) -> None:
+    sent = client.post(
+        "/api/support/messages",
+        json={"text": "¿Cada cuánto cambia el precio?"},
+        headers=auth_headers,
+    )
+    inbox = client.get("/api/admin/support", headers=admin_headers).json()
+    thread = inbox["threads"][0]
+    client.get(f"/api/admin/support/{thread['user_id']}", headers=admin_headers)
+    client.post(
+        f"/api/admin/support/{thread['user_id']}",
+        json={"text": "Cada minuto con la bolsa abierta."},
+        headers=admin_headers,
+    )
+
+    assert sent.status_code == 201
+    assert inbox["unread"] == 1 and thread["user"]["phone"] == "987654321"
+    assert client.get("/api/support/unread", headers=auth_headers).json() == {"unread": 1}
+    messages = client.get("/api/support/messages", headers=auth_headers).json()["messages"]
+    assert [m["author"] for m in messages] == ["farmer", "team"]
+    assert client.get("/api/admin/support", headers=auth_headers).status_code == 403

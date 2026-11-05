@@ -6,7 +6,7 @@ import { readStored, writeStored } from "../storage";
 interface RegisterData {
   invitation_code: string;
   phone: string;
-  email: string;
+  email?: string; // opcional
   password: string;
   consent_accepted: boolean;
 }
@@ -14,7 +14,8 @@ interface RegisterData {
 interface AuthState {
   isLoggedIn: boolean;
   isAdmin: boolean;
-  login: (phone: string, password: string) => Promise<void>;
+  /** `identifier` es el celular o el correo. */
+  login: (identifier: string, password: string) => Promise<void>;
   /** Crea la cuenta sin sesión: luego hay que confirmar el código del correo. */
   register: (data: RegisterData) => Promise<PendingVerification>;
   verify: (phone: string, code: string) => Promise<void>;
@@ -35,8 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value: AuthState = {
     isLoggedIn: token !== null,
     isAdmin: roleFromToken(token) === "admin",
-    login: async (phone, password) =>
-      saveSession(await api.post<Session>("/auth/login", { phone, password })),
+    login: async (identifier, password) =>
+      saveSession(await api.post<Session>("/auth/login", { identifier, password })),
     register: (data) => api.post<PendingVerification>("/auth/register", data),
     verify: async (phone, code) =>
       saveSession(await api.post<Session>("/auth/verify", { phone, code })),

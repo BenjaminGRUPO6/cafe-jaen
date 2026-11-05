@@ -41,7 +41,7 @@ def build_participants_router(
                     "email": p.email,
                     "verified": p.verified,
                     "pending_code": p.pending_code,
-                    "code_emailed": p.code_emailed,
+                    "delivered_by": p.delivered_by,
                     "role": p.role.value,
                     "registered_at": _iso(p.registered_at),
                     "invitation_code": p.invitation_code,

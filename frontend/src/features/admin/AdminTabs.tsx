@@ -7,6 +7,7 @@ const TABS = [
   { to: "/equipo/codigos", label: texts.codes.tab },
   { to: "/equipo/participantes", label: texts.participants.tab },
   { to: "/equipo/bolsa", label: texts.priceLog.tab },
+  { to: "/equipo/mensajes", label: texts.support.tab },
 ];
 
 /** Pestañas del área del equipo; en pantallas angostas se desplazan de lado. */

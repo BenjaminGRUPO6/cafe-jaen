@@ -9,6 +9,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    readonly body: Record<string, unknown> = {},
   ) {
     super(message);
   }
@@ -30,7 +31,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     // FastAPI devuelve el mensaje en "detail"; si es una lista (validación), se usa el genérico
     const body = await response.json().catch(() => ({}));
     const detail = typeof body.detail === "string" ? body.detail : texts.common.genericError;
-    throw new ApiError(detail, response.status);
+    throw new ApiError(detail, response.status, body);
   }
   // 204: borrado correcto, sin contenido
   if (response.status === 204) return undefined as T;

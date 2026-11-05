@@ -14,6 +14,7 @@ import forecasting.infrastructure.persistence.tables  # noqa: F401
 import identity.infrastructure.persistence.tables  # noqa: F401
 import market.infrastructure.persistence.tables  # noqa: F401
 import orchestration.infrastructure.persistence.tables  # noqa: F401
+import support.infrastructure.persistence.tables  # noqa: F401
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.user import User
 from identity.infrastructure.persistence.sqlalchemy_repositories import (
@@ -31,7 +32,7 @@ from shared.infrastructure.database import create_db_engine, create_session_fact
 from shared.infrastructure.settings import Settings
 from tests.fakes import (
     LIMA,
-    FakeEmailSender,
+    FakeCodeSender,
     FakeProvider,
     FixedClock,
     business_days,
@@ -78,7 +79,7 @@ def seeded_sessions(sessions: sessionmaker[Session], clock: FixedClock) -> sessi
 def client(
     seeded_sessions: sessionmaker[Session],
     clock: FixedClock,
-    email_outbox: FakeEmailSender,
+    code_outbox: FakeCodeSender,
     tmp_path,  # type: ignore[no-untyped-def]
 ) -> Iterator[TestClient]:
     settings = Settings(
@@ -98,7 +99,7 @@ def client(
         ],
         exchange_rate_provider=FakeProvider(rate("3.75", clock.today())),
         live_exchange_sources=[],  # sin dólar en vivo: se usa el del BCRP
-        email_sender=email_outbox,
+        code_senders=[code_outbox],
         clock=clock,
     )
     with TestClient(create_app(settings, overrides)) as test_client:
@@ -106,14 +107,14 @@ def client(
 
 
 @pytest.fixture
-def email_outbox() -> FakeEmailSender:
-    """Los correos de verificación quedan aquí en vez de enviarse."""
-    return FakeEmailSender()
+def code_outbox() -> FakeCodeSender:
+    """Los códigos de verificación quedan aquí en vez de enviarse por WhatsApp."""
+    return FakeCodeSender()
 
 
 @pytest.fixture
-def auth_headers(client: TestClient, email_outbox: FakeEmailSender) -> dict[str, str]:
-    """Caficultor registrado y verificado con el código que llegó a su correo."""
+def auth_headers(client: TestClient, code_outbox: FakeCodeSender) -> dict[str, str]:
+    """Caficultor registrado y verificado con el código que llegó a su celular."""
     client.post(
         "/api/auth/register",
         json={
@@ -125,7 +126,7 @@ def auth_headers(client: TestClient, email_outbox: FakeEmailSender) -> dict[str,
         },
     )
     response = client.post(
-        "/api/auth/verify", json={"phone": "987654321", "code": email_outbox.last_code()}
+        "/api/auth/verify", json={"phone": "987654321", "code": code_outbox.last_code()}
     )
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
 

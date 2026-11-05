@@ -17,7 +17,13 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-me-in-production"
     session_days: int = 30
     consent_version: str = "2026-10"
-    # Correo con el código de verificación. En Render (plan gratis bloquea SMTP) se usa Brevo:
+    # Código de verificación del registro: primero por WhatsApp al celular (WhatsApp Business,
+    # Meta Cloud API, con una plantilla de autenticación aprobada) ...
+    whatsapp_token: str = ""
+    whatsapp_phone_number_id: str = ""
+    whatsapp_template: str = "codigo_verificacion"
+    whatsapp_template_language: str = "es"
+    # ... y si no, al correo. En Render (plan gratis bloquea SMTP) se usa Brevo:
     # BREVO_API_KEY y EMAIL_SENDER (un correo verificado en Brevo, puede ser de Gmail).
     # En local también sirve Gmail por SMTP con una «contraseña de aplicación».
     # Sin ninguno, el código solo lo ve el equipo en «Participantes».
@@ -28,6 +34,8 @@ class Settings(BaseSettings):
     smtp_port: int = 587
     smtp_user: str = ""
     smtp_password: str = ""
+    # WhatsApp del equipo (9 dígitos): si el código no llega, el caficultor lo pide desde la app
+    team_whatsapp: str = ""
 
     # Mercado: precio mundial en vivo (HU02, HU03)
     local_price_factor: Decimal = Decimal("1")  # ajuste por diferencial y rendimiento local

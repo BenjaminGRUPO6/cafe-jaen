@@ -59,7 +59,7 @@ ignore = ["RUF001", "RUF002", "RUF003"]
 [tool.mypy]
 python_version = "3.11"
 mypy_path = "src"
-packages = ["shared", "identity", "market", "forecasting", "advisor", "orchestration"]
+packages = ["shared", "identity", "market", "forecasting", "decision", "advisor", "orchestration", "support"]
 ignore_missing_imports = true
 warn_unused_ignores = true
 

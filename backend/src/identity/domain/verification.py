@@ -15,11 +15,11 @@ RESEND_AFTER = timedelta(seconds=60)
 
 
 @dataclass(frozen=True)
-class EmailVerification:
-    """Código de 6 dígitos que confirma que el correo (y la persona) existen.
+class Verification:
+    """Código de 6 dígitos que confirma que el celular (y la persona) existen.
 
-    Vence a los 15 minutos y admite 5 intentos; el equipo también lo ve en «Participantes»
-    por si el correo no llega (se lo envía al caficultor por WhatsApp).
+    Se envía primero por WhatsApp al celular y, si no se puede, al correo. Vence a los
+    15 minutos y admite 5 intentos. El equipo también lo ve en «Participantes» por si no llegó.
     """
 
     user_id: str
@@ -27,10 +27,10 @@ class EmailVerification:
     created_at: datetime
     expires_at: datetime
     attempts: int = 0
-    email_sent: bool = False
+    delivered_by: str | None = None  # «whatsapp», «email» o None (solo lo ve el equipo)
 
-    def check(self, code: str, now: datetime) -> "EmailVerification":
-        """Devuelve la verificación con un intento más si el código no coincide."""
+    def check(self, code: str, now: datetime) -> "Verification":
+        """Comprueba el código; si no coincide, lanza el error con los intentos que quedan."""
         if self.attempts >= MAX_ATTEMPTS:
             raise TooManyAttemptsError()
         if now > self.expires_at:
@@ -39,19 +39,17 @@ class EmailVerification:
             raise InvalidVerificationCodeError(MAX_ATTEMPTS - self.attempts - 1)
         return self
 
-    def failed(self) -> "EmailVerification":
+    def failed(self) -> "Verification":
         return replace(self, attempts=self.attempts + 1)
 
     def can_resend(self, now: datetime) -> bool:
         return now - self.created_at >= RESEND_AFTER
 
-    def with_delivery(self, sent: bool) -> "EmailVerification":
-        return replace(self, email_sent=sent)
+    def delivered(self, channel: str | None) -> "Verification":
+        return replace(self, delivered_by=channel)
 
 
-def new_verification(
-    user_id: str, now: datetime, choice: Callable[[str], str]
-) -> EmailVerification:
+def new_verification(user_id: str, now: datetime, choice: Callable[[str], str]) -> Verification:
     """`choice` elige cada dígito (secrets.choice en producción; determinista en las pruebas)."""
     code = "".join(choice("0123456789") for _ in range(CODE_DIGITS))
-    return EmailVerification(user_id, code, now, now + LIFETIME)
+    return Verification(user_id, code, now, now + LIFETIME)

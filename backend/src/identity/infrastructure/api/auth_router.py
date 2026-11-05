@@ -1,28 +1,31 @@
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse
+from pydantic import AliasChoices, BaseModel, Field
 
 from identity.application.authenticate_user import AuthenticateUser
-from identity.application.email_verification import SendVerificationCode, VerifyAccount
 from identity.application.register_user import RegisterUser, RegisterUserCommand
+from identity.application.verify_account import SendVerificationCode, VerifyAccount
 from identity.domain.errors import (
     AccountNotVerifiedError,
     IdentityError,
     InvalidCredentialsError,
 )
+from identity.domain.user import User
 
 
 class RegisterRequest(BaseModel):
     invitation_code: str
     phone: str
-    email: str
+    email: str = ""  # opcional
     password: str
     consent_accepted: bool
 
 
 class LoginRequest(BaseModel):
-    phone: str
+    # Celular o correo; se acepta también «phone» (versiones anteriores de la app)
+    identifier: str = Field(validation_alias=AliasChoices("identifier", "phone"))
     password: str
 
 
@@ -45,8 +48,18 @@ def build_auth_router(
     authenticate: AuthenticateUser,
     send_code: SendVerificationCode,
     verify: VerifyAccount,
+    team_whatsapp: str,
 ) -> APIRouter:
     router = APIRouter(prefix="/auth", tags=["auth"])
+
+    def delivery(user: User, channel: str | None) -> dict[str, Any]:
+        """A dónde salió el código y, si no salió, el WhatsApp del equipo para pedirlo."""
+        return {
+            "phone": user.phone.value,
+            "email": user.email.masked() if user.email else None,
+            "delivered_by": channel,
+            "team_whatsapp": team_whatsapp or None,
+        }
 
     @router.post("/register", status_code=status.HTTP_201_CREATED)
     def register_user(body: RegisterRequest) -> dict[str, Any]:
@@ -54,14 +67,8 @@ def build_auth_router(
             user = register.execute(RegisterUserCommand(**body.model_dump()))
         except IdentityError as error:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, str(error)) from error
-        # Sin sesión todavía: primero debe escribir el código que llegó a su correo
-        email_sent = send_code.for_new_user(user)
-        return {
-            "verification_required": True,
-            "phone": user.phone.value,
-            "email": user.email.masked() if user.email else None,
-            "email_sent": email_sent,
-        }
+        # Sin sesión todavía: primero debe escribir el código que llegó a su celular
+        return {"verification_required": True, **delivery(user, send_code.for_new_user(user))}
 
     @router.post("/verify")
     def verify_account(body: VerifyRequest) -> SessionResponse:
@@ -73,18 +80,23 @@ def build_auth_router(
     @router.post("/resend")
     def resend_code(body: ResendRequest) -> dict[str, Any]:
         try:
-            user, email_sent = send_code.resend(body.phone)
+            user, channel = send_code.resend(body.phone)
         except IdentityError as error:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, str(error)) from error
-        return {"email": user.email.masked() if user.email else None, "email_sent": email_sent}
+        return delivery(user, channel)
 
-    @router.post("/login")
-    def login(body: LoginRequest) -> SessionResponse:
+    @router.post("/login", response_model=None)
+    def login(body: LoginRequest) -> SessionResponse | JSONResponse:
         try:
-            return SessionResponse(access_token=authenticate.execute(body.phone, body.password))
+            return SessionResponse(
+                access_token=authenticate.execute(body.identifier, body.password)
+            )
         except AccountNotVerifiedError as error:
-            # 403: la contraseña es correcta pero falta el código (la app abre «Verificar»)
-            raise HTTPException(status.HTTP_403_FORBIDDEN, str(error)) from error
+            # 403: la contraseña es correcta pero falta el código; la app abre «Verificar»
+            return JSONResponse(
+                {"detail": str(error), "phone": error.phone},
+                status_code=status.HTTP_403_FORBIDDEN,
+            )
         except InvalidCredentialsError as error:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(error)) from error
 

@@ -11,20 +11,20 @@ import { verifyPath } from "./VerifyPage";
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [phone, setPhone] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<ApiError | null>(null);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     try {
-      await login(phone, password);
+      await login(identifier, password);
       navigate("/");
     } catch (caught) {
       const failure = caught as ApiError;
       // 403: la contraseña es correcta pero la cuenta aún no confirmó el código del correo
       if (failure.status === 403) {
-        navigate(verifyPath(phone));
+        navigate(verifyPath(String(failure.body.phone ?? identifier)));
         return;
       }
       setError(failure);
@@ -40,13 +40,12 @@ export function LoginPage() {
       <h1>{texts.auth.loginTitle}</h1>
       <form className="form card" onSubmit={onSubmit}>
         <label>
-          {texts.auth.phone}
+          {texts.auth.identifier}
           <input
-            inputMode="numeric"
-            autoComplete="tel"
-            maxLength={9}
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            autoComplete="username"
+            autoCapitalize="none"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
             required
           />
         </label>

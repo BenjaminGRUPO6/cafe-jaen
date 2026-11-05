@@ -4,6 +4,23 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.11] — Verificación por celular, ingreso con correo y «Atención»
+
+### Cambiado
+- El **correo es opcional** al registrarse. El código se envía con prioridad al **celular por
+  WhatsApp** (WhatsApp Business, `WHATSAPP_TOKEN` y `WHATSAPP_PHONE_NUMBER_ID`) y, si no se
+  puede, al correo (Brevo). Si ningún canal está configurado, el equipo lo envía con un toque:
+  «Enviar código por WhatsApp» en «Participantes» abre su WhatsApp con el mensaje listo.
+- En «Confirma tu cuenta», el botón «Pedir mi código por WhatsApp» escribe al equipo
+  (`TEAM_WHATSAPP`).
+- **Ingreso con celular o correo** en la misma casilla.
+- Migración 0012: se guarda por qué canal salió cada código.
+
+### Agregado
+- **Atención al caficultor** (nuevo módulo hexagonal `support`): en «Ayuda» el caficultor
+  escribe sus dudas y ve las respuestas, con aviso de respuestas nuevas en la cabecera. El
+  equipo responde desde «Equipo → Mensajes» (primero las que esperan respuesta). Migración 0013.
+
 ## [v1.10] — Verificación por correo y administración de cuentas
 
 ### Agregado

@@ -1491,3 +1491,125 @@ a {
   font-size: 0.72rem;
   font-weight: 700;
 }
+
+/* ---------- Atención (chat caficultor ↔ equipo) ---------- */
+.badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.3rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--cereza);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.chat {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.chat__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.chat__bubble {
+  max-width: 85%;
+  padding: 0.55rem 0.75rem;
+  border-radius: 14px 14px 14px 4px;
+  background: #fff;
+  justify-self: start;
+}
+.chat__bubble--mine {
+  border-radius: 14px 14px 4px 14px;
+  background: var(--grano);
+  justify-self: end;
+}
+.chat__author {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--corteza);
+}
+.chat__text {
+  margin: 0.15rem 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.chat__time {
+  font-size: 0.7rem;
+  color: var(--corteza);
+}
+.chat__empty {
+  margin: 0;
+}
+.chat__form textarea {
+  width: 100%;
+  resize: vertical;
+  font: inherit;
+}
+.inbox {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+.inbox__item {
+  display: grid;
+  gap: 0.2rem;
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 0;
+  border-left: 4px solid var(--linea);
+  border-radius: 14px;
+  background: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.inbox__item--unread {
+  border-left-color: var(--cereza);
+}
+.inbox__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.inbox__preview {
+  color: var(--corteza);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+.inbox__back {
+  margin-top: 0.75rem;
+}
+.inbox__who {
+  margin: 0.5rem 0 0;
+}
+.participants__pending p {
+  margin: 0 0 0.35rem;
+}
+.participants__send {
+  display: inline-block;
+  font-size: 0.85rem;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+a.button {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+}

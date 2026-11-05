@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, DateTime, Integer, String, Table, false
+from sqlalchemy import Column, DateTime, Integer, String, Table
 
 from shared.infrastructure.database import metadata
 
@@ -35,5 +35,5 @@ verification_codes = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("expires_at", DateTime(timezone=True), nullable=False),
     Column("attempts", Integer, nullable=False, server_default="0"),
-    Column("email_sent", Boolean, nullable=False, server_default=false()),
+    Column("delivered_by", String(10), nullable=True),  # «whatsapp», «email» o nulo
 )

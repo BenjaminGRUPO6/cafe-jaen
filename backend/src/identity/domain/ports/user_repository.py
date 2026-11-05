@@ -6,7 +6,7 @@ from identity.domain.invitation_code import InvitationCode
 from identity.domain.participant import CodeSummary, Participant
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.user import Role, User
-from identity.domain.verification import EmailVerification
+from identity.domain.verification import Verification
 
 
 class UserRepository(Protocol):
@@ -39,15 +39,15 @@ class UserRepository(Protocol):
 
 
 class VerificationRepository(Protocol):
-    def save(self, verification: EmailVerification) -> None:
+    def save(self, verification: Verification) -> None:
         """Guarda o reemplaza la verificación pendiente del usuario."""
         ...
 
-    def get(self, user_id: str) -> EmailVerification | None: ...
+    def get(self, user_id: str) -> Verification | None: ...
 
     def delete(self, user_id: str) -> None: ...
 
-    def pending(self) -> dict[str, EmailVerification]:
+    def pending(self) -> dict[str, Verification]:
         """Verificaciones pendientes por id de usuario (pantalla «Participantes»)."""
         ...
 

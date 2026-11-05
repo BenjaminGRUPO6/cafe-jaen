@@ -23,14 +23,14 @@ class RegisterUserCommand:
     phone: str
     password: str
     consent_accepted: bool
-    email: str = ""
+    email: str = ""  # opcional: sirve para ingresar y como canal de respaldo
 
 
 class RegisterUser:
     """HU01: registra a un caficultor del GE (o a alguien del equipo) con su código.
 
-    La cuenta queda sin verificar: para entrar debe confirmar el código que llega a su correo
-    (así no se registran celulares inventados).
+    La cuenta queda sin verificar: para entrar debe confirmar el código que llega a su celular
+    por WhatsApp (así no se registran celulares inventados). El correo es opcional.
     """
 
     def __init__(
@@ -54,14 +54,14 @@ class RegisterUser:
         if len(command.password) < MIN_PASSWORD_LENGTH:
             raise WeakPasswordError(MIN_PASSWORD_LENGTH)
         phone = PhoneNumber(command.phone)
-        email = EmailAddress(command.email)
+        email = EmailAddress(command.email) if command.email.strip() else None
 
         code = self._codes.get(command.invitation_code.strip().upper())
         if code is None or code.is_used:
             raise InvalidInvitationCodeError()
         if self._users.get_by_phone(phone) is not None:
             raise PhoneAlreadyRegisteredError()
-        if self._users.get_by_email(email) is not None:
+        if email is not None and self._users.get_by_email(email) is not None:
             raise EmailAlreadyRegisteredError()
 
         now = self._clock.now()

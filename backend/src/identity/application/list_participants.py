@@ -32,7 +32,9 @@ class ListParticipants:
         pending = self._verifications.pending()
         participants = [
             replace(
-                p, pending_code=pending[p.user_id].code, code_emailed=pending[p.user_id].email_sent
+                p,
+                pending_code=pending[p.user_id].code,
+                delivered_by=pending[p.user_id].delivered_by,
             )
             if p.user_id in pending and not p.verified
             else p

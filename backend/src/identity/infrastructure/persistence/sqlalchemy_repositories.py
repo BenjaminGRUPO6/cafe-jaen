@@ -8,7 +8,7 @@ from identity.domain.invitation_code import InvitationCode
 from identity.domain.participant import CodeSummary, Participant
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.user import Consent, Role, User
-from identity.domain.verification import EmailVerification
+from identity.domain.verification import Verification
 from identity.infrastructure.persistence.tables import (
     invitation_codes,
     users,
@@ -128,7 +128,7 @@ class SqlAlchemyVerificationRepository:
     def __init__(self, session_factory: sessionmaker[Session]) -> None:
         self._sessions = session_factory
 
-    def save(self, verification: EmailVerification) -> None:
+    def save(self, verification: Verification) -> None:
         with self._sessions() as session, session.begin():
             session.execute(
                 delete(verification_codes).where(
@@ -143,11 +143,11 @@ class SqlAlchemyVerificationRepository:
                     created_at=verification.created_at.astimezone(UTC),
                     expires_at=verification.expires_at.astimezone(UTC),
                     attempts=verification.attempts,
-                    email_sent=verification.email_sent,
+                    delivered_by=verification.delivered_by,
                 )
             )
 
-    def get(self, user_id: str) -> EmailVerification | None:
+    def get(self, user_id: str) -> Verification | None:
         query = select(verification_codes).where(verification_codes.c.user_id == user_id)
         with self._sessions() as session:
             row = session.execute(query).first()
@@ -159,20 +159,20 @@ class SqlAlchemyVerificationRepository:
                 delete(verification_codes).where(verification_codes.c.user_id == user_id)
             )
 
-    def pending(self) -> dict[str, EmailVerification]:
+    def pending(self) -> dict[str, Verification]:
         with self._sessions() as session:
             rows = session.execute(select(verification_codes)).all()
         return {row.user_id: _to_verification(row) for row in rows}
 
 
-def _to_verification(row: Row) -> EmailVerification:  # type: ignore[type-arg]
-    return EmailVerification(
+def _to_verification(row: Row) -> Verification:  # type: ignore[type-arg]
+    return Verification(
         user_id=row.user_id,
         code=row.code,
         created_at=_aware(row.created_at),
         expires_at=_aware(row.expires_at),
         attempts=row.attempts,
-        email_sent=row.email_sent,
+        delivered_by=row.delivered_by,
     )
 
 

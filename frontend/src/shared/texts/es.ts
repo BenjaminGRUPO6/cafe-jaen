@@ -35,18 +35,25 @@ export const texts = {
       "Solo guardamos tu número de celular y tu uso de la aplicación, de forma confidencial y " +
       "según la Ley N.° 29733 de Protección de Datos Personales. Puedes dejar de participar cuando quieras.",
     consentAccept: "He leído y acepto participar",
-    email: "Correo electrónico",
-    emailHint: "Te enviaremos un código para confirmar que eres tú.",
+    email: "Correo electrónico (opcional)",
+    emailHint:
+      "El código de confirmación llega por WhatsApp a tu celular. El correo te sirve para ingresar y como respaldo.",
+    identifier: "Celular o correo",
     showPassword: "Mostrar contraseña",
     hidePassword: "Ocultar contraseña",
   },
   verify: {
     title: "Confirma tu cuenta",
-    sentTo: (email: string) => `Te enviamos un código de 6 dígitos a ${email}.`,
-    yourEmail: "tu correo",
+    sentWhatsApp: (phone: string) => `Te enviamos un código de 6 dígitos por WhatsApp al ${phone}.`,
+    sentEmail: (email: string) =>
+      `No pudimos usar WhatsApp: te enviamos el código de 6 dígitos a ${email} (revisa también spam).`,
+    sentSomewhere: "Escribe el código de 6 dígitos que te enviamos.",
     notSent:
-      "No pudimos enviar el correo ahora. Pide tu código al equipo de Café Jaén por WhatsApp.",
-    help: "Revisa también la carpeta de spam. Si no llega, el equipo puede darte el código.",
+      "Todavía no pudimos enviarte el código. Pídelo al equipo de Café Jaén por WhatsApp: ellos lo tienen.",
+    help: "Si no te llega en un par de minutos, el equipo puede darte el código.",
+    askTeam: "Pedir mi código por WhatsApp",
+    askTeamText: (phone: string) =>
+      `Hola, me registré en Café Jaén con el celular ${phone}. ¿Me pasan mi código de confirmación?`,
     code: "Código de 6 dígitos",
     submit: "Confirmar y entrar",
     resend: "Enviar otro código",
@@ -241,6 +248,26 @@ export const texts = {
     more: (n: number) => `Mostrar más (${n} restantes)`,
   },
 
+  support: {
+    nav: "Ayuda",
+    tab: "Mensajes",
+    title: "Atención al caficultor",
+    intro:
+      "¿Tienes una duda sobre el precio, la app o tu cuenta? Escríbenos aquí y el equipo de Café Jaén te responderá en esta misma pantalla.",
+    placeholder: "Escribe tu pregunta…",
+    send: "Enviar",
+    empty: "Todavía no hay mensajes. Escribe el primero.",
+    authors: { farmer: "Caficultor", team: "Equipo Café Jaén" },
+    newReplies: (n: number) => `${n} respuestas nuevas`,
+    inboxTitle: "Mensajes de los caficultores",
+    inboxIntro:
+      "Las preguntas que dejan los caficultores en «Ayuda». Primero las que esperan respuesta; se actualiza sola cada 15 s.",
+    inboxEmpty: "Todavía nadie escribió.",
+    you: "Tú",
+    back: "Todas las conversaciones",
+    replyPlaceholder: "Escribe tu respuesta…",
+    deletedAccount: "Cuenta eliminada",
+  },
   participants: {
     tab: "Participantes",
     title: "Participantes del grupo experimental",
@@ -258,8 +285,14 @@ export const texts = {
     remove: (phone: string) => `Eliminar la cuenta ${phone}`,
     pending: (code: string | null) =>
       code ? `Sin verificar · código: ${code}` : "Sin verificar · pidió un código nuevo",
-    codeEmailed: "(se envió a su correo)",
-    codeNotEmailed: "(el correo no salió: envíaselo por WhatsApp)",
+    delivered: {
+      whatsapp: "(se envió por WhatsApp)",
+      email: "(se envió a su correo)",
+      none: "(no salió automáticamente: envíaselo por WhatsApp)",
+    },
+    sendByWhatsApp: "Enviar código por WhatsApp",
+    codeMessage: (code: string) =>
+      `Hola, te saluda el equipo de Café Jaén. Tu código para confirmar tu cuenta es ${code}. Escríbelo en la app.`,
   },
   admin: {
     nav: "Equipo",

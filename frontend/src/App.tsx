@@ -15,6 +15,8 @@ import { DecisionPage } from "./features/decision/DecisionPage";
 import { ForecastPage } from "./features/forecast/ForecastPage";
 import { LivePricePage } from "./features/live/LivePricePage";
 import { ParticipantsPage } from "./features/participants/ParticipantsPage";
+import { SupportInboxPage } from "./features/support/SupportInboxPage";
+import { SupportPage } from "./features/support/SupportPage";
 import { AuthProvider } from "./shared/auth/AuthContext";
 import { Layout } from "./shared/components/Layout";
 import { StatusMessage } from "./shared/components/StatusMessage";
@@ -31,6 +33,7 @@ const ADMIN_ROUTES = [
   { path: "/equipo/codigos", element: <CodesPage /> },
   { path: "/equipo/participantes", element: <ParticipantsPage /> },
   { path: "/equipo/bolsa", element: <PriceLogPage /> },
+  { path: "/equipo/mensajes", element: <SupportInboxPage /> },
 ];
 
 // Las rutas están en español porque el caficultor las ve en la barra del navegador
@@ -63,6 +66,7 @@ export function App() {
               <Route path="/vender" element={<DecisionPage />} />
               <Route path="/pronostico" element={<ForecastPage />} />
               <Route path="/asesor" element={<AdvisorPage />} />
+              <Route path="/ayuda" element={<SupportPage />} />
               {ADMIN_ROUTES.map(({ path, element }) => (
                 <Route key={path} path={path} element={<RequireAdmin>{element}</RequireAdmin>} />
               ))}

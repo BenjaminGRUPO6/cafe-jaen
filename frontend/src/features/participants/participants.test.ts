@@ -10,7 +10,7 @@ const report: ParticipantsReport = {
       email: null,
       verified: true,
       pending_code: null,
-      code_emailed: false,
+      delivered_by: null,
       role: "admin",
       registered_at: "2026-11-01T08:00:00-05:00",
       invitation_code: null,
@@ -22,7 +22,7 @@ const report: ParticipantsReport = {
       email: null,
       verified: true,
       pending_code: null,
-      code_emailed: false,
+      delivered_by: null,
       role: "farmer",
       registered_at: "2026-11-05T09:00:00-05:00",
       invitation_code: "DEMO-0001",
@@ -34,7 +34,7 @@ const report: ParticipantsReport = {
       email: null,
       verified: true,
       pending_code: null,
-      code_emailed: false,
+      delivered_by: null,
       role: "farmer",
       registered_at: "2026-11-02T09:00:00-05:00",
       invitation_code: "DEMO-0002",
@@ -56,5 +56,13 @@ describe("participantes", () => {
   it("calcula el comienzo del día", () => {
     const start = startOfToday(new Date(2026, 10, 5, 15, 30));
     expect([start.getHours(), start.getMinutes(), start.getDate()]).toEqual([0, 0, 5]);
+  });
+});
+
+describe("enviar el código por WhatsApp", () => {
+  it("arma el enlace al celular del caficultor con el mensaje listo", async () => {
+    const { sendCodeLink } = await import("./participants");
+    const link = sendCodeLink("955500111", "932897", (code) => `Tu código es ${code}`);
+    expect(link).toBe("https://wa.me/51955500111?text=Tu%20c%C3%B3digo%20es%20932897");
   });
 });

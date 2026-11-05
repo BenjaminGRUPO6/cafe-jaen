@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { api, ApiError } from "../../shared/api/client";
-import type { PendingVerification } from "../../shared/api/types";
+import type { CodeDelivery } from "../../shared/api/types";
 import { useAuth } from "../../shared/auth/AuthContext";
 import { Brand } from "../../shared/components/Brand";
 import { StatusMessage } from "../../shared/components/StatusMessage";
@@ -22,10 +22,9 @@ export function VerifyPage() {
   const { verify } = useAuth();
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const pending = useLocation().state as PendingVerification | null;
+  const pending = useLocation().state as CodeDelivery | null;
   const phone = pending?.phone ?? params.get("telefono") ?? "";
-  const [email, setEmail] = useState(pending?.email ?? null);
-  const [emailSent, setEmailSent] = useState(pending?.email_sent ?? true);
+  const [delivery, setDelivery] = useState<CodeDelivery | null>(pending);
   const [code, setCode] = useState("");
   const [error, setError] = useState<ApiError | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -51,11 +50,7 @@ export function VerifyPage() {
   const resend = async () => {
     setError(null);
     try {
-      const sent = await api.post<{ email: string | null; email_sent: boolean }>("/auth/resend", {
-        phone,
-      });
-      setEmail(sent.email);
-      setEmailSent(sent.email_sent);
+      setDelivery(await api.post<CodeDelivery>("/auth/resend", { phone }));
       setNotice(texts.verify.resent);
       setWait(RESEND_SECONDS);
     } catch (caught) {
@@ -71,10 +66,18 @@ export function VerifyPage() {
       </div>
       <h1>{texts.verify.title}</h1>
       <form className="form card" onSubmit={onSubmit}>
-        <p>
-          {emailSent ? texts.verify.sentTo(email ?? texts.verify.yourEmail) : texts.verify.notSent}
-        </p>
+        <p>{deliveryText(delivery, phone)}</p>
         <p className="muted">{texts.verify.help}</p>
+        {delivery?.team_whatsapp && (
+          <a
+            className="button button--secondary"
+            href={askTeamLink(delivery.team_whatsapp, phone)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {texts.verify.askTeam}
+          </a>
+        )}
         <label>
           {texts.verify.code}
           <input
@@ -105,4 +108,19 @@ export function VerifyPage() {
       <Link to="/ingresar">{texts.auth.goToLogin}</Link>
     </main>
   );
+}
+
+/** A dónde salió el código (WhatsApp, correo) o, si no salió, que lo pida al equipo. */
+function deliveryText(delivery: CodeDelivery | null, phone: string): string {
+  if (delivery === null) return texts.verify.sentSomewhere;
+  if (delivery.delivered_by === "whatsapp") return texts.verify.sentWhatsApp(phone);
+  if (delivery.delivered_by === "email" && delivery.email) {
+    return texts.verify.sentEmail(delivery.email);
+  }
+  return texts.verify.notSent;
+}
+
+/** Abre WhatsApp con un mensaje listo para pedir el código al equipo. */
+export function askTeamLink(teamPhone: string, phone: string): string {
+  return `https://wa.me/51${teamPhone}?text=${encodeURIComponent(texts.verify.askTeamText(phone))}`;
 }

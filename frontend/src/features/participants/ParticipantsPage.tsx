@@ -9,7 +9,13 @@ import { useAutoReload } from "../../shared/hooks/useAutoReload";
 import { TrashIcon } from "../../shared/motion/icons";
 import { texts } from "../../shared/texts/es";
 import { AdminTabs } from "../admin/AdminTabs";
-import { startOfToday, summarize, type Participant, type ParticipantsReport } from "./participants";
+import {
+  sendCodeLink,
+  startOfToday,
+  summarize,
+  type Participant,
+  type ParticipantsReport,
+} from "./participants";
 
 const REFRESH_MS = 10_000; // un registro nuevo aparece en menos de 10 s sin recargar
 
@@ -109,12 +115,22 @@ function ParticipantRow({
       </div>
       {p.email && <p className="participants__email">{p.email}</p>}
       {!p.verified && (
-        <p className="participants__pending" role="status">
-          {texts.participants.pending(p.pending_code)}{" "}
-          <small>
-            {p.code_emailed ? texts.participants.codeEmailed : texts.participants.codeNotEmailed}
-          </small>
-        </p>
+        <div className="participants__pending" role="status">
+          <p>
+            {texts.participants.pending(p.pending_code)}{" "}
+            <small>{texts.participants.delivered[p.delivered_by ?? "none"]}</small>
+          </p>
+          {p.pending_code && (
+            <a
+              className="button button--secondary participants__send"
+              href={sendCodeLink(p.phone, p.pending_code, texts.participants.codeMessage)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {texts.participants.sendByWhatsApp}
+            </a>
+          )}
+        </div>
       )}
       <p className="participants__meta">
         {texts.participants.registeredAt(formatDateTime(new Date(p.registered_at)))}

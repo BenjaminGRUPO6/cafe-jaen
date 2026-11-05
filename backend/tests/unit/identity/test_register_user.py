@@ -127,7 +127,11 @@ def test_rejects_duplicated_email(register: RegisterUser, users: InMemoryUserRep
         second.execute(command(invitation_code="JAEN-XYZ789", phone="911111111"))
 
 
-@pytest.mark.parametrize("email", ["", "sin-arroba", "a@b", "con espacio@gmail.com"])
+def test_email_is_optional(register: RegisterUser) -> None:
+    assert register.execute(command(email="  ")).email is None
+
+
+@pytest.mark.parametrize("email", ["sin-arroba", "a@b", "con espacio@gmail.com"])
 def test_rejects_invalid_emails(register: RegisterUser, email: str) -> None:
     with pytest.raises(InvalidEmailError):
         register.execute(command(email=email))
@@ -156,8 +160,9 @@ def test_login_asks_for_the_code_until_the_account_is_verified(
     user = register.execute(command())
     authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer(), FixedClock())
 
-    with pytest.raises(AccountNotVerifiedError):
-        authenticate.execute("987654321", "cafe2026!")
+    with pytest.raises(AccountNotVerifiedError) as blocked:
+        authenticate.execute("caficultor@gmail.com", "cafe2026!")  # también con el correo
+    assert blocked.value.phone == "987654321"
     with pytest.raises(InvalidCredentialsError):  # con otra contraseña no revela nada
         authenticate.execute("987654321", "incorrecta")
     users.mark_verified(user.id, FixedClock().now())

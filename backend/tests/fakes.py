@@ -12,9 +12,9 @@ from identity.domain.email_address import EmailAddress
 from identity.domain.invitation_code import InvitationCode
 from identity.domain.participant import CodeSummary, Participant
 from identity.domain.phone_number import PhoneNumber
-from identity.domain.ports.email_sender import EmailNotSentError
+from identity.domain.ports.code_sender import CodeNotSentError
 from identity.domain.user import Role, User
-from identity.domain.verification import EmailVerification
+from identity.domain.verification import Verification
 from market.domain.cooperative import Cooperative
 from market.domain.errors import SourceUnavailableError
 from market.domain.local_price import LocalPriceObservation
@@ -118,36 +118,36 @@ class InMemoryUserRepository:
 
 class InMemoryVerificationRepository:
     def __init__(self) -> None:
-        self.items: dict[str, EmailVerification] = {}
+        self.items: dict[str, Verification] = {}
 
-    def save(self, verification: EmailVerification) -> None:
+    def save(self, verification: Verification) -> None:
         self.items[verification.user_id] = verification
 
-    def get(self, user_id: str) -> EmailVerification | None:
+    def get(self, user_id: str) -> Verification | None:
         return self.items.get(user_id)
 
     def delete(self, user_id: str) -> None:
         self.items.pop(user_id, None)
 
-    def pending(self) -> dict[str, EmailVerification]:
+    def pending(self) -> dict[str, Verification]:
         return dict(self.items)
 
 
-class FakeEmailSender:
-    """Guarda los correos en vez de enviarlos; `fail=True` simula un proveedor caído."""
+class FakeCodeSender:
+    """Guarda los códigos en vez de enviarlos; `fail=True` simula un canal caído."""
 
-    def __init__(self, fail: bool = False) -> None:
-        self.sent: list[tuple[str, str, str]] = []
+    def __init__(self, channel: str = "whatsapp", fail: bool = False) -> None:
+        self.channel = channel
         self.fail = fail
+        self.sent: list[tuple[str, str]] = []  # (celular, código)
 
-    def send(self, to: str, subject: str, text: str) -> None:
+    def send(self, user: User, code: str) -> None:
         if self.fail:
-            raise EmailNotSentError("caído")
-        self.sent.append((to, subject, text))
+            raise CodeNotSentError("caído")
+        self.sent.append((user.phone.value, code))
 
     def last_code(self) -> str:
-        """El código de 6 dígitos del último correo enviado."""
-        return next(w for w in self.sent[-1][2].split() if w.isdigit() and len(w) == 6)
+        return self.sent[-1][1]
 
 
 class InMemoryInvitationCodeRepository:

@@ -65,7 +65,6 @@ export function RegisterPage() {
             autoComplete="email"
             value={form.email}
             onChange={update("email")}
-            required
           />
           <small className="muted">{texts.auth.emailHint}</small>
         </label>

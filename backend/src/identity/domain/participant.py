@@ -17,7 +17,7 @@ class Participant:
     email: str | None = None
     verified: bool = True
     pending_code: str | None = None  # código por verificar (el equipo lo envía si no llega)
-    code_emailed: bool = False  # si el correo con el código se pudo enviar
+    delivered_by: str | None = None  # canal por el que salió el código («whatsapp», «email»)
 
 
 @dataclass(frozen=True)

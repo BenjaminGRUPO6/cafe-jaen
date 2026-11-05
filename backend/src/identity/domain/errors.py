@@ -32,7 +32,7 @@ class InvalidPhoneError(IdentityError):
 
 class InvalidCredentialsError(IdentityError):
     def __init__(self) -> None:
-        super().__init__("Celular o contraseña incorrectos")
+        super().__init__("Celular, correo o contraseña incorrectos")
 
 
 class InvalidEmailError(IdentityError):
@@ -46,8 +46,9 @@ class EmailAlreadyRegisteredError(IdentityError):
 
 
 class AccountNotVerifiedError(IdentityError):
-    def __init__(self) -> None:
-        super().__init__("Falta verificar tu cuenta con el código que enviamos a tu correo")
+    def __init__(self, phone: str) -> None:
+        super().__init__("Falta confirmar tu cuenta con el código que te enviamos")
+        self.phone = phone  # la app abre «Verificar» con este celular (aunque ingrese por correo)
 
 
 class InvalidVerificationCodeError(IdentityError):

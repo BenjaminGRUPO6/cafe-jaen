@@ -1,4 +1,4 @@
-"""Verificación del correo al registrarse y eliminación de cuentas por el equipo."""
+"""Verificación del celular al registrarse (WhatsApp, luego correo) y eliminación de cuentas."""
 
 from datetime import timedelta
 from itertools import cycle
@@ -6,9 +6,9 @@ from itertools import cycle
 import pytest
 
 from identity.application.delete_participant import DeleteParticipant
-from identity.application.email_verification import SendVerificationCode, VerifyAccount
 from identity.application.list_participants import ListParticipants
 from identity.application.register_user import RegisterUser, RegisterUserCommand
+from identity.application.verify_account import SendVerificationCode, VerifyAccount
 from identity.domain.errors import (
     AlreadyVerifiedError,
     CannotDeleteSelfError,
@@ -22,7 +22,7 @@ from identity.domain.invitation_code import InvitationCode
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.user import User
 from tests.fakes import (
-    FakeEmailSender,
+    FakeCodeSender,
     FakePasswordHasher,
     FakeTokenIssuer,
     FixedClock,
@@ -33,15 +33,16 @@ from tests.fakes import (
 
 
 class World:
-    def __init__(self, sender: FakeEmailSender | None = None) -> None:
+    def __init__(self, *senders: FakeCodeSender) -> None:
         self.clock = FixedClock()
         self.users = InMemoryUserRepository()
         self.codes = InMemoryInvitationCodeRepository(InvitationCode("JAEN-ABC234"))
         self.verifications = InMemoryVerificationRepository()
-        self.sender = sender or FakeEmailSender()
+        self.senders = list(senders) or [FakeCodeSender()]
+        self.sender = self.senders[0]
         digits = cycle("123456")
         self.send = SendVerificationCode(
-            self.users, self.verifications, self.sender, self.clock, lambda _: next(digits)
+            self.users, self.verifications, self.senders, self.clock, lambda _: next(digits)
         )
         self.verify = VerifyAccount(self.users, self.verifications, FakeTokenIssuer(), self.clock)
 
@@ -55,12 +56,11 @@ class World:
         return user
 
 
-def test_the_code_arrives_by_email_and_opens_the_session() -> None:
+def test_the_code_arrives_by_whatsapp_and_opens_the_session() -> None:
     world = World()
     user = world.register()
 
-    assert world.sender.sent[0][0] == "luis@gmail.com"
-    assert world.sender.last_code() == "123456"
+    assert world.sender.sent == [("987654321", "123456")]
     token = world.verify.execute("987654321", "123456")
 
     assert token == f"token-{user.id}-farmer"
@@ -68,8 +68,18 @@ def test_the_code_arrives_by_email_and_opens_the_session() -> None:
     assert world.verifications.get(user.id) is None
 
 
-def test_if_the_email_fails_the_team_sees_the_code() -> None:
-    world = World(FakeEmailSender(fail=True))
+def test_if_whatsapp_fails_the_email_is_used() -> None:
+    whatsapp, email = FakeCodeSender("whatsapp", fail=True), FakeCodeSender("email")
+    world = World(whatsapp, email)
+
+    world.register()
+
+    assert email.sent == [("987654321", "123456")]
+    assert world.verifications.items[world.users.participants()[0].user_id].delivered_by == "email"
+
+
+def test_if_no_channel_works_the_team_sees_the_code() -> None:
+    world = World(FakeCodeSender("whatsapp", fail=True), FakeCodeSender("email", fail=True))
     user = world.register()
 
     report = ListParticipants(world.users, world.codes, world.verifications).execute()
@@ -77,7 +87,7 @@ def test_if_the_email_fails_the_team_sees_the_code() -> None:
     participant = report.participants[0]
     assert participant.user_id == user.id
     assert (participant.verified, participant.pending_code) == (False, "123456")
-    assert participant.code_emailed is False
+    assert participant.delivered_by is None
 
 
 def test_wrong_codes_count_attempts_until_blocked() -> None:
@@ -109,9 +119,9 @@ def test_a_new_code_can_be_requested_once_per_minute() -> None:
     with pytest.raises(ResendTooSoonError):
         world.send.resend("987654321")
     world.clock.current += timedelta(seconds=61)
-    _, sent = world.send.resend("987654321")
+    _, channel = world.send.resend("987654321")
 
-    assert sent and len(world.sender.sent) == 2
+    assert channel == "whatsapp" and len(world.sender.sent) == 2
 
 
 def test_a_verified_account_does_not_ask_for_codes() -> None:

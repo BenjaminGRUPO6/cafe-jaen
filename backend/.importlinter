@@ -8,6 +8,7 @@ root_packages =
     decision
     advisor
     orchestration
+    support
 
 [importlinter:contract:hexagonal-layers]
 name = Capas hexagonales: infrastructure -> application -> domain
@@ -23,6 +24,7 @@ containers =
     decision
     advisor
     orchestration
+    support
 
 [importlinter:contract:independent-modules]
 name = Los módulos no se importan entre sí (solo hablan mediante AgentMessage)
@@ -34,6 +36,7 @@ modules =
     decision
     advisor
     orchestration
+    support
 
 [importlinter:contract:shared-kernel]
 name = El kernel compartido no depende de ningún módulo
@@ -47,3 +50,5 @@ forbidden_modules =
     decision
     advisor
     orchestration
+    support
+    support

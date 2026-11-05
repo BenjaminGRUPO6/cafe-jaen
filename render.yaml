@@ -38,7 +38,15 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
-      # Código de verificación por correo (el plan gratis bloquea SMTP: se usa la API de Brevo).
+      # Código de verificación: primero por WhatsApp (WhatsApp Business, Meta Cloud API) ...
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      # WhatsApp del equipo (9 dígitos): el caficultor pide ahí su código si no le llegó
+      - key: TEAM_WHATSAPP
+        sync: false
+      # ... y si no, por correo (el plan gratis bloquea SMTP: se usa la API de Brevo).
       # EMAIL_SENDER es el correo verificado en Brevo (puede ser de Gmail). Sin ellos, el código
       # solo lo ve el equipo en «Participantes».
       - key: BREVO_API_KEY

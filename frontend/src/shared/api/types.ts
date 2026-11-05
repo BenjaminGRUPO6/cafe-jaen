@@ -104,9 +104,13 @@ export interface Cooperative {
 }
 
 /** Respuesta del registro: la cuenta espera el código enviado al correo. */
-export interface PendingVerification {
-  verification_required: true;
+export interface CodeDelivery {
   phone: string;
   email: string | null; // enmascarado: «lu***@gmail.com»
-  email_sent: boolean;
+  delivered_by: "whatsapp" | "email" | null; // null: el código solo lo tiene el equipo
+  team_whatsapp: string | null; // para pedir el código al equipo si no llegó
+}
+
+export interface PendingVerification extends CodeDelivery {
+  verification_required: true;
 }

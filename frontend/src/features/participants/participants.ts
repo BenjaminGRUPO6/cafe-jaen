@@ -5,7 +5,7 @@ export interface Participant {
   email: string | null;
   verified: boolean;
   pending_code: string | null; // código por confirmar: el equipo lo envía si el correo no llegó
-  code_emailed: boolean;
+  delivered_by: "whatsapp" | "email" | null;
   role: "farmer" | "admin";
   registered_at: string;
   invitation_code: string | null;
@@ -30,4 +30,13 @@ export function summarize(report: ParticipantsReport, since: Date) {
 /** Comienzo del día de hoy (hora local del celular). */
 export function startOfToday(now: Date): Date {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+}
+
+/** Abre WhatsApp con el código listo para enviárselo al caficultor desde el celular del equipo. */
+export function sendCodeLink(
+  phone: string,
+  code: string,
+  message: (code: string) => string,
+): string {
+  return `https://wa.me/51${phone}?text=${encodeURIComponent(message(code))}`;
 }
