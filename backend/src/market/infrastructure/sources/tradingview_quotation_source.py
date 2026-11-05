@@ -11,7 +11,7 @@ from zoneinfo import ZoneInfo
 
 import httpx
 
-from market.domain.errors import SourceUnavailableError
+from market.domain.errors import RateLimitedError, SourceUnavailableError
 from market.domain.quotation import LiveQuote
 
 DEFAULT_URL = "https://scanner.tradingview.com/futures/scan"
@@ -33,6 +33,10 @@ class TradingViewQuotationSource:
         body = {"symbols": {"tickers": [TICKER], "query": {"types": []}}, "columns": ["close"]}
         try:
             response = httpx.post(self._url, json=body, timeout=self._timeout, headers=HEADERS)
+            if response.status_code == 429:
+                raise RateLimitedError(
+                    "pidió esperar: 429 Too Many Requests", _retry_after(response)
+                )
             response.raise_for_status()
             payload = response.json()
         except (httpx.HTTPError, ValueError) as error:
@@ -51,3 +55,11 @@ def parse_tradingview_scan(payload: dict[str, Any], name: str = "TradingView") -
         raise SourceUnavailableError("precio no válido")
     now = datetime.now(NEW_YORK).replace(second=0, microsecond=0)
     return LiveQuote(price, now, (name,), has_exchange_time=False)
+
+
+def _retry_after(response: httpx.Response) -> float | None:
+    """Segundos que la web pide esperar (cabecera Retry-After), si los indica."""
+    try:
+        return float(response.headers.get("Retry-After", ""))
+    except ValueError:
+        return None

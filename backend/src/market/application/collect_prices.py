@@ -6,7 +6,12 @@ from statistics import median
 from typing import TypeVar
 
 from market.domain.consensus import Consensus, ConsensusResult
-from market.domain.errors import DuplicateQuotationError, MarketError, SourceUnavailableError
+from market.domain.errors import (
+    DuplicateQuotationError,
+    MarketError,
+    SourcePausedError,
+    SourceUnavailableError,
+)
 from market.domain.market_hours import MarketHours
 from market.domain.ports.price_repository import PriceRepository
 from market.domain.ports.sources import (
@@ -104,7 +109,7 @@ class CollectPrices:
         report.exchange_rate_saved = True
 
     def _collect_quotation(self, report: CollectionReport) -> None:
-        quotes, failures = self._fetch_all_sources(report)
+        quotes, failures, paused = self._fetch_all_sources(report)
         middle = Decimal(median(q.cents_per_pound for q in quotes)) if quotes else None
         result: ConsensusResult | None = None
         published: LiveQuote | None = None
@@ -130,24 +135,36 @@ class CollectPrices:
         # Cada consulta queda registrada con lo que marcó cada web (pestaña «Bolsa» del equipo)
         self._repository.add_collection(
             build_collection(
-                self._clock.now(), quotes, failures, result, middle, published, outcome, detail
+                self._clock.now(),
+                quotes,
+                failures,
+                result,
+                middle,
+                published,
+                outcome,
+                detail,
+                paused,
             )
         )
 
     def _fetch_all_sources(
         self, report: CollectionReport
-    ) -> tuple[list[LiveQuote], list[tuple[str, str]]]:
+    ) -> tuple[list[LiveQuote], list[tuple[str, str]], list[tuple[str, str]]]:
         quotes: list[LiveQuote] = []
         failures: list[tuple[str, str]] = []
+        paused: list[tuple[str, str]] = []
         for source in self._sources:
             try:
                 quotes.append(source.fetch_latest())
                 report.sources_ok.append(source.name)
+            except SourcePausedError as error:
+                # No se consultó para respetar el límite de esa web: no cuenta como falla
+                paused.append((source.name, str(error)))
             except SourceUnavailableError as error:
                 # Una web caída no detiene la recolección: se sigue con las demás
                 self._register_issue(report, f"{source.name}: {error}")
                 failures.append((source.name, str(error)))
-        return quotes, failures
+        return quotes, failures, paused
 
     def _save(self, quote: LiveQuote) -> None:
         self._repository.add_live_quote(quote)

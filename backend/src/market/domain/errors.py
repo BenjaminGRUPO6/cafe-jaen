@@ -6,6 +6,21 @@ class SourceUnavailableError(MarketError):
     """Una fuente externa (cotización o tipo de cambio) no respondió."""
 
 
+class SourcePausedError(SourceUnavailableError):
+    """La web no se consultó esta vez: se consulta con menos frecuencia o pidió esperar.
+
+    No es una falla de la web: así se respetan sus límites (p. ej., «429 Too Many Requests»).
+    """
+
+
+class RateLimitedError(SourceUnavailableError):
+    """La web respondió que se excedió su límite de consultas (HTTP 429)."""
+
+    def __init__(self, message: str, retry_after_seconds: float | None = None) -> None:
+        super().__init__(message)
+        self.retry_after_seconds = retry_after_seconds
+
+
 class NoQuotationError(MarketError):
     def __init__(self) -> None:
         super().__init__("Ninguna fuente de cotización respondió")

@@ -106,6 +106,7 @@ def build_admin_market_router(
                     "answered": r.answered,
                     "used": r.used,
                     "discarded": r.discarded,
+                    "paused": r.paused,
                     "avg_delay_minutes": r.avg_delay_minutes,
                     "avg_deviation_pct": r.avg_deviation_pct,
                     "score": r.score,

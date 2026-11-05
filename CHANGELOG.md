@@ -4,6 +4,16 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.12.1] — Fuentes que limitan las consultas
+
+### Corregido
+- **TradingView** respondía «429 Too Many Requests»: limita las consultas automáticas que
+  llegan desde servidores compartidos como Render. Ahora se consulta cada 5 minutos y, si pide
+  esperar, se pausa (15 min o lo que indique, hasta 1 hora). Esas consultas quedan como
+  «En pausa», no como «Sin respuesta», y no cuentan en la evaluación de fuentes.
+- **Stooq** no respondía: desde 2026 exige una clave gratuita para descargar datos. Sale de las
+  webs por defecto y solo se consulta si se configura `STOOQ_API_KEY`.
+
 ## [v1.12] — Kit visual, perfil visible, sesiones por pestaña y cuentas del equipo
 
 ### Agregado

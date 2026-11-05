@@ -160,7 +160,9 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     collector = CollectorAgent(
         CollectPrices(
             overrides.quotation_sources
-            or build_sources(settings.quotation_sources, settings.stooq_timezone),
+            or build_sources(
+                settings.quotation_sources, settings.stooq_timezone, settings.stooq_api_key
+            ),
             overrides.exchange_rate_provider or BcrpExchangeRateProvider(),
             prices,
             Consensus(settings.source_max_deviation),

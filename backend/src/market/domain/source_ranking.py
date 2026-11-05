@@ -25,6 +25,7 @@ class SourceScore:
     answered: int
     used: int
     discarded: int
+    paused: int  # veces que no se consultó para respetar el límite de la web (no cuentan)
     avg_delay_minutes: float | None  # None si la web no informa la hora de la bolsa
     avg_deviation_pct: float | None  # distancia promedio a la mediana, en valor absoluto
     score: float  # 0–100
@@ -40,7 +41,12 @@ def rank_sources(collections: Sequence[PriceCollection]) -> list[SourceScore]:
     return sorted(scores, key=lambda s: (-s.score, s.source))
 
 
-def _score(source: str, observations: list[Observation]) -> SourceScore:
+def _score(source: str, all_observations: list[Observation]) -> SourceScore:
+    # Las pausas no son consultas: no suben ni bajan el puntaje
+    paused = sum(1 for _, r in all_observations if r.status is ReadingStatus.PAUSED)
+    observations = [(c, r) for c, r in all_observations if r.status is not ReadingStatus.PAUSED]
+    if not observations:
+        return SourceScore(source, 0, 0, 0, 0, paused, None, None, 0.0)
     answered = [(c, r) for c, r in observations if r.status is not ReadingStatus.FAILED]
     used = sum(1 for _, r in observations if r.status is ReadingStatus.USED)
     discarded = sum(1 for _, r in observations if r.status is ReadingStatus.DISCARDED)
@@ -68,6 +74,7 @@ def _score(source: str, observations: list[Observation]) -> SourceScore:
         answered=len(answered),
         used=used,
         discarded=discarded,
+        paused=paused,
         avg_delay_minutes=round(avg_delay, 1) if avg_delay is not None else None,
         avg_deviation_pct=round(mean(deviations), 2) if deviations else None,
         score=round(score, 1),

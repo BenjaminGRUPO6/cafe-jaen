@@ -1713,3 +1713,7 @@ a.button {
 .form__title {
   margin: 0;
 }
+.reading--paused {
+  border-left-color: var(--linea);
+  opacity: 0.75;
+}

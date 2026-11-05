@@ -28,7 +28,10 @@ def main() -> None:
         create_session_factory(create_db_engine(settings.database_url))
     )
     loader = LoadPriceHistory(
-        [YahooQuotationSource(), StooqQuotationSource(timezone=settings.stooq_timezone)],
+        [
+            YahooQuotationSource(),
+            StooqQuotationSource(timezone=settings.stooq_timezone, api_key=settings.stooq_api_key),
+        ],
         BcrpExchangeRateProvider(),
         repository,
         SystemClock(),

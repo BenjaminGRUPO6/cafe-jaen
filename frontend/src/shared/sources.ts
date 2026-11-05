@@ -3,6 +3,7 @@ export interface SourceLink {
   name: string;
   detail: string;
   url: string;
+  optional?: boolean; // se lista solo si respaldó el precio (p. ej., Stooq exige clave)
 }
 
 // Las claves son los nombres que devuelve la API en `sources`
@@ -14,8 +15,9 @@ const QUOTE_SOURCES: Record<string, SourceLink> = {
   },
   Stooq: {
     name: "Stooq",
-    detail: "Café C (KC.F), bolsa de Nueva York",
+    detail: "Café C (KC.F), bolsa de Nueva York (exige clave desde 2026)",
     url: "https://stooq.com/q/?s=kc.f",
+    optional: true,
   },
   CNBC: {
     name: "CNBC",
@@ -68,6 +70,6 @@ export function quoteSourceLinks(sources: string[]): SourceLink[] {
   const all = Object.values(QUOTE_SOURCES);
   return [
     ...all.filter((link) => sources.includes(link.name)),
-    ...all.filter((link) => !sources.includes(link.name)),
+    ...all.filter((link) => !sources.includes(link.name) && !link.optional),
   ];
 }

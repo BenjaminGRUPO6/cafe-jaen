@@ -231,8 +231,9 @@ export const texts = {
       delay: (minutes: string) => `${minutes} min de retraso`,
       noDelay: "sin hora de la bolsa",
       deviation: (pct: string) => `desvío medio ${pct} %`,
+      paused: (n: number) => `${n} en pausa para respetar su límite (no cuentan)`,
       formula:
-        "Puntaje = 40 × respuesta + 40 × coincidencia con las demás + 20 × qué tan al día está (0 si nunca respondió; la mitad si no informa la hora de la bolsa).",
+        "Puntaje = 40 × respuesta + 40 × coincidencia con las demás + 20 × qué tan al día está (0 si nunca respondió; la mitad si no informa la hora de la bolsa). TradingView se consulta cada 5 minutos porque limita las consultas automáticas; esas pausas no cuentan.",
     },
     agreement: (used: number, total: number) => `${used} de ${total} webs coinciden`,
     exchangeLine: (soles: string, cents: string) => `Bolsa ${soles} · ${cents}`,
@@ -242,7 +243,12 @@ export const texts = {
     noReadings:
       "Esta cotización es anterior al registro por fuente (v1.5): solo se guardó el precio publicado.",
     median: (value: string) => `Mediana de todas las webs: ${value}`,
-    status: { usada: "Usada", descartada: "Descartada", "sin respuesta": "Sin respuesta" },
+    status: {
+      usada: "Usada",
+      descartada: "Descartada",
+      "sin respuesta": "Sin respuesta",
+      "en pausa": "En pausa",
+    },
     deviation: (pct: number) =>
       `${pct > 0 ? "+" : ""}${pct.toFixed(2).replace(".", ",")} % de la mediana`,
     sourceTime: (time: string) => `cotización de las ${time}`,

@@ -159,3 +159,17 @@ def test_saves_the_live_dollar_from_the_first_web_that_answers() -> None:
 
     assert report.live_exchange_rate == "Fuente"
     assert repository.live_rates == [dollar]
+
+
+def test_a_paused_web_is_recorded_as_paused_and_not_as_a_failure() -> None:
+    from market.domain.errors import SourcePausedError
+    from market.domain.source_reading import ReadingStatus
+
+    repository = InMemoryPriceRepository()
+    paused = FakeProvider(SourcePausedError("se consulta de nuevo en 4 min"), name="TradingView")
+
+    report = build([source("Yahoo", live("300", AT)), paused], repository).execute()
+
+    readings = {r.source: r.status for r in repository.collections[0].readings}
+    assert readings == {"Yahoo": ReadingStatus.USED, "TradingView": ReadingStatus.PAUSED}
+    assert report.quotation_saved and not report.issues

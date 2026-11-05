@@ -49,3 +49,17 @@ def test_a_web_without_exchange_time_gets_half_the_freshness_points() -> None:
 
     assert score.avg_delay_minutes is None
     assert score.score == 90.0  # 40 responde + 40 coincide + 10 (actualidad desconocida)
+
+
+def test_pauses_do_not_count_as_consultations() -> None:
+    paused = SourceReading("TradingView", ReadingStatus.PAUSED, detail="límite de la web")
+    collections = [
+        collection(used("CNBC", 10), used("TradingView", 0, timed=False)),
+        collection(used("CNBC", 10), paused),
+        collection(used("CNBC", 10), paused),
+    ]
+
+    tradingview = next(s for s in rank_sources(collections) if s.source == "TradingView")
+
+    assert (tradingview.consultations, tradingview.answered, tradingview.paused) == (1, 1, 2)
+    assert tradingview.score == 90.0  # respondió y coincidió en su única consulta

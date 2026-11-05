@@ -51,6 +51,7 @@ function describe(score: SourceScore): string {
         : t.noDelay,
     );
   }
+  if (score.paused > 0) parts.push(t.paused(score.paused));
   if (score.avg_deviation_pct !== null) {
     parts.push(t.deviation(formatNumber(score.avg_deviation_pct, 2)));
   }

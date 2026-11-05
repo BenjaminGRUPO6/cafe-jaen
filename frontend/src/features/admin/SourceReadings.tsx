@@ -51,7 +51,9 @@ export function SourceReadings({
 }
 
 function statusClass(status: SourceReading["status"]): string {
-  return status === "usada" ? "used" : status === "descartada" ? "discarded" : "failed";
+  if (status === "usada") return "used";
+  if (status === "descartada") return "discarded";
+  return status === "en pausa" ? "paused" : "failed";
 }
 
 // La API entrega la hora en UTC: se muestra en la hora local del equipo

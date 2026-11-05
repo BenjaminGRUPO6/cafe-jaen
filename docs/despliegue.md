@@ -25,7 +25,7 @@ GitHub (main) ──push──► Render construye el Dockerfile de la raíz
   (`backend/src/shared/infrastructure/api/spa.py`).
 - **Infraestructura como código:** `render.yaml` (Blueprint) declara el servicio y sus variables;
   el `JWT_SECRET` lo genera Render.
-- **Solo datos reales:** la bolsa de Nueva York desde Yahoo Finance, Stooq, CNBC y TradingView, y el tipo de cambio
+- **Solo datos reales:** la bolsa de Nueva York desde Yahoo Finance, CNBC y TradingView (y Stooq si se configura su clave), y el tipo de cambio
   del BCRP. Al arrancar se carga el histórico real de 5 años (si ya está, no se repite) y se
   genera el pronóstico. Si las webs no responden en ese momento, la API arranca igual y el
   Recolector vuelve a intentar cada minuto con la bolsa abierta.

@@ -3,7 +3,7 @@ import type { CoffeeType } from "../../shared/api/types";
 /** Lo que marcó una web en una consulta (GET /api/admin/price-log). */
 export interface SourceReading {
   source: string;
-  status: "usada" | "descartada" | "sin respuesta";
+  status: "usada" | "descartada" | "sin respuesta" | "en pausa";
   cents_per_pound: number | null;
   quoted_at: string | null;
   deviation_pct: number | null;
@@ -21,6 +21,7 @@ export interface SourceScore {
   answered: number;
   used: number;
   discarded: number;
+  paused: number; // veces que no se consultó para respetar el límite de la web
   avg_delay_minutes: number | null;
   avg_deviation_pct: number | null;
   score: number;

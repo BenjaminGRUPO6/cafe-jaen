@@ -17,7 +17,7 @@ services:
       # Bolsa de Nueva York en cuatro webs reales (04:15–13:30, hora de Nueva York, de lunes a
       # viernes) y el tipo de cambio del BCRP.
       - key: QUOTATION_SOURCES
-        value: '["yahoo","stooq","cnbc","tradingview"]'
+        value: '["yahoo","cnbc","tradingview"]'
       # Dólar en vivo (USD/PEN) cada minuto; si no responde se usa el oficial del BCRP del día
       - key: EXCHANGE_RATE_SOURCES
         value: '["yahoo","tradingview"]'

@@ -29,8 +29,10 @@ class StooqQuotationSource:
         url: str = DEFAULT_URL,
         timezone: str = DEFAULT_TIMEZONE,
         timeout_seconds: float = 10.0,
+        api_key: str = "",
     ) -> None:
-        self._url = url
+        # Desde 2026 Stooq exige una clave gratuita (se obtiene en su web con un captcha)
+        self._url = f"{url}&apikey={api_key}" if api_key else url
         self._zone = ZoneInfo(timezone)
         self._timeout = timeout_seconds
 

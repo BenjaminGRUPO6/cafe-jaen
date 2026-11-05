@@ -39,8 +39,9 @@ class Settings(BaseSettings):
 
     # Mercado: precio mundial en vivo (HU02, HU03)
     local_price_factor: Decimal = Decimal("1")  # ajuste por diferencial y rendimiento local
-    quotation_sources: list[str] = ["yahoo", "stooq", "cnbc", "tradingview"]  # webs reales
+    quotation_sources: list[str] = ["yahoo", "cnbc", "tradingview"]  # webs reales
     stooq_timezone: str = "Europe/Warsaw"
+    stooq_api_key: str = ""  # Stooq exige clave desde 2026; sin ella se omite
     source_max_deviation: Decimal = Decimal("0.01")  # fuente a más de 1 % de la mediana: fuera
     max_quote_change: Decimal = Decimal("0.10")  # salto máximo aceptado entre cotizaciones
     market_opens: str = "04:15"  # hora de Nueva York (ICE, café arábica)

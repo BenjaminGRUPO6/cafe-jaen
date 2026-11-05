@@ -26,6 +26,7 @@ class ReadingStatus(StrEnum):
     USED = "usada"  # coincidió con las demás y entró en la mediana
     DISCARDED = "descartada"  # se alejó más del máximo permitido de la mediana
     FAILED = "sin respuesta"  # la web no respondió o su dato no se pudo leer
+    PAUSED = "en pausa"  # no se consultó esta vez, para respetar el límite de la web
 
 
 @dataclass(frozen=True)
@@ -67,6 +68,7 @@ def build_collection(
     published: LiveQuote | None,
     outcome: CollectionOutcome = CollectionOutcome.PUBLISHED,
     detail: str | None = None,
+    paused: Sequence[tuple[str, str]] = (),
 ) -> PriceCollection:
     """Arma el registro de una consulta a partir de lo que respondió cada web.
 
@@ -89,6 +91,10 @@ def build_collection(
     readings += [
         SourceReading(source=name, status=ReadingStatus.FAILED, detail=reason[:200])
         for name, reason in failures
+    ]
+    readings += [
+        SourceReading(source=name, status=ReadingStatus.PAUSED, detail=reason[:200])
+        for name, reason in paused
     ]
     return PriceCollection(
         collected_at=collected_at,

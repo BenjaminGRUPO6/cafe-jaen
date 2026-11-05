@@ -24,7 +24,7 @@
 | Mismo precio, segunda web | Stooq (CSV público, `KC.F`; hora de Polonia, `STOOQ_TIMEZONE`) | `market/infrastructure/sources/stooq_quotation_source.py` |
 | Tipo de cambio | API del BCRP, serie `PD04640PD` (una vez al día) | `market/infrastructure/sources/bcrp_exchange_rate_provider.py` |
 
-- Las webs a usar se eligen con `QUOTATION_SOURCES` (por defecto `["yahoo","stooq","cnbc","tradingview"]`). El dólar en vivo se elige con `EXCHANGE_RATE_SOURCES` (por defecto `["yahoo","tradingview"]`; sin respuesta se usa el BCRP del día); la pantalla «Equipo → Bolsa» las evalúa y marca la mejor del día.
+- Las webs a usar se eligen con `QUOTATION_SOURCES` (por defecto `["yahoo","cnbc","tradingview"]`; Stooq exige `STOOQ_API_KEY` desde 2026). El dólar en vivo se elige con `EXCHANGE_RATE_SOURCES` (por defecto `["yahoo","tradingview"]`; sin respuesta se usa el BCRP del día); la pantalla «Equipo → Bolsa» las evalúa y marca la mejor del día.
 - **Agregar una tercera web** = crear un adaptador que implemente `QuotationSource`
   (`name` y `fetch_latest()`), registrarlo en `_quotation_sources()` de `main.py` y añadir su
   prueba de lectura (como `test_source_parsers.py`).
@@ -36,7 +36,7 @@
 ## Solo datos reales
 
 Desde la v1.6 la app no tiene datos sintéticos ([decisión 0010](decisiones/0010-solo-datos-reales.md)):
-en local y en Render consulta Yahoo Finance, Stooq, CNBC y TradingView (bolsa de Nueva York) y el BCRP. En local,
+en local y en Render consulta Yahoo Finance, CNBC y TradingView (y Stooq si se configura su clave) (bolsa de Nueva York) y el BCRP. En local,
 `python dev.py datos` carga el histórico real de 5 años y genera el primer pronóstico (necesita
 internet). La migración 0007 borró de las bases existentes todo lo que había generado la antigua
 demostración (fuentes «DEMO …», «Cooperativa Demo N», sus pronósticos y los códigos DEMO sin usar).
