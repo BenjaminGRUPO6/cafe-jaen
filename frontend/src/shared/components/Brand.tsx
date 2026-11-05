@@ -1,14 +1,11 @@
 import { Link } from "react-router-dom";
-import { BeanIcon } from "../motion/icons";
 import { texts } from "../texts/es";
 
-/** Logotipo: un grano de café en un círculo dorado y el nombre de la app. */
+/** Logotipo de Café Jaén (kit visual): el grano con hojas sobre el círculo dorado. */
 export function Brand() {
   return (
     <Link to="/" className="brand">
-      <span className="brand__mark">
-        <BeanIcon />
-      </span>
+      <img className="brand__logo" src="/logos/cafe-jaen-marca.svg" alt="" width={36} height={36} />
       {texts.appName}
     </Link>
   );

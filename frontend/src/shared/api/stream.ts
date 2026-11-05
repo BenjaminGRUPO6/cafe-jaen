@@ -1,4 +1,4 @@
-import { readStored } from "../storage";
+import { readSession } from "../storage";
 import { TOKEN_KEY } from "./client";
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
@@ -41,7 +41,7 @@ export function listen(
   const connect = async () => {
     while (!controller.signal.aborted) {
       try {
-        const token = readStored(TOKEN_KEY);
+        const token = readSession(TOKEN_KEY);
         const response = await fetch(`${BASE_URL}${path}`, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           signal: controller.signal,

@@ -2,6 +2,7 @@
 export interface Participant {
   id: string;
   phone: string;
+  name: string | null;
   email: string | null;
   verified: boolean;
   pending_code: string | null; // código por confirmar: el equipo lo envía si el correo no llegó

@@ -41,7 +41,10 @@ export function ChatThread({
   return (
     <div className="chat">
       {messages.length === 0 ? (
-        <p className="muted chat__empty">{texts.support.empty}</p>
+        <div className="empty-state">
+          <img src="/ilustraciones/sin-mensajes.svg" alt="" width={96} height={96} />
+          <p className="muted">{texts.support.empty}</p>
+        </div>
       ) : (
         <ol className="chat__list" aria-live="polite">
           {messages.map((m) => (

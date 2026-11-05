@@ -12,7 +12,13 @@ import { verifyPath } from "./VerifyPage";
 export function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ invitation_code: "", phone: "", email: "", password: "" });
+  const [form, setForm] = useState({
+    invitation_code: "",
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+  });
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
@@ -32,8 +38,15 @@ export function RegisterPage() {
 
   return (
     <main className="content auth">
-      <div className="auth__hero tile tile--grano">
+      <div className="auth__hero">
         <Brand />
+        <img
+          className="auth__cover"
+          src="/ilustraciones/portada-cafe-jaen.svg"
+          alt={texts.auth.coverAlt}
+          width={1200}
+          height={480}
+        />
         <p className="auth__tagline">{texts.auth.tagline}</p>
       </div>
       <h1>{texts.auth.registerTitle}</h1>
@@ -44,6 +57,16 @@ export function RegisterPage() {
             value={form.invitation_code}
             onChange={update("invitation_code")}
             autoCapitalize="characters"
+            required
+          />
+        </label>
+        <label>
+          {texts.auth.name}
+          <input
+            autoComplete="name"
+            maxLength={80}
+            value={form.name}
+            onChange={update("name")}
             required
           />
         </label>

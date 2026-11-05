@@ -114,3 +114,12 @@ export interface CodeDelivery {
 export interface PendingVerification extends CodeDelivery {
   verification_required: true;
 }
+
+/** GET /api/auth/me: quién inició sesión en esta pestaña. */
+export interface Profile {
+  name: string | null;
+  display_name: string; // el nombre o, si no lo dio, el celular
+  phone: string;
+  email: string | null;
+  role: "farmer" | "admin";
+}

@@ -34,7 +34,7 @@ class YahooQuotationSource:
 
     def _download(self, **kwargs: str):  # type: ignore[no-untyped-def]
         try:
-            frame = yf.Ticker(TICKER).history(**kwargs)
+            frame = yf.Ticker(TICKER).history(timeout=15, **kwargs)
         except Exception as error:  # yfinance lanza distintos tipos de error de red
             raise SourceUnavailableError(f"no respondió: {error}") from error
         if frame.empty:

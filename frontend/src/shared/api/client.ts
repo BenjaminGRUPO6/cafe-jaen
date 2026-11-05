@@ -1,4 +1,4 @@
-import { readStored } from "../storage";
+import { readSession } from "../storage";
 import { texts } from "../texts/es";
 
 export const TOKEN_KEY = "cafe-jaen.token";
@@ -16,7 +16,7 @@ export class ApiError extends Error {
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const token = readStored(TOKEN_KEY);
+  const token = readSession(TOKEN_KEY);
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);

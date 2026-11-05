@@ -89,3 +89,8 @@ class CannotDeleteSelfError(IdentityError):
 class LastAdminError(IdentityError):
     def __init__(self) -> None:
         super().__init__("Debe quedar al menos una cuenta del equipo")
+
+
+class InvalidNameError(IdentityError):
+    def __init__(self, limit: int) -> None:
+        super().__init__(f"El nombre puede tener hasta {limit} caracteres")

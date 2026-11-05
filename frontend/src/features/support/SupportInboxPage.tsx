@@ -33,7 +33,10 @@ export function SupportInboxPage() {
         />
       ) : inbox.data ? (
         inbox.data.threads.length === 0 ? (
-          <p className="card muted">{texts.support.inboxEmpty}</p>
+          <div className="card empty-state">
+            <img src="/ilustraciones/sin-mensajes.svg" alt="" width={96} height={96} />
+            <p className="muted">{texts.support.inboxEmpty}</p>
+          </div>
         ) : (
           <ul className="inbox">
             {inbox.data.threads.map((t) => (

@@ -15,6 +15,7 @@ users = Table(
     Column("last_login_at", DateTime(timezone=True), nullable=True),
     Column("email", String(120), nullable=True, unique=True),
     Column("verified_at", DateTime(timezone=True), nullable=True),
+    Column("name", String(80), nullable=True),
 )
 
 invitation_codes = Table(

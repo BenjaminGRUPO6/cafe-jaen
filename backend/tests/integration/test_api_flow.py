@@ -466,3 +466,31 @@ def test_farmers_write_to_the_team_and_read_the_answer(
     messages = client.get("/api/support/messages", headers=auth_headers).json()["messages"]
     assert [m["author"] for m in messages] == ["farmer", "team"]
     assert client.get("/api/admin/support", headers=auth_headers).status_code == 403
+
+
+def test_team_creates_team_accounts_and_everyone_sees_their_profile(
+    client: TestClient, auth_headers: dict[str, str], admin_headers: dict[str, str]
+) -> None:
+    created = client.post(
+        "/api/admin/team",
+        json={"name": "Jhon Chávez", "phone": "955000111", "password": "equipo2026!"},
+        headers=admin_headers,
+    )
+    token = client.post(
+        "/api/auth/login", json={"identifier": "955000111", "password": "equipo2026!"}
+    ).json()["access_token"]
+
+    me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"}).json()
+    farmer = client.get("/api/auth/me", headers=auth_headers).json()
+
+    assert created.status_code == 201
+    assert (me["display_name"], me["role"]) == ("Jhon Chávez", "admin")
+    assert (farmer["role"], farmer["phone"]) == ("farmer", "987654321")
+    assert (
+        client.post(
+            "/api/admin/team",
+            json={"name": "X", "phone": "955000222", "password": "equipo2026!"},
+            headers=auth_headers,
+        ).status_code
+        == 403
+    )

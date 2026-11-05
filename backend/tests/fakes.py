@@ -111,6 +111,7 @@ class InMemoryUserRepository:
                 self.logins.get(u.id),
                 u.email.value if u.email else None,
                 u.is_verified,
+                name=u.name,
             )
             for u in sorted(self.users.values(), key=lambda u: u.created_at, reverse=True)
         ]

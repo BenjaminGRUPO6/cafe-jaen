@@ -45,6 +45,7 @@ class SqlAlchemyUserRepository:
                     role=user.role.value,
                     email=user.email.value if user.email else None,
                     verified_at=user.verified_at,
+                    name=user.name,
                 )
             )
             if redeemed_code is None:
@@ -99,6 +100,7 @@ class SqlAlchemyUserRepository:
                 last_login_at=row.last_login_at,
                 email=row.email,
                 verified=row.verified_at is not None,
+                name=row.name,
             )
             for row in rows
         ]
@@ -119,6 +121,7 @@ def _to_user(row: Row) -> User:  # type: ignore[type-arg]
         role=Role(row.role),
         email=EmailAddress(row.email) if row.email else None,
         verified_at=row.verified_at,
+        name=row.name,
     )
 
 

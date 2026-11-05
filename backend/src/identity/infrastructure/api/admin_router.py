@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
 
+from identity.application.create_team_account import CreateTeamAccount, TeamAccountCommand
 from identity.application.delete_participant import DeleteParticipant
 from identity.application.list_participants import ListParticipants
 from identity.application.manage_invitation_codes import (
@@ -13,6 +14,12 @@ from identity.application.manage_invitation_codes import (
 )
 from identity.domain.errors import IdentityError, UserNotFoundError
 from identity.domain.user import Role
+
+
+class TeamAccountRequest(BaseModel):
+    name: str
+    phone: str
+    password: str
 
 
 class GenerateCodesRequest(BaseModel):
@@ -24,6 +31,7 @@ def build_participants_router(
     list_participants: ListParticipants,
     manage_codes: ManageInvitationCodes,
     delete_participant: DeleteParticipant,
+    create_team_account: CreateTeamAccount,
     require_admin: Callable[..., str],
 ) -> APIRouter:
     """Rutas del equipo de investigación sobre los participantes (solo administrador)."""
@@ -38,6 +46,7 @@ def build_participants_router(
                 {
                     "id": p.user_id,
                     "phone": p.phone,
+                    "name": p.name,
                     "email": p.email,
                     "verified": p.verified,
                     "pending_code": p.pending_code,
@@ -81,6 +90,14 @@ def build_participants_router(
         except IdentityError as error:
             raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from None
         return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    @router.post("/admin/team", status_code=status.HTTP_201_CREATED)
+    def create_team(body: TeamAccountRequest) -> dict[str, Any]:
+        try:
+            account = create_team_account.execute(TeamAccountCommand(**body.model_dump()))
+        except IdentityError as error:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, str(error)) from None
+        return {"id": account.id, "phone": account.phone.value, "name": account.name}
 
     @router.delete("/admin/participants/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
     def delete_account(user_id: str, admin_id: str = Depends(require_admin)) -> Response:

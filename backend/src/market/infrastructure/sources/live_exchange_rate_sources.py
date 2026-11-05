@@ -36,7 +36,7 @@ class YahooExchangeRateSource:
 
     def fetch_latest(self) -> ExchangeRate:
         try:
-            frame = yf.Ticker(self.ticker).history(period="1d", interval="1m")
+            frame = yf.Ticker(self.ticker).history(period="1d", interval="1m", timeout=15)
         except Exception as error:  # yfinance lanza distintos tipos de error de red
             raise SourceUnavailableError(f"no respondió: {error}") from error
         if frame.empty:

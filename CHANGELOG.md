@@ -4,6 +4,31 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.12] — Kit visual, perfil visible, sesiones por pestaña y cuentas del equipo
+
+### Agregado
+- **Kit visual de Café Jaén**: nuevo logotipo en la cabecera, ícono de la app (PWA y favicon),
+  portada en las pantallas de acceso, íconos propios en la barra inferior y en las pestañas del
+  equipo, e ilustración para las bandejas sin mensajes. Se mantiene la paleta Cosecha.
+- **Perfil visible**: debajo de la cabecera se ve con qué cuenta se ingresó (nombre o celular) y
+  su cargo: «Administrador» o «Caficultor» (`GET /api/auth/me`). El registro pide el nombre.
+- **Crear cuentas del equipo** desde «Participantes → Cuentas del equipo» con nombre, celular y
+  contraseña; quedan activas al instante (`POST /api/admin/team`). Migración 0014 (nombre).
+
+### Corregido
+- Dos cuentas abiertas en pestañas del mismo navegador ya no se mezclan: cada pestaña guarda su
+  propia sesión y una pestaña nueva entra con la última sesión usada.
+- El equipo ya no ve «Ayuda» (responde en «Equipo → Mensajes»).
+
+## [v1.11.1] — Arranque que no se bloquea
+
+### Corregido
+- Render canceló el despliegue de v1.11: la tarea de arranque que genera el pronóstico consultó
+  una web que no respondió y la app no abrió su puerto en 15 minutos. Ahora la API arranca
+  apenas terminan las migraciones y la cuenta del equipo; el histórico, el primer pronóstico y
+  los datos de demostración se cargan en segundo plano, cada uno con tiempo máximo.
+- Las consultas a Yahoo Finance tienen un tiempo máximo de 15 segundos.
+
 ## [v1.11] — Verificación por celular, ingreso con correo y «Atención»
 
 ### Cambiado

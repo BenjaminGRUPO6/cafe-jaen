@@ -39,6 +39,8 @@ export const texts = {
     emailHint:
       "El código de confirmación llega por WhatsApp a tu celular. El correo te sirve para ingresar y como respaldo.",
     identifier: "Celular o correo",
+    name: "Nombre y apellido",
+    coverAlt: "Café Jaén: información que impulsa tu cosecha",
     showPassword: "Mostrar contraseña",
     hidePassword: "Ocultar contraseña",
   },
@@ -248,6 +250,10 @@ export const texts = {
     more: (n: number) => `Mostrar más (${n} restantes)`,
   },
 
+  profile: {
+    label: "Cuenta con la que ingresaste",
+    roles: { farmer: "Caficultor", admin: "Administrador" },
+  },
   support: {
     nav: "Ayuda",
     tab: "Mensajes",
@@ -291,6 +297,12 @@ export const texts = {
       none: "(no salió automáticamente: envíaselo por WhatsApp)",
     },
     sendByWhatsApp: "Enviar código por WhatsApp",
+    newTeamTitle: "Crear cuenta del equipo",
+    newTeamIntro:
+      "Con su celular y una contraseña. Queda activa al instante como administrador; entrégale los datos en persona.",
+    createTeam: "Crear cuenta del equipo",
+    teamCreated: (name: string, phone: string) =>
+      `Cuenta creada: ${name}. Ingresa con el celular ${phone} y la contraseña que pusiste.`,
     codeMessage: (code: string) =>
       `Hola, te saluda el equipo de Café Jaén. Tu código para confirmar tu cuenta es ${code}. Escríbelo en la app.`,
   },

@@ -35,7 +35,9 @@ from forecasting.infrastructure.persistence.sqlalchemy_forecast_repository impor
     SqlAlchemyForecastRepository,
 )
 from identity.application.authenticate_user import AuthenticateUser
+from identity.application.create_team_account import CreateTeamAccount
 from identity.application.delete_participant import DeleteParticipant
+from identity.application.get_profile import GetProfile
 from identity.application.list_participants import ListParticipants
 from identity.application.manage_invitation_codes import ManageInvitationCodes
 from identity.application.register_user import RegisterUser
@@ -247,7 +249,15 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     require_user = build_require_user(tokens, is_active)
     require_admin = build_require_admin(tokens, is_active)
     app.include_router(
-        build_auth_router(register, authenticate, send_code, verify, settings.team_whatsapp),
+        build_auth_router(
+            register,
+            authenticate,
+            send_code,
+            verify,
+            GetProfile(users),
+            require_user,
+            settings.team_whatsapp,
+        ),
         prefix="/api",
     )
     app.include_router(
@@ -255,6 +265,7 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
             ListParticipants(users, codes, verifications),
             ManageInvitationCodes(codes, secrets.choice),
             DeleteParticipant(users),
+            CreateTeamAccount(users, hasher, clock),
             require_admin,
         ),
         prefix="/api",

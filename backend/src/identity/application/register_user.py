@@ -11,7 +11,7 @@ from identity.domain.errors import (
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.ports.security import PasswordHasher
 from identity.domain.ports.user_repository import InvitationCodeRepository, UserRepository
-from identity.domain.user import Consent, User
+from identity.domain.user import Consent, User, clean_name
 from shared.domain.ports.clock import Clock
 
 MIN_PASSWORD_LENGTH = 8
@@ -24,6 +24,7 @@ class RegisterUserCommand:
     password: str
     consent_accepted: bool
     email: str = ""  # opcional: sirve para ingresar y como canal de respaldo
+    name: str = ""  # cómo lo saluda la app; opcional
 
 
 class RegisterUser:
@@ -55,6 +56,7 @@ class RegisterUser:
             raise WeakPasswordError(MIN_PASSWORD_LENGTH)
         phone = PhoneNumber(command.phone)
         email = EmailAddress(command.email) if command.email.strip() else None
+        name = clean_name(command.name)
 
         code = self._codes.get(command.invitation_code.strip().upper())
         if code is None or code.is_used:
@@ -72,6 +74,7 @@ class RegisterUser:
             at=now,
             email=email,
             role=code.role,
+            name=name,
         )
         self._users.add(user, code.redeem(user.id, now))
         return user

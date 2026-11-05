@@ -9,6 +9,7 @@ import { useAutoReload } from "../../shared/hooks/useAutoReload";
 import { TrashIcon } from "../../shared/motion/icons";
 import { texts } from "../../shared/texts/es";
 import { AdminTabs } from "../admin/AdminTabs";
+import { TeamAccountForm } from "./TeamAccountForm";
 import {
   sendCodeLink,
   startOfToday,
@@ -71,6 +72,7 @@ export function ParticipantsPage() {
             </ul>
           )}
           <h2 className="participants__team">{texts.participants.team}</h2>
+          <TeamAccountForm onCreated={reload} />
           <ul className="participants">
             {result.team.map((p) => (
               <ParticipantRow key={p.id} participant={p} onDelete={remove} />
@@ -100,7 +102,10 @@ function ParticipantRow({
       transition={{ duration: 0.6 }}
     >
       <div className="participants__top">
-        <strong className="participants__phone">{p.phone}</strong>
+        <span>
+          <strong className="participants__phone">{p.name ?? p.phone}</strong>
+          {p.name && <small className="participants__number">{p.phone}</small>}
+        </span>
         <span className="participants__actions">
           <span className={`agent-chip ${p.role === "admin" ? "agent-chip--strategist" : ""}`}>
             {p.invitation_code ?? texts.participants.teamBadge}

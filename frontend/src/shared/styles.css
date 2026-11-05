@@ -1613,3 +1613,103 @@ a.button {
   text-align: center;
   text-decoration: none;
 }
+
+/* ---------- Kit visual: logo, perfil, íconos y estados vacíos ---------- */
+.brand__logo {
+  display: block;
+  width: 2.25rem;
+  height: 2.25rem;
+}
+.header__help {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.header__help svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+.profile-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 560px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.35rem 1rem 0;
+  font-size: 0.92rem;
+  color: var(--corteza);
+}
+.profile-bar svg {
+  flex: none;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.profile-bar strong {
+  color: var(--espresso);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.role-chip {
+  flex: none;
+  padding: 0.1rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: var(--niebla);
+  color: var(--espresso);
+}
+.role-chip--admin {
+  background: var(--espresso);
+  color: var(--papel);
+}
+.role-chip--farmer {
+  background: var(--hoja);
+  color: #fff;
+}
+.admin-tabs__link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+}
+.admin-tabs__link svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+.icon-knock {
+  fill: var(--icon-knock, #fff);
+}
+.bottom-nav__item,
+.admin-tabs__link.active {
+  --icon-knock: var(--espresso);
+}
+.auth__cover {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.75rem 0;
+  border-radius: var(--radio-xl);
+}
+.auth__hero .brand {
+  margin-bottom: 0;
+}
+.empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  padding: 1rem;
+}
+.empty-state p {
+  margin: 0;
+}
+.participants__number {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--corteza);
+}
+.form__title {
+  margin: 0;
+}

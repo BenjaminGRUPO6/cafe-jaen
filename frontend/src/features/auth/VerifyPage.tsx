@@ -60,8 +60,15 @@ export function VerifyPage() {
 
   return (
     <main className="content auth">
-      <div className="auth__hero tile tile--grano">
+      <div className="auth__hero">
         <Brand />
+        <img
+          className="auth__cover"
+          src="/ilustraciones/portada-cafe-jaen.svg"
+          alt={texts.auth.coverAlt}
+          width={1200}
+          height={480}
+        />
         <p className="auth__tagline">{texts.auth.tagline}</p>
       </div>
       <h1>{texts.verify.title}</h1>

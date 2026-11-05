@@ -1,12 +1,13 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { api, TOKEN_KEY } from "../api/client";
 import type { PendingVerification, Session } from "../api/types";
-import { readStored, writeStored } from "../storage";
+import { readSession, writeSession } from "../storage";
 
 interface RegisterData {
   invitation_code: string;
   phone: string;
   email?: string; // opcional
+  name?: string;
   password: string;
   consent_accepted: boolean;
 }
@@ -24,12 +25,15 @@ interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
-/** Guarda la sesión (30 días) para que el caficultor no tenga que ingresar cada vez. */
+/**
+ * Guarda la sesión (30 días) para que el caficultor no tenga que ingresar cada vez. Cada
+ * pestaña tiene la suya: dos cuentas abiertas en el mismo navegador no se mezclan.
+ */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => readStored(TOKEN_KEY));
+  const [token, setToken] = useState<string | null>(() => readSession(TOKEN_KEY));
 
   const saveSession = (session: Session) => {
-    writeStored(TOKEN_KEY, session.access_token);
+    writeSession(TOKEN_KEY, session.access_token);
     setToken(session.access_token);
   };
 
@@ -42,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     verify: async (phone, code) =>
       saveSession(await api.post<Session>("/auth/verify", { phone, code })),
     logout: () => {
-      writeStored(TOKEN_KEY, null);
+      writeSession(TOKEN_KEY, null);
       setToken(null);
     },
   };

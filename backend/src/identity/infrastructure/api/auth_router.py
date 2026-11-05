@@ -1,10 +1,12 @@
+from collections.abc import Callable
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import JSONResponse
 from pydantic import AliasChoices, BaseModel, Field
 
 from identity.application.authenticate_user import AuthenticateUser
+from identity.application.get_profile import GetProfile
 from identity.application.register_user import RegisterUser, RegisterUserCommand
 from identity.application.verify_account import SendVerificationCode, VerifyAccount
 from identity.domain.errors import (
@@ -19,6 +21,7 @@ class RegisterRequest(BaseModel):
     invitation_code: str
     phone: str
     email: str = ""  # opcional
+    name: str = ""  # opcional
     password: str
     consent_accepted: bool
 
@@ -48,6 +51,8 @@ def build_auth_router(
     authenticate: AuthenticateUser,
     send_code: SendVerificationCode,
     verify: VerifyAccount,
+    get_profile: GetProfile,
+    require_user: Callable[..., str],
     team_whatsapp: str,
 ) -> APIRouter:
     router = APIRouter(prefix="/auth", tags=["auth"])
@@ -99,5 +104,19 @@ def build_auth_router(
             )
         except InvalidCredentialsError as error:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(error)) from error
+
+    @router.get("/me")
+    def me(user_id: str = Depends(require_user)) -> dict[str, Any]:
+        try:
+            user = get_profile.execute(user_id)
+        except IdentityError as error:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, str(error)) from error
+        return {
+            "name": user.name,
+            "display_name": user.display_name,
+            "phone": user.phone.value,
+            "email": user.email.value if user.email else None,
+            "role": user.role.value,
+        }
 
     return router
