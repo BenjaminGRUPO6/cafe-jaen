@@ -4,6 +4,14 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.7.1] — Arranque a prueba de configuración antigua
+
+### Corregido
+- Si `QUOTATION_SOURCES` todavía decía «demo», la versión nueva no arrancaba y Render dejaba en
+  línea la anterior, que siguió guardando precios sintéticos. Ahora las webs desconocidas se
+  ignoran con un aviso en los Logs (sin ninguna válida se usan Yahoo Finance y Stooq).
+- Migración 0008: vuelve a quitar los precios «DEMO» guardados después de la 0007.
+
 ## [v1.7] — Datos sintéticos de demostración, claramente marcados
 
 ### Agregado

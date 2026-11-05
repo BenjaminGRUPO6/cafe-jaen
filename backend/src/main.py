@@ -10,7 +10,6 @@ from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import datetime, time, timedelta
-from decimal import Decimal
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -69,8 +68,7 @@ from market.infrastructure.persistence.sqlalchemy_cooperative_repository import 
 )
 from market.infrastructure.persistence.sqlalchemy_price_repository import SqlAlchemyPriceRepository
 from market.infrastructure.sources.bcrp_exchange_rate_provider import BcrpExchangeRateProvider
-from market.infrastructure.sources.stooq_quotation_source import StooqQuotationSource
-from market.infrastructure.sources.yahoo_quotation_source import YahooQuotationSource
+from market.infrastructure.sources.registry import build_sources
 from orchestration.application.dispatch_request import DispatchRequest
 from orchestration.application.run_daily_cycle import CollectLivePrices, RunDailyCycle
 from orchestration.infrastructure.langgraph.langgraph_agent_router import LangGraphAgentRouter
@@ -121,7 +119,8 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     market_hours = MarketHours(_time(settings.market_opens), _time(settings.market_closes))
     collector = CollectorAgent(
         CollectPrices(
-            overrides.quotation_sources or _quotation_sources(settings, prices),
+            overrides.quotation_sources
+            or build_sources(settings.quotation_sources, settings.stooq_timezone),
             overrides.exchange_rate_provider or BcrpExchangeRateProvider(),
             prices,
             Consensus(settings.source_max_deviation),
@@ -240,23 +239,6 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
         mount_single_page_app(app, settings.static_dir)
 
     return app
-
-
-def _quotation_sources(
-    settings: Settings, prices: SqlAlchemyPriceRepository
-) -> list[QuotationSource]:
-    """Crea un adaptador por cada web configurada (agregar una web = agregar un adaptador)."""
-
-    def last_known() -> Decimal | None:
-        quote = prices.last_live_quote()
-        closes = prices.last_quotations(limit=1)
-        return quote.cents_per_pound if quote else (closes[0].cents_per_pound if closes else None)
-
-    available: dict[str, list[QuotationSource]] = {
-        "yahoo": [YahooQuotationSource()],
-        "stooq": [StooqQuotationSource(timezone=settings.stooq_timezone)],
-    }
-    return [source for name in settings.quotation_sources for source in available[name]]
 
 
 def _time(text: str) -> time:
