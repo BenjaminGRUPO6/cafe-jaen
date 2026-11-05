@@ -5,7 +5,7 @@ gratuitas:
 
 | Opción | Para qué la usamos | Costo |
 |---|---|---|
-| **Render** | App pública con una URL fija (`https://cafe-jaen.onrender.com`). Cada `git push` a `main` la vuelve a desplegar. | Gratis (plan *Free*) |
+| **Render** | App pública con una URL fija ([https://cafe-jaen-oa58.onrender.com](https://cafe-jaen-oa58.onrender.com)). Cada `git push` a `main` la vuelve a desplegar. | Gratis (plan *Free*) |
 | **GitHub Codespaces** | El proyecto completo en el navegador: editamos el código y vemos el cambio en la app al instante. | Gratis (horas mensuales incluidas en la cuenta de GitHub) |
 
 ## 1. Render: app pública

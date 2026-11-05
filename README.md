@@ -32,7 +32,7 @@ humana.
 
 | | |
 |---|---|
-| **App publicada (Render)** | `https://cafe-jaen.onrender.com` · códigos de invitación `DEMO-0001` a `DEMO-0010` |
+| **App publicada (Render)** | [https://cafe-jaen-oa58.onrender.com](https://cafe-jaen-oa58.onrender.com) · códigos de invitación `DEMO-0001` a `DEMO-0010` |
 | **Edición en el navegador (Codespaces)** | **Code → Codespaces → Create codespace on main** y luego `python dev.py start` |
 
 Publicamos la app en el plan gratuito de Render con un precio de demostración. Si estuvo un rato
