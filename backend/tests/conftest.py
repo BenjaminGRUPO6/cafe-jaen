@@ -29,7 +29,17 @@ from market.infrastructure.persistence.sqlalchemy_cooperative_repository import 
 from market.infrastructure.persistence.sqlalchemy_price_repository import SqlAlchemyPriceRepository
 from shared.infrastructure.database import create_db_engine, create_session_factory, metadata
 from shared.infrastructure.settings import Settings
-from tests.fakes import LIMA, FakeProvider, FixedClock, business_days, live, quotation, rate, source
+from tests.fakes import (
+    LIMA,
+    FakeEmailSender,
+    FakeProvider,
+    FixedClock,
+    business_days,
+    live,
+    quotation,
+    rate,
+    source,
+)
 
 INVITATION_CODE = "JAEN-TEST01"
 
@@ -66,8 +76,11 @@ def seeded_sessions(sessions: sessionmaker[Session], clock: FixedClock) -> sessi
 
 @pytest.fixture
 def client(
-    seeded_sessions: sessionmaker[Session], clock: FixedClock, tmp_path
-) -> Iterator[TestClient]:  # type: ignore[no-untyped-def]
+    seeded_sessions: sessionmaker[Session],
+    clock: FixedClock,
+    email_outbox: FakeEmailSender,
+    tmp_path,  # type: ignore[no-untyped-def]
+) -> Iterator[TestClient]:
     settings = Settings(
         database_url=f"sqlite:///{tmp_path / 'test.db'}",
         jwt_secret="test-secret-with-at-least-32-bytes!!",
@@ -85,6 +98,7 @@ def client(
         ],
         exchange_rate_provider=FakeProvider(rate("3.75", clock.today())),
         live_exchange_sources=[],  # sin dólar en vivo: se usa el del BCRP
+        email_sender=email_outbox,
         clock=clock,
     )
     with TestClient(create_app(settings, overrides)) as test_client:
@@ -92,15 +106,26 @@ def client(
 
 
 @pytest.fixture
-def auth_headers(client: TestClient) -> dict[str, str]:
-    response = client.post(
+def email_outbox() -> FakeEmailSender:
+    """Los correos de verificación quedan aquí en vez de enviarse."""
+    return FakeEmailSender()
+
+
+@pytest.fixture
+def auth_headers(client: TestClient, email_outbox: FakeEmailSender) -> dict[str, str]:
+    """Caficultor registrado y verificado con el código que llegó a su correo."""
+    client.post(
         "/api/auth/register",
         json={
             "invitation_code": INVITATION_CODE,
             "phone": "987654321",
+            "email": "caficultor@gmail.com",
             "password": "cafe2026!",
             "consent_accepted": True,
         },
+    )
+    response = client.post(
+        "/api/auth/verify", json={"phone": "987654321", "code": email_outbox.last_code()}
     )
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
 

@@ -55,3 +55,15 @@ def test_lists_free_codes_first() -> None:
     manage = ManageInvitationCodes(repository, sequential_choice())  # type: ignore[arg-type]
 
     assert [c.code for c in manage.list()] == ["DEMO-0002", "DEMO-0001"]
+
+
+def test_team_codes_create_more_team_accounts() -> None:
+    from identity.domain.user import Role
+
+    repository = InMemoryInvitationCodeRepository()
+    manage = ManageInvitationCodes(repository, sequential_choice())  # type: ignore[arg-type]
+
+    (code,) = manage.generate(1, Role.ADMIN)
+
+    assert code.startswith("EQUIPO-")
+    assert repository.get(code).role is Role.ADMIN  # type: ignore[union-attr]

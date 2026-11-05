@@ -38,3 +38,10 @@ services:
         sync: false
       - key: ADMIN_PASSWORD
         sync: false
+      # Código de verificación por correo (el plan gratis bloquea SMTP: se usa la API de Brevo).
+      # EMAIL_SENDER es el correo verificado en Brevo (puede ser de Gmail). Sin ellos, el código
+      # solo lo ve el equipo en «Participantes».
+      - key: BREVO_API_KEY
+        sync: false
+      - key: EMAIL_SENDER
+        sync: false

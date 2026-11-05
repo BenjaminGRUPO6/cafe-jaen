@@ -34,14 +34,19 @@ from forecasting.infrastructure.persistence.sqlalchemy_forecast_repository impor
     SqlAlchemyForecastRepository,
 )
 from identity.application.authenticate_user import AuthenticateUser
+from identity.application.delete_participant import DeleteParticipant
+from identity.application.email_verification import SendVerificationCode, VerifyAccount
 from identity.application.list_participants import ListParticipants
 from identity.application.manage_invitation_codes import ManageInvitationCodes
 from identity.application.register_user import RegisterUser
+from identity.domain.ports.email_sender import EmailSender
 from identity.infrastructure.api.admin_router import build_participants_router
 from identity.infrastructure.api.auth_router import build_auth_router
+from identity.infrastructure.email.senders import build_email_sender
 from identity.infrastructure.persistence.sqlalchemy_repositories import (
     SqlAlchemyInvitationCodeRepository,
     SqlAlchemyUserRepository,
+    SqlAlchemyVerificationRepository,
 )
 from identity.infrastructure.security.bcrypt_password_hasher import BcryptPasswordHasher
 from identity.infrastructure.security.jwt_token_service import JwtTokenService
@@ -101,6 +106,7 @@ class Overrides:
     exchange_rate_provider: ExchangeRateProvider | None = None
     live_exchange_sources: Sequence[LiveExchangeRateSource] | None = None
     language_model: LanguageModel | None = None
+    email_sender: EmailSender | None = None
     clock: Clock | None = None
 
 
@@ -117,6 +123,18 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     tokens = JwtTokenService(settings.jwt_secret, settings.session_days, clock)
     codes = SqlAlchemyInvitationCodeRepository(sessions)
     register = RegisterUser(users, codes, hasher, clock, settings.consent_version)
+    verifications = SqlAlchemyVerificationRepository(sessions)
+    email_sender = overrides.email_sender or build_email_sender(
+        settings.brevo_api_key,
+        settings.smtp_host,
+        settings.smtp_port,
+        settings.smtp_user,
+        settings.smtp_password,
+        settings.email_sender,
+        settings.email_sender_name,
+    )
+    send_code = SendVerificationCode(users, verifications, email_sender, clock, secrets.choice)
+    verify = VerifyAccount(users, verifications, tokens, clock)
     authenticate = AuthenticateUser(users, hasher, tokens, clock)
 
     # ---------- market (Recolector y Analista): precio mundial en vivo
@@ -208,13 +226,19 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
     app.state.daily_cycle = daily_cycle  # usados por el script de ejecución manual
     app.state.live_collection = live_collection
 
-    require_user = build_require_user(tokens)
-    app.include_router(build_auth_router(register, authenticate, tokens), prefix="/api")
+    # Una cuenta eliminada por el equipo pierde la sesión aunque su token no haya vencido
+    def is_active(user_id: str) -> bool:
+        return users.get_by_id(user_id) is not None
+
+    require_user = build_require_user(tokens, is_active)
+    require_admin = build_require_admin(tokens, is_active)
+    app.include_router(build_auth_router(register, authenticate, send_code, verify), prefix="/api")
     app.include_router(
         build_participants_router(
-            ListParticipants(users, codes),
+            ListParticipants(users, codes, verifications),
             ManageInvitationCodes(codes, secrets.choice),
-            build_require_admin(tokens),
+            DeleteParticipant(users),
+            require_admin,
         ),
         prefix="/api",
     )
@@ -222,7 +246,7 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
         build_market_router(
             supervisor,
             require_user,
-            build_require_admin(tokens),
+            require_admin,
             latest_quote_time,
             settings.stream_poll_seconds,
             settings.stream_max_events,
@@ -236,7 +260,7 @@ def create_app(settings: Settings | None = None, overrides: Overrides | None = N
             GetPriceLog(prices, converter, LocalPriceEstimator(), clock),
             synthetic_data,
             require_user,
-            build_require_admin(tokens),
+            require_admin,
         ),
         prefix="/api",
     )

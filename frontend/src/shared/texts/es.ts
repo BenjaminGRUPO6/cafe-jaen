@@ -35,8 +35,23 @@ export const texts = {
       "Solo guardamos tu número de celular y tu uso de la aplicación, de forma confidencial y " +
       "según la Ley N.° 29733 de Protección de Datos Personales. Puedes dejar de participar cuando quieras.",
     consentAccept: "He leído y acepto participar",
+    email: "Correo electrónico",
+    emailHint: "Te enviaremos un código para confirmar que eres tú.",
     showPassword: "Mostrar contraseña",
     hidePassword: "Ocultar contraseña",
+  },
+  verify: {
+    title: "Confirma tu cuenta",
+    sentTo: (email: string) => `Te enviamos un código de 6 dígitos a ${email}.`,
+    yourEmail: "tu correo",
+    notSent:
+      "No pudimos enviar el correo ahora. Pide tu código al equipo de Café Jaén por WhatsApp.",
+    help: "Revisa también la carpeta de spam. Si no llega, el equipo puede darte el código.",
+    code: "Código de 6 dígitos",
+    submit: "Confirmar y entrar",
+    resend: "Enviar otro código",
+    resendIn: (seconds: number) => `Enviar otro código en ${seconds} s`,
+    resent: "Te enviamos un código nuevo.",
   },
   live: {
     title: "Precio del café en la bolsa",
@@ -154,8 +169,11 @@ export const texts = {
     tab: "Códigos",
     title: "Códigos de invitación",
     intro:
-      "Cada participante del grupo experimental necesita un código para registrarse; cada código sirve una sola vez.",
+      "Cada participante del grupo experimental necesita un código para registrarse; cada código sirve una sola vez. Los códigos «Equipo» (EQUIPO-…) crean más cuentas de administrador.",
     howMany: "¿Cuántos códigos nuevos?",
+    forWhom: "¿Para quién?",
+    roles: { farmer: "Caficultores", admin: "Equipo" },
+    teamBadge: "Equipo",
     generate: "Generar",
     generated: (n: number) => `Se generaron ${n} códigos nuevos:`,
     copy: "Copiar todos",
@@ -226,7 +244,8 @@ export const texts = {
   participants: {
     tab: "Participantes",
     title: "Participantes del grupo experimental",
-    intro: "Quiénes se registraron con su código y cuándo entraron. Se actualiza sola cada 10 s.",
+    intro:
+      "Quiénes se registraron con su código y cuándo entraron. Las cuentas sin verificar muestran su código por si el correo no llegó. Se actualiza sola cada 10 s.",
     registered: "Registrados",
     codes: "Códigos usados",
     activeToday: "Entraron hoy",
@@ -236,6 +255,11 @@ export const texts = {
     registeredAt: (when: string) => `Registro: ${when}`,
     lastLogin: (when: string) => `último ingreso: ${when}`,
     neverLoggedIn: "no volvió a ingresar",
+    remove: (phone: string) => `Eliminar la cuenta ${phone}`,
+    pending: (code: string | null) =>
+      code ? `Sin verificar · código: ${code}` : "Sin verificar · pidió un código nuevo",
+    codeEmailed: "(se envió a su correo)",
+    codeNotEmailed: "(el correo no salió: envíaselo por WhatsApp)",
   },
   admin: {
     nav: "Equipo",

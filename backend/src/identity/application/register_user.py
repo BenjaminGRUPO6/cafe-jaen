@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+from identity.domain.email_address import EmailAddress
 from identity.domain.errors import (
     ConsentNotAcceptedError,
+    EmailAlreadyRegisteredError,
     InvalidInvitationCodeError,
     PhoneAlreadyRegisteredError,
     WeakPasswordError,
@@ -21,10 +23,15 @@ class RegisterUserCommand:
     phone: str
     password: str
     consent_accepted: bool
+    email: str = ""
 
 
 class RegisterUser:
-    """HU01: registra a un caficultor del GE con su código de invitación."""
+    """HU01: registra a un caficultor del GE (o a alguien del equipo) con su código.
+
+    La cuenta queda sin verificar: para entrar debe confirmar el código que llega a su correo
+    (así no se registran celulares inventados).
+    """
 
     def __init__(
         self,
@@ -47,12 +54,15 @@ class RegisterUser:
         if len(command.password) < MIN_PASSWORD_LENGTH:
             raise WeakPasswordError(MIN_PASSWORD_LENGTH)
         phone = PhoneNumber(command.phone)
+        email = EmailAddress(command.email)
 
         code = self._codes.get(command.invitation_code.strip().upper())
         if code is None or code.is_used:
             raise InvalidInvitationCodeError()
         if self._users.get_by_phone(phone) is not None:
             raise PhoneAlreadyRegisteredError()
+        if self._users.get_by_email(email) is not None:
+            raise EmailAlreadyRegisteredError()
 
         now = self._clock.now()
         user = User.create(
@@ -60,6 +70,8 @@ class RegisterUser:
             password_hash=self._hasher.hash(command.password),
             consent=Consent(self._consent_version, now),
             at=now,
+            email=email,
+            role=code.role,
         )
         self._users.add(user, code.redeem(user.id, now))
         return user

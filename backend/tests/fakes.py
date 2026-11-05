@@ -8,10 +8,13 @@ from typing import Any
 from zoneinfo import ZoneInfo
 
 from forecasting.domain.forecast import Forecast
+from identity.domain.email_address import EmailAddress
 from identity.domain.invitation_code import InvitationCode
 from identity.domain.participant import CodeSummary, Participant
 from identity.domain.phone_number import PhoneNumber
-from identity.domain.user import User
+from identity.domain.ports.email_sender import EmailNotSentError
+from identity.domain.user import Role, User
+from identity.domain.verification import EmailVerification
 from market.domain.cooperative import Cooperative
 from market.domain.errors import SourceUnavailableError
 from market.domain.local_price import LocalPriceObservation
@@ -72,20 +75,79 @@ class InMemoryUserRepository:
     def get_by_phone(self, phone: PhoneNumber) -> User | None:
         return next((u for u in self.users.values() if u.phone == phone), None)
 
+    def get_by_id(self, user_id: str) -> User | None:
+        return self.users.get(user_id)
+
+    def get_by_email(self, email: EmailAddress) -> User | None:
+        return next((u for u in self.users.values() if u.email == email), None)
+
     def add(self, user: User, redeemed_code: InvitationCode | None) -> None:
         self.users[user.id] = user
         if redeemed_code:
             self.redeemed.append(redeemed_code)
 
+    def mark_verified(self, user_id: str, at: datetime) -> None:
+        self.users[user_id] = replace(self.users[user_id], verified_at=at)
+
     def record_login(self, user_id: str, at: datetime) -> None:
         self.logins[user_id] = at
+
+    def delete(self, user_id: str) -> None:
+        self.users.pop(user_id, None)
+        self.redeemed = [c for c in self.redeemed if c.used_by != user_id]
+
+    def count_admins(self) -> int:
+        return sum(1 for u in self.users.values() if u.role is Role.ADMIN)
 
     def participants(self) -> list[Participant]:
         codes = {c.used_by: c.code for c in self.redeemed}
         return [
-            Participant(u.phone.value, u.role, u.created_at, codes.get(u.id), self.logins.get(u.id))
+            Participant(
+                u.id,
+                u.phone.value,
+                u.role,
+                u.created_at,
+                codes.get(u.id),
+                self.logins.get(u.id),
+                u.email.value if u.email else None,
+                u.is_verified,
+            )
             for u in sorted(self.users.values(), key=lambda u: u.created_at, reverse=True)
         ]
+
+
+class InMemoryVerificationRepository:
+    def __init__(self) -> None:
+        self.items: dict[str, EmailVerification] = {}
+
+    def save(self, verification: EmailVerification) -> None:
+        self.items[verification.user_id] = verification
+
+    def get(self, user_id: str) -> EmailVerification | None:
+        return self.items.get(user_id)
+
+    def delete(self, user_id: str) -> None:
+        self.items.pop(user_id, None)
+
+    def pending(self) -> dict[str, EmailVerification]:
+        return dict(self.items)
+
+
+class FakeEmailSender:
+    """Guarda los correos en vez de enviarlos; `fail=True` simula un proveedor caído."""
+
+    def __init__(self, fail: bool = False) -> None:
+        self.sent: list[tuple[str, str, str]] = []
+        self.fail = fail
+
+    def send(self, to: str, subject: str, text: str) -> None:
+        if self.fail:
+            raise EmailNotSentError("caído")
+        self.sent.append((to, subject, text))
+
+    def last_code(self) -> str:
+        """El código de 6 dígitos del último correo enviado."""
+        return next(w for w in self.sent[-1][2].split() if w.isdigit() and len(w) == 6)
 
 
 class InMemoryInvitationCodeRepository:
@@ -101,9 +163,9 @@ class InMemoryInvitationCodeRepository:
     def all(self) -> list[InvitationCode]:
         return sorted(self.codes.values(), key=lambda c: (c.is_used, c.code))
 
-    def add_many(self, codes: list[str]) -> None:
+    def add_many(self, codes: list[str], role: Role = Role.FARMER) -> None:
         for code in codes:
-            self.codes[code] = InvitationCode(code)
+            self.codes[code] = InvitationCode(code, role=role)
 
 
 class FakePasswordHasher:

@@ -6,12 +6,13 @@ import { Brand } from "../../shared/components/Brand";
 import { StatusMessage } from "../../shared/components/StatusMessage";
 import { PasswordInput } from "../../shared/components/PasswordInput";
 import { texts } from "../../shared/texts/es";
+import { verifyPath } from "./VerifyPage";
 
-/** HU01: registro con código de invitación y consentimiento informado. */
+/** HU01: registro con código de invitación, correo y consentimiento informado. */
 export function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ invitation_code: "", phone: "", password: "" });
+  const [form, setForm] = useState({ invitation_code: "", phone: "", email: "", password: "" });
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
 
@@ -21,8 +22,9 @@ export function RegisterPage() {
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     try {
-      await register({ ...form, consent_accepted: consent });
-      navigate("/");
+      const pending = await register({ ...form, consent_accepted: consent });
+      // Sin sesión todavía: primero se confirma el código que llegó al correo
+      navigate(verifyPath(pending.phone), { state: pending });
     } catch (caught) {
       setError(caught as ApiError);
     }
@@ -54,6 +56,18 @@ export function RegisterPage() {
             onChange={update("phone")}
             required
           />
+        </label>
+        <label>
+          {texts.auth.email}
+          <input
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            value={form.email}
+            onChange={update("email")}
+            required
+          />
+          <small className="muted">{texts.auth.emailHint}</small>
         </label>
         <label>
           {texts.auth.password}

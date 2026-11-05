@@ -6,6 +6,7 @@ import { Brand } from "../../shared/components/Brand";
 import { StatusMessage } from "../../shared/components/StatusMessage";
 import { PasswordInput } from "../../shared/components/PasswordInput";
 import { texts } from "../../shared/texts/es";
+import { verifyPath } from "./VerifyPage";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -20,7 +21,13 @@ export function LoginPage() {
       await login(phone, password);
       navigate("/");
     } catch (caught) {
-      setError(caught as ApiError);
+      const failure = caught as ApiError;
+      // 403: la contraseña es correcta pero la cuenta aún no confirmó el código del correo
+      if (failure.status === 403) {
+        navigate(verifyPath(phone));
+        return;
+      }
+      setError(failure);
     }
   };
 

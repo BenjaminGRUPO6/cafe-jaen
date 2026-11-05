@@ -33,3 +33,58 @@ class InvalidPhoneError(IdentityError):
 class InvalidCredentialsError(IdentityError):
     def __init__(self) -> None:
         super().__init__("Celular o contraseña incorrectos")
+
+
+class InvalidEmailError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("Escribe un correo válido, por ejemplo nombre@gmail.com")
+
+
+class EmailAlreadyRegisteredError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("Este correo ya está registrado")
+
+
+class AccountNotVerifiedError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("Falta verificar tu cuenta con el código que enviamos a tu correo")
+
+
+class InvalidVerificationCodeError(IdentityError):
+    def __init__(self, remaining: int) -> None:
+        super().__init__(f"El código no es correcto. Te quedan {remaining} intentos")
+
+
+class VerificationExpiredError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("El código venció. Pide uno nuevo")
+
+
+class TooManyAttemptsError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("Demasiados intentos. Pide un código nuevo")
+
+
+class ResendTooSoonError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("Espera un minuto antes de pedir otro código")
+
+
+class AlreadyVerifiedError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("Esta cuenta ya está verificada: ingresa con tu celular y contraseña")
+
+
+class UserNotFoundError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("Esa cuenta no existe")
+
+
+class CannotDeleteSelfError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("No puedes eliminar tu propia cuenta")
+
+
+class LastAdminError(IdentityError):
+    def __init__(self) -> None:
+        super().__init__("Debe quedar al menos una cuenta del equipo")

@@ -4,6 +4,22 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.10] — Verificación por correo y administración de cuentas
+
+### Agregado
+- **Registro con correo y código de verificación**: al crear la cuenta llega un código de 6
+  dígitos al correo (vence en 15 minutos, 5 intentos, reenvío cada minuto). Sin confirmarlo no
+  se puede ingresar, así no quedan cuentas con celulares inventados. Pantalla «Confirma tu
+  cuenta» (`/verificar`) y rutas `/api/auth/verify` y `/api/auth/resend`.
+- **Respaldo del equipo**: si el correo no sale, el código aparece en «Equipo → Participantes»
+  para enviarlo por WhatsApp.
+- El correo se envía con la API de Brevo (`BREVO_API_KEY`, `EMAIL_SENDER`), porque el plan
+  gratis de Render bloquea el envío por SMTP; en local también sirve Gmail por SMTP.
+- **Eliminar cuentas** desde «Participantes»: su código de invitación queda libre y su sesión
+  deja de servir. Nadie se elimina a sí mismo y siempre queda una cuenta del equipo.
+- **Códigos del equipo** (`EQUIPO-…`) en «Códigos»: crean más cuentas de administrador.
+- Migración 0011: las cuentas que ya existían quedan verificadas.
+
 ## [v1.9.1] — Gráfico con eje de tiempo real
 
 ### Corregido

@@ -6,20 +6,25 @@ from identity.application.authenticate_user import AuthenticateUser
 from identity.application.list_participants import ListParticipants
 from identity.application.register_user import RegisterUser, RegisterUserCommand
 from identity.domain.errors import (
+    AccountNotVerifiedError,
     ConsentNotAcceptedError,
+    EmailAlreadyRegisteredError,
     InvalidCredentialsError,
+    InvalidEmailError,
     InvalidInvitationCodeError,
     InvalidPhoneError,
     PhoneAlreadyRegisteredError,
     WeakPasswordError,
 )
 from identity.domain.invitation_code import InvitationCode
+from identity.domain.user import Role
 from tests.fakes import (
     FakePasswordHasher,
     FakeTokenIssuer,
     FixedClock,
     InMemoryInvitationCodeRepository,
     InMemoryUserRepository,
+    InMemoryVerificationRepository,
 )
 
 
@@ -38,6 +43,7 @@ def command(**overrides: object) -> RegisterUserCommand:
     data = {
         "invitation_code": "jaen-abc234",
         "phone": "987654321",
+        "email": "Caficultor@Gmail.com ",
         "password": "cafe2026!",
         "consent_accepted": True,
     }
@@ -109,13 +115,60 @@ def test_rejects_duplicated_phone(register: RegisterUser, users: InMemoryUserRep
     second = RegisterUser(users, codes, FakePasswordHasher(), FixedClock(), "2026-10")
 
     with pytest.raises(PhoneAlreadyRegisteredError):
-        second.execute(command(invitation_code="JAEN-XYZ789"))
+        second.execute(command(invitation_code="JAEN-XYZ789", email="otro@gmail.com"))
+
+
+def test_rejects_duplicated_email(register: RegisterUser, users: InMemoryUserRepository) -> None:
+    register.execute(command())
+    codes = InMemoryInvitationCodeRepository(InvitationCode("JAEN-XYZ789"))
+    second = RegisterUser(users, codes, FakePasswordHasher(), FixedClock(), "2026-10")
+
+    with pytest.raises(EmailAlreadyRegisteredError):
+        second.execute(command(invitation_code="JAEN-XYZ789", phone="911111111"))
+
+
+@pytest.mark.parametrize("email", ["", "sin-arroba", "a@b", "con espacio@gmail.com"])
+def test_rejects_invalid_emails(register: RegisterUser, email: str) -> None:
+    with pytest.raises(InvalidEmailError):
+        register.execute(command(email=email))
+
+
+def test_new_accounts_start_unverified_with_the_email_normalized(register: RegisterUser) -> None:
+    user = register.execute(command())
+
+    assert not user.is_verified
+    assert user.email is not None and user.email.value == "caficultor@gmail.com"
+    assert user.email.masked() == "ca***@gmail.com"
+
+
+def test_a_team_code_creates_a_team_account(users: InMemoryUserRepository) -> None:
+    codes = InMemoryInvitationCodeRepository(InvitationCode("EQUIPO-ABC234", role=Role.ADMIN))
+    register = RegisterUser(users, codes, FakePasswordHasher(), FixedClock(), "2026-10")
+
+    user = register.execute(command(invitation_code="equipo-abc234"))
+
+    assert user.role is Role.ADMIN
+
+
+def test_login_asks_for_the_code_until_the_account_is_verified(
+    register: RegisterUser, users: InMemoryUserRepository
+) -> None:
+    user = register.execute(command())
+    authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer(), FixedClock())
+
+    with pytest.raises(AccountNotVerifiedError):
+        authenticate.execute("987654321", "cafe2026!")
+    with pytest.raises(InvalidCredentialsError):  # con otra contraseña no revela nada
+        authenticate.execute("987654321", "incorrecta")
+    users.mark_verified(user.id, FixedClock().now())
+    assert authenticate.execute("987654321", "cafe2026!").startswith("token-")
 
 
 def test_login_returns_token_for_valid_credentials(
     register: RegisterUser, users: InMemoryUserRepository
 ) -> None:
     user = register.execute(command())
+    users.mark_verified(user.id, FixedClock().now())
     authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer(), FixedClock())
 
     assert authenticate.execute("987654321", "cafe2026!") == f"token-{user.id}-farmer"
@@ -138,6 +191,7 @@ def test_login_records_the_last_login(
     register: RegisterUser, users: InMemoryUserRepository
 ) -> None:
     user = register.execute(command())
+    users.mark_verified(user.id, FixedClock().now())
     clock = FixedClock()
     authenticate = AuthenticateUser(users, FakePasswordHasher(), FakeTokenIssuer(), clock)
 
@@ -154,7 +208,7 @@ def test_participants_report_lists_users_and_codes(
         InvitationCode("JAEN-ABC234", used_by="x"), InvitationCode("JAEN-XYZ789")
     )
 
-    report = ListParticipants(users, codes).execute()
+    report = ListParticipants(users, codes, InMemoryVerificationRepository()).execute()
 
     assert [p.phone for p in report.participants] == ["987654321"]
     assert report.participants[0].invitation_code == "JAEN-ABC234"

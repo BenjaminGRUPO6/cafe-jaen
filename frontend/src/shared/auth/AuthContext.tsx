@@ -1,11 +1,12 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { api, TOKEN_KEY } from "../api/client";
-import type { Session } from "../api/types";
+import type { PendingVerification, Session } from "../api/types";
 import { readStored, writeStored } from "../storage";
 
 interface RegisterData {
   invitation_code: string;
   phone: string;
+  email: string;
   password: string;
   consent_accepted: boolean;
 }
@@ -14,7 +15,9 @@ interface AuthState {
   isLoggedIn: boolean;
   isAdmin: boolean;
   login: (phone: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
+  /** Crea la cuenta sin sesión: luego hay que confirmar el código del correo. */
+  register: (data: RegisterData) => Promise<PendingVerification>;
+  verify: (phone: string, code: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -34,7 +37,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isAdmin: roleFromToken(token) === "admin",
     login: async (phone, password) =>
       saveSession(await api.post<Session>("/auth/login", { phone, password })),
-    register: async (data) => saveSession(await api.post<Session>("/auth/register", data)),
+    register: (data) => api.post<PendingVerification>("/auth/register", data),
+    verify: async (phone, code) =>
+      saveSession(await api.post<Session>("/auth/verify", { phone, code })),
     logout: () => {
       writeStored(TOKEN_KEY, null);
       setToken(null);

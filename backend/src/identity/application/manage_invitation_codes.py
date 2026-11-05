@@ -3,6 +3,7 @@ from collections.abc import Callable
 from identity.domain.errors import IdentityError
 from identity.domain.invitation_code import InvitationCode, new_invitation_code
 from identity.domain.ports.user_repository import InvitationCodeRepository
+from identity.domain.user import Role
 
 MAX_CODES_PER_REQUEST = 50
 
@@ -29,17 +30,18 @@ class ManageInvitationCodes:
         self._codes = codes
         self._choice = choice  # secrets.choice en producción; determinista en las pruebas
 
-    def generate(self, count: int) -> list[str]:
+    def generate(self, count: int, role: Role = Role.FARMER) -> list[str]:
+        """Códigos para caficultores o, con `Role.ADMIN`, para más cuentas del equipo."""
         if not 1 <= count <= MAX_CODES_PER_REQUEST:
             raise InvalidCodeCountError()
         existing = {c.code for c in self._codes.all()}
         created: list[str] = []
         while len(created) < count:
-            code = new_invitation_code(self._choice)
+            code = new_invitation_code(self._choice, role)
             if code not in existing:  # un código repetido daría acceso doble
                 existing.add(code)
                 created.append(code)
-        self._codes.add_many(created)
+        self._codes.add_many(created, role)
         return created
 
     def list(self) -> list[InvitationCode]:

@@ -1454,3 +1454,40 @@ a {
   border-radius: 999px;
   background: var(--niebla);
 }
+
+/* ---------- Verificación y panel del equipo ---------- */
+.verify__code {
+  font-size: 1.6rem;
+  letter-spacing: 0.4em;
+  text-align: center;
+}
+.participants__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.participants__email {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+  color: var(--corteza);
+  overflow-wrap: anywhere;
+}
+.participants__pending {
+  margin: 0.35rem 0 0;
+  padding: 0.35rem 0.6rem;
+  border-radius: 10px;
+  background: var(--grano);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.participants__pending small {
+  font-weight: 400;
+}
+.codes__team {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--espresso);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+}

@@ -17,21 +17,29 @@ _bearer = HTTPBearer(auto_error=False)
 Credentials = Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)]
 
 
-def build_require_user(verifier: TokenVerifier) -> Callable[[Credentials], str]:
-    """Crea la dependencia que exige una sesión válida y devuelve el id del usuario."""
+def build_require_user(
+    verifier: TokenVerifier, is_active: Callable[[str], bool] | None = None
+) -> Callable[[Credentials], str]:
+    """Crea la dependencia que exige una sesión válida y devuelve el id del usuario.
+
+    `is_active` comprueba que la cuenta siga existiendo: si el equipo la eliminó, su sesión
+    deja de servir aunque el token aún no haya vencido.
+    """
 
     def require_user(credentials: Credentials) -> str:
         user_id = verifier.verify(credentials.credentials) if credentials else None
-        if user_id is None:
+        if user_id is None or (is_active is not None and not is_active(user_id)):
             raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Inicia sesión para continuar")
         return user_id
 
     return require_user
 
 
-def build_require_admin(verifier: TokenVerifier) -> Callable[[Credentials], str]:
+def build_require_admin(
+    verifier: TokenVerifier, is_active: Callable[[str], bool] | None = None
+) -> Callable[[Credentials], str]:
     """Dependencia para las rutas del equipo (anotar precios de cooperativas, HU12)."""
-    require_user = build_require_user(verifier)
+    require_user = build_require_user(verifier, is_active)
 
     def require_admin(credentials: Credentials) -> str:
         user_id = require_user(credentials)

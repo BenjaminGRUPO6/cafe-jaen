@@ -4,9 +4,12 @@ Uso (con la API levantada y datos cargados):
     locust -f tests/load/locustfile.py --headless -u 30 -r 10 -t 60s --host http://localhost:8000
 Cada usuario virtual necesita su propio código de invitación: LOAD-001 … LOAD-030
 (los crea scripts/create_load_test_codes.py).
+Desde v1.10 la cuenta se activa con el código del correo: el usuario virtual lo lee como lo haría
+el equipo, en «Participantes», con la cuenta de ADMIN_PHONE y ADMIN_PASSWORD.
 """
 
 import itertools
+import os
 
 from locust import HttpUser, between, task
 
@@ -25,11 +28,22 @@ class CoffeeGrower(HttpUser):
             json={
                 "invitation_code": f"LOAD-{number:03d}",
                 "phone": f"9{number:08d}",
+                "email": f"carga{number:03d}@example.com",
                 "password": "carga2026!",
                 "consent_accepted": True,
             },
         )
-        self.client.headers["Authorization"] = f"Bearer {response.json()['access_token']}"
+        phone = response.json()["phone"]
+        admin = self.client.post(
+            "/api/auth/login",
+            json={"phone": os.environ["ADMIN_PHONE"], "password": os.environ["ADMIN_PASSWORD"]},
+        ).json()["access_token"]
+        participants = self.client.get(
+            "/api/admin/participants", headers={"Authorization": f"Bearer {admin}"}
+        ).json()["participants"]
+        code = next(p["pending_code"] for p in participants if p["phone"] == phone)
+        session = self.client.post("/api/auth/verify", json={"phone": phone, "code": code})
+        self.client.headers["Authorization"] = f"Bearer {session.json()['access_token']}"
 
     @task(5)
     def live_price(self) -> None:

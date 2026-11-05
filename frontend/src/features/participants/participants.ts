@@ -1,6 +1,11 @@
 /** Respuesta de GET /api/admin/participants (solo el equipo). */
 export interface Participant {
+  id: string;
   phone: string;
+  email: string | null;
+  verified: boolean;
+  pending_code: string | null; // código por confirmar: el equipo lo envía si el correo no llegó
+  code_emailed: boolean;
   role: "farmer" | "admin";
   registered_at: string;
   invitation_code: string | null;

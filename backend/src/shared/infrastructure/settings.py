@@ -17,6 +17,17 @@ class Settings(BaseSettings):
     jwt_secret: str = "change-me-in-production"
     session_days: int = 30
     consent_version: str = "2026-10"
+    # Correo con el código de verificación. En Render (plan gratis bloquea SMTP) se usa Brevo:
+    # BREVO_API_KEY y EMAIL_SENDER (un correo verificado en Brevo, puede ser de Gmail).
+    # En local también sirve Gmail por SMTP con una «contraseña de aplicación».
+    # Sin ninguno, el código solo lo ve el equipo en «Participantes».
+    brevo_api_key: str = ""
+    email_sender: str = ""
+    email_sender_name: str = "Café Jaén"
+    smtp_host: str = "smtp.gmail.com"
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
 
     # Mercado: precio mundial en vivo (HU02, HU03)
     local_price_factor: Decimal = Decimal("1")  # ajuste por diferencial y rendimiento local

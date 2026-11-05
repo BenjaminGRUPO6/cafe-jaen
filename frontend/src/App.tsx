@@ -7,6 +7,7 @@ import { CooperativesPage } from "./features/admin/CooperativesPage";
 import { PriceLogPage } from "./features/admin/PriceLogPage";
 import { AdvisorPage } from "./features/advisor/AdvisorPage";
 import { LoginPage } from "./features/auth/LoginPage";
+import { VerifyPage } from "./features/auth/VerifyPage";
 import { RegisterPage } from "./features/auth/RegisterPage";
 import { RequireAdmin } from "./features/auth/RequireAdmin";
 import { RequireAuth } from "./features/auth/RequireAuth";
@@ -42,6 +43,7 @@ export function App() {
           <Routes>
             <Route path="/ingresar" element={<LoginPage />} />
             <Route path="/registro" element={<RegisterPage />} />
+            <Route path="/verificar" element={<VerifyPage />} />
             <Route
               element={
                 <RequireAuth>

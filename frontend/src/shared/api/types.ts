@@ -102,3 +102,11 @@ export interface Cooperative {
   website: string | null;
   active: boolean;
 }
+
+/** Respuesta del registro: la cuenta espera el código enviado al correo. */
+export interface PendingVerification {
+  verification_required: true;
+  phone: string;
+  email: string | null; // enmascarado: «lu***@gmail.com»
+  email_sent: boolean;
+}

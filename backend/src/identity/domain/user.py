@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import uuid4
 
+from identity.domain.email_address import EmailAddress
 from identity.domain.phone_number import PhoneNumber
 
 
@@ -32,14 +33,35 @@ class User:
     consent: Consent
     created_at: datetime
     role: Role = Role.FARMER
+    email: EmailAddress | None = None  # None en cuentas anteriores a la verificación por correo
+    verified_at: datetime | None = None  # None hasta que confirma el código del correo
+
+    @property
+    def is_verified(self) -> bool:
+        return self.verified_at is not None
 
     @classmethod
     def create(
-        cls, phone: PhoneNumber, password_hash: str, consent: Consent, at: datetime
+        cls,
+        phone: PhoneNumber,
+        password_hash: str,
+        consent: Consent,
+        at: datetime,
+        email: EmailAddress | None = None,
+        role: Role = Role.FARMER,
     ) -> "User":
-        return cls(str(uuid4()), phone, password_hash, consent, at)
+        """Cuenta nueva desde el registro: queda sin verificar hasta confirmar el correo."""
+        return cls(str(uuid4()), phone, password_hash, consent, at, role, email)
 
     @classmethod
     def create_admin(cls, phone: PhoneNumber, password_hash: str, at: datetime) -> "User":
-        """Los administradores se crean por script, sin código de invitación."""
-        return cls(str(uuid4()), phone, password_hash, Consent(TEAM_CONSENT, at), at, Role.ADMIN)
+        """La primera cuenta del equipo se crea al arrancar, sin código y ya verificada."""
+        return cls(
+            str(uuid4()),
+            phone,
+            password_hash,
+            Consent(TEAM_CONSENT, at),
+            at,
+            Role.ADMIN,
+            verified_at=at,
+        )

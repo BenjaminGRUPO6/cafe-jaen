@@ -129,3 +129,21 @@ JAENPERU sintético A…F» en cuanto tiene el precio real de la bolsa (al arran
 lo tiene, reintentando cada 5 minutos). La bolsa y el tipo de cambio siguen siendo reales. Antes
 del experimento con caficultores ponemos `DEMO_COOPERATIVES=false` y los borramos en
 «Equipo → Cooperativas».
+
+## Verificación por correo (v1.10)
+
+Al registrarse, cada persona recibe un código de 6 dígitos en su correo y debe escribirlo para
+entrar. El plan gratis de Render bloquea el envío por SMTP (puertos 25, 465 y 587), por eso el
+correo sale por la API de **Brevo** (gratis hasta 300 correos al día):
+
+1. Creamos una cuenta gratis en https://www.brevo.com con nuestro Gmail.
+2. En Brevo → *Senders, domains & dedicated IPs* → *Senders* agregamos ese Gmail como remitente y
+   lo confirmamos con el enlace que llega al correo.
+3. En Brevo → *SMTP & API* → *API keys* creamos una clave.
+4. En Render → *Environment* agregamos `BREVO_API_KEY` (la clave) y `EMAIL_SENDER` (el Gmail
+   verificado) y guardamos con *Save, rebuild, and deploy*.
+
+Si el correo no sale (sin clave, límite diario o caída de Brevo), la app no se bloquea: el código
+aparece en «Equipo → Participantes» y se lo enviamos al caficultor por WhatsApp. En local
+también se puede usar Gmail por SMTP con una «contraseña de aplicación» (`SMTP_USER`,
+`SMTP_PASSWORD`).

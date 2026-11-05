@@ -9,6 +9,7 @@ import json
 from fastapi.testclient import TestClient
 
 from tests.conftest import INVITATION_CODE
+from tests.fakes import FakeEmailSender
 
 
 def test_health(client: TestClient) -> None:
@@ -26,6 +27,7 @@ def test_register_with_invalid_code_is_rejected(client: TestClient) -> None:
         json={
             "invitation_code": "NO-EXISTE",
             "phone": "987654321",
+            "email": "caficultor@gmail.com",
             "password": "cafe2026!",
             "consent_accepted": True,
         },
@@ -41,6 +43,7 @@ def test_code_can_only_be_used_once(client: TestClient, auth_headers: dict[str, 
         json={
             "invitation_code": INVITATION_CODE,
             "phone": "911111111",
+            "email": "otro@gmail.com",
             "password": "cafe2026!",
             "consent_accepted": True,
         },
@@ -195,6 +198,7 @@ def test_team_generates_codes_that_farmers_can_use(
         json={
             "invitation_code": created[0],
             "phone": "955444333",
+            "email": "nuevo@gmail.com",
             "password": "cafe2026!",
             "consent_accepted": True,
         },
@@ -326,3 +330,75 @@ def test_team_deletes_only_unused_invitation_codes(
     )
     used = client.delete(f"/api/admin/invitation-codes/{INVITATION_CODE}", headers=admin_headers)
     assert used.status_code == 409
+
+
+def test_registration_needs_the_emailed_code_before_entering(
+    client: TestClient, email_outbox: FakeEmailSender, admin_headers: dict[str, str]
+) -> None:
+    (code,) = client.post(
+        "/api/admin/invitation-codes", json={"count": 1}, headers=admin_headers
+    ).json()["codes"]
+    body = {
+        "invitation_code": code,
+        "phone": "944555666",
+        "email": "maria@gmail.com",
+        "password": "cafe2026!",
+        "consent_accepted": True,
+    }
+
+    registered = client.post("/api/auth/register", json=body).json()
+    blocked = client.post("/api/auth/login", json={"phone": "944555666", "password": "cafe2026!"})
+    participants = client.get("/api/admin/participants", headers=admin_headers).json()
+    pending = next(p for p in participants["participants"] if p["phone"] == "944555666")
+    verified = client.post(
+        "/api/auth/verify", json={"phone": "944555666", "code": email_outbox.last_code()}
+    )
+
+    assert registered == {
+        "verification_required": True,
+        "phone": "944555666",
+        "email": "ma***@gmail.com",
+        "email_sent": True,
+    }
+    assert blocked.status_code == 403
+    assert pending["verified"] is False and pending["pending_code"] == email_outbox.last_code()
+    assert verified.status_code == 200 and "access_token" in verified.json()
+
+
+def test_team_creates_team_codes_and_deletes_accounts(
+    client: TestClient,
+    email_outbox: FakeEmailSender,
+    auth_headers: dict[str, str],
+    admin_headers: dict[str, str],
+) -> None:
+    (team_code,) = client.post(
+        "/api/admin/invitation-codes", json={"count": 1, "role": "admin"}, headers=admin_headers
+    ).json()["codes"]
+    client.post(
+        "/api/auth/register",
+        json={
+            "invitation_code": team_code,
+            "phone": "933222111",
+            "email": "jhon@gmail.com",
+            "password": "equipo2026!",
+            "consent_accepted": True,
+        },
+    )
+    token = client.post(
+        "/api/auth/verify", json={"phone": "933222111", "code": email_outbox.last_code()}
+    ).json()["access_token"]
+    second_admin = {"Authorization": f"Bearer {token}"}
+    farmer = next(
+        p
+        for p in client.get("/api/admin/participants", headers=second_admin).json()["participants"]
+        if p["phone"] == "987654321"
+    )
+
+    deleted = client.delete(f"/api/admin/participants/{farmer['id']}", headers=second_admin)
+
+    assert team_code.startswith("EQUIPO-")
+    assert deleted.status_code == 204
+    # La sesión de la cuenta eliminada deja de servir y su código vuelve a estar libre
+    assert client.get("/api/prices/live", headers=auth_headers).status_code == 401
+    codes = client.get("/api/admin/invitation-codes", headers=second_admin).json()["codes"]
+    assert next(c for c in codes if c["code"] == INVITATION_CODE)["used"] is False

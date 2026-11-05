@@ -1,8 +1,12 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { api, ApiError } from "../../shared/api/client";
+import { ConfirmButton } from "../../shared/components/ConfirmButton";
 import { StatusMessage } from "../../shared/components/StatusMessage";
 import { formatDateTime } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
 import { useAutoReload } from "../../shared/hooks/useAutoReload";
+import { TrashIcon } from "../../shared/motion/icons";
 import { texts } from "../../shared/texts/es";
 import { AdminTabs } from "../admin/AdminTabs";
 import { startOfToday, summarize, type Participant, type ParticipantsReport } from "./participants";
@@ -14,6 +18,18 @@ export function ParticipantsPage() {
   const { data, error, reload } = useApi<ParticipantsReport>("/admin/participants");
   useAutoReload(reload, REFRESH_MS);
   const result = data ? summarize(data, startOfToday(new Date())) : null;
+  const [actionError, setActionError] = useState<ApiError | null>(null);
+
+  // Elimina una cuenta (por ejemplo, con datos inventados); su código queda libre otra vez
+  const remove = async (participant: Participant) => {
+    setActionError(null);
+    try {
+      await api.delete(`/admin/participants/${participant.id}`);
+      reload();
+    } catch (caught) {
+      setActionError(caught as ApiError);
+    }
+  };
 
   return (
     <section>
@@ -28,6 +44,7 @@ export function ParticipantsPage() {
         />{" "}
         {texts.participants.intro}
       </p>
+      <StatusMessage error={actionError} />
       {data && result ? (
         <>
           <div className="stats">
@@ -43,14 +60,14 @@ export function ParticipantsPage() {
           ) : (
             <ul className="participants" aria-live="polite">
               {result.farmers.map((p) => (
-                <ParticipantRow key={p.phone} participant={p} />
+                <ParticipantRow key={p.id} participant={p} onDelete={remove} />
               ))}
             </ul>
           )}
           <h2 className="participants__team">{texts.participants.team}</h2>
           <ul className="participants">
             {result.team.map((p) => (
-              <ParticipantRow key={p.phone} participant={p} />
+              <ParticipantRow key={p.id} participant={p} onDelete={remove} />
             ))}
           </ul>
         </>
@@ -61,7 +78,13 @@ export function ParticipantsPage() {
   );
 }
 
-function ParticipantRow({ participant: p }: { participant: Participant }) {
+function ParticipantRow({
+  participant: p,
+  onDelete,
+}: {
+  participant: Participant;
+  onDelete: (participant: Participant) => Promise<void>;
+}) {
   return (
     <motion.li
       className="participants__row"
@@ -72,10 +95,27 @@ function ParticipantRow({ participant: p }: { participant: Participant }) {
     >
       <div className="participants__top">
         <strong className="participants__phone">{p.phone}</strong>
-        <span className={`agent-chip ${p.role === "admin" ? "agent-chip--strategist" : ""}`}>
-          {p.invitation_code ?? texts.participants.teamBadge}
+        <span className="participants__actions">
+          <span className={`agent-chip ${p.role === "admin" ? "agent-chip--strategist" : ""}`}>
+            {p.invitation_code ?? texts.participants.teamBadge}
+          </span>
+          <ConfirmButton
+            label={texts.participants.remove(p.phone)}
+            onConfirm={() => void onDelete(p)}
+          >
+            <TrashIcon />
+          </ConfirmButton>
         </span>
       </div>
+      {p.email && <p className="participants__email">{p.email}</p>}
+      {!p.verified && (
+        <p className="participants__pending" role="status">
+          {texts.participants.pending(p.pending_code)}{" "}
+          <small>
+            {p.code_emailed ? texts.participants.codeEmailed : texts.participants.codeNotEmailed}
+          </small>
+        </p>
+      )}
       <p className="participants__meta">
         {texts.participants.registeredAt(formatDateTime(new Date(p.registered_at)))}
         {" · "}

@@ -1,4 +1,8 @@
-from identity.domain.errors import IdentityError, InvalidCredentialsError
+from identity.domain.errors import (
+    AccountNotVerifiedError,
+    IdentityError,
+    InvalidCredentialsError,
+)
 from identity.domain.phone_number import PhoneNumber
 from identity.domain.ports.security import PasswordHasher, TokenIssuer
 from identity.domain.ports.user_repository import UserRepository
@@ -24,6 +28,9 @@ class AuthenticateUser:
             raise InvalidCredentialsError() from None
         if user is None or not self._hasher.verify(password, user.password_hash):
             raise InvalidCredentialsError()
+        # Solo después de comprobar la contraseña: así no se revela qué cuentas existen
+        if not user.is_verified:
+            raise AccountNotVerifiedError()
         # El equipo ve en «Participantes» cuándo entró cada caficultor por última vez
         self._users.record_login(user.id, self._clock.now())
         return self._tokens.issue(user.id, user.role)

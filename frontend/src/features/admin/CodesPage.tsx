@@ -5,11 +5,15 @@ import { StatusMessage } from "../../shared/components/StatusMessage";
 import { formatDateTime } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
 import { TrashIcon } from "../../shared/motion/icons";
+import { Segmented } from "../../shared/motion/Segmented";
 import { texts } from "../../shared/texts/es";
 import { AdminTabs } from "./AdminTabs";
 
+type CodeRole = "farmer" | "admin";
+
 interface InvitationCode {
   code: string;
+  role: CodeRole;
   used: boolean;
   used_at: string | null;
 }
@@ -22,6 +26,7 @@ export function CodesPage() {
     "/admin/invitation-codes",
   );
   const [count, setCount] = useState("10");
+  const [role, setRole] = useState<CodeRole>("farmer");
   const [created, setCreated] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
   const [actionError, setActionError] = useState<ApiError | null>(null);
@@ -37,6 +42,7 @@ export function CodesPage() {
     try {
       const body = await api.post<{ codes: string[] }>("/admin/invitation-codes", {
         count: Number(count),
+        role,
       });
       setCreated(body.codes);
       reload();
@@ -73,6 +79,15 @@ export function CodesPage() {
       <h1>{texts.codes.title}</h1>
       <p className="muted">{texts.codes.intro}</p>
       <form className="form card inline-form" onSubmit={generate}>
+        <Segmented
+          label={texts.codes.forWhom}
+          value={role}
+          onChange={setRole}
+          options={[
+            { value: "farmer", label: texts.codes.roles.farmer },
+            { value: "admin", label: texts.codes.roles.admin },
+          ]}
+        />
         <label>
           {texts.codes.howMany}
           <input
@@ -110,6 +125,7 @@ export function CodesPage() {
             {free.map((c) => (
               <li key={c.code} className="codes__item">
                 <code>{c.code}</code>
+                {c.role === "admin" && <span className="codes__team">{texts.codes.teamBadge}</span>}
                 <ConfirmButton label={texts.codes.remove} onConfirm={() => void remove(c.code)}>
                   <TrashIcon />
                 </ConfirmButton>
@@ -118,6 +134,7 @@ export function CodesPage() {
             {used.map((c) => (
               <li key={c.code} className="codes__item codes__item--used">
                 <code>{c.code}</code>
+                {c.role === "admin" && <span className="codes__team">{texts.codes.teamBadge}</span>}
                 <small>
                   {c.used_at && texts.codes.usedOn(formatDateTime(new Date(c.used_at)))}
                 </small>

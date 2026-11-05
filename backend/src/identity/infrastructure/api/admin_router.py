@@ -5,21 +5,25 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from pydantic import BaseModel
 
+from identity.application.delete_participant import DeleteParticipant
 from identity.application.list_participants import ListParticipants
 from identity.application.manage_invitation_codes import (
     CodeNotFoundError,
     ManageInvitationCodes,
 )
-from identity.domain.errors import IdentityError
+from identity.domain.errors import IdentityError, UserNotFoundError
+from identity.domain.user import Role
 
 
 class GenerateCodesRequest(BaseModel):
     count: int
+    role: Role = Role.FARMER  # «admin» crea códigos para más cuentas del equipo
 
 
 def build_participants_router(
     list_participants: ListParticipants,
     manage_codes: ManageInvitationCodes,
+    delete_participant: DeleteParticipant,
     require_admin: Callable[..., str],
 ) -> APIRouter:
     """Rutas del equipo de investigación sobre los participantes (solo administrador)."""
@@ -32,7 +36,12 @@ def build_participants_router(
             "codes": {"total": report.codes.total, "used": report.codes.used},
             "participants": [
                 {
+                    "id": p.user_id,
                     "phone": p.phone,
+                    "email": p.email,
+                    "verified": p.verified,
+                    "pending_code": p.pending_code,
+                    "code_emailed": p.code_emailed,
                     "role": p.role.value,
                     "registered_at": _iso(p.registered_at),
                     "invitation_code": p.invitation_code,
@@ -46,7 +55,12 @@ def build_participants_router(
     def invitation_codes() -> dict[str, Any]:
         return {
             "codes": [
-                {"code": c.code, "used": c.is_used, "used_at": _iso(c.used_at)}
+                {
+                    "code": c.code,
+                    "role": c.role.value,
+                    "used": c.is_used,
+                    "used_at": _iso(c.used_at),
+                }
                 for c in manage_codes.list()
             ]
         }
@@ -54,7 +68,7 @@ def build_participants_router(
     @router.post("/admin/invitation-codes", status_code=status.HTTP_201_CREATED)
     def generate_codes(body: GenerateCodesRequest) -> dict[str, Any]:
         try:
-            return {"codes": manage_codes.generate(body.count)}
+            return {"codes": manage_codes.generate(body.count, body.role)}
         except IdentityError as error:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, str(error)) from None
 
@@ -63,6 +77,16 @@ def build_participants_router(
         try:
             manage_codes.delete(code)
         except CodeNotFoundError as error:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, str(error)) from None
+        except IdentityError as error:
+            raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from None
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+    @router.delete("/admin/participants/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+    def delete_account(user_id: str, admin_id: str = Depends(require_admin)) -> Response:
+        try:
+            delete_participant.execute(user_id, requested_by=admin_id)
+        except UserNotFoundError as error:
             raise HTTPException(status.HTTP_404_NOT_FOUND, str(error)) from None
         except IdentityError as error:
             raise HTTPException(status.HTTP_409_CONFLICT, str(error)) from None
