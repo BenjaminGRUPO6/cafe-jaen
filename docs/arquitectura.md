@@ -15,7 +15,7 @@ multiagente con patrón supervisor**. Un solo despliegue, dividido en módulos i
 | `application/` | Casos de uso y **agentes** (`application/agents/`) | Solo depende de `domain` |
 | `infrastructure/` | Adaptadores: API (FastAPI y flujo en vivo), persistencia (SQLAlchemy), webs de la bolsa, LangGraph, LLM | Implementa los puertos |
 
-`src/main.py` crea los adaptadores y los inyecta (inyección de dependencias manual, sin magia).
+`src/main.py` crea los adaptadores y los inyecta: optamos por inyección de dependencias manual, sin frameworks.
 
 ## Módulos
 
@@ -49,8 +49,8 @@ multiagente con patrón supervisor**. Un solo despliegue, dividido en módulos i
 
 ## Precio estimado en Jaén (HU12)
 
-Las cooperativas fijan su precio a partir de la bolsa. El equipo (rol **administrador**) pregunta
-«¿a cuánto está el quintal ahora?» y lo anota en la pantalla «Equipo»
+Las cooperativas fijan su precio a partir de la bolsa. Nosotros, con el rol **administrador**, preguntamos
+«¿a cuánto está el quintal ahora?» y lo anotamos en la pantalla «Equipo»
 (`POST /api/admin/local-prices`). `RecordLocalPrice` guarda ese precio **junto al precio de la
 bolsa de ese momento**; `LocalPriceObservation` rechaza porcentajes fuera de 40 %–120 % (error al
 escribir). `LocalPriceEstimator` calcula, por tipo de café, la **mediana** de los porcentajes de

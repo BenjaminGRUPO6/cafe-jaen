@@ -3,7 +3,7 @@
 **Estado:** aceptada (Iteración 0)
 
 **Contexto:** dos desarrolladores a tiempo parcial, un solo servidor, necesidad de probar el
-negocio con TDD y de trabajar en paralelo sin conflictos. Es la arquitectura que el equipo ya usa
+negocio con TDD y de trabajar en paralelo sin conflictos. Es la arquitectura que ya usamos
 en el Taller Integrador.
 
 **Decisión:** un solo despliegue dividido en módulos (`identity`, `market`, `forecasting`,

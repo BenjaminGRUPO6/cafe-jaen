@@ -53,8 +53,8 @@ recomendación de venta).
 - HU10: Dockerfile, docker-compose, guía de operación y prueba de carga (Locust, 30 usuarios)
   más 30 flujos en vivo abiertos a la vez.
 - HU11: manual de usuario y guía de inducción.
-- HU12: **precio estimado en Jaén** por tipo de café (convencional, orgánico, especial): el equipo
-  anota en la pantalla «Equipo» cuánto paga cada cooperativa; la app guarda la bolsa del momento
+- HU12: **precio estimado en Jaén** por tipo de café (convencional, orgánico, especial): nosotros
+  anotamos en la pantalla «Equipo» cuánto paga cada cooperativa; la app guarda la bolsa del momento
   y estima en vivo bolsa × mediana de los porcentajes de 30 días. Rol de administrador
   (`scripts/create_admin.py`) y migración `0003_local_prices_and_roles`.
 

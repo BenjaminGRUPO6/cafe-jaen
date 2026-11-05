@@ -37,7 +37,7 @@ Cada tarea tiene un commit propio en el historial de Git (`git log --oneline`).
 | T31 | It3 | HU10 | Despliegue de API, base de datos y front-end | 1 | Reyes G., L. B. | backend/Dockerfile · docker-compose.yml · docs/operacion.md |
 | T32 | It3 | HU10 | Prueba de carga y reporte de pruebas | 1 | Chavez C., J. X. | tests/load/locustfile.py · docs/xp/iteracion-3/Reporte_de_pruebas_Cafe_Jaen.docx |
 | T33 | It3 | HU11 | Manual de usuario | 0.5 | Reyes G., L. B. | docs/manual/Manual_de_usuario_Cafe_Jaen.docx |
-| T34 | It3 | HU11 | Sesión de inducción con el GE | 0.5 | Pareja | docs/manual/Guia_de_induccion_Cafe_Jaen.docx (la sesión la realiza el equipo) |
+| T34 | It3 | HU11 | Sesión de inducción con el GE | 0.5 | Pareja | docs/manual/Guia_de_induccion_Cafe_Jaen.docx (la sesión la realizamos los dos) |
 | T35 | It3 | HU12 | Modelo LocalPriceObservation y estimador por mediana de porcentajes (TDD) | 1 | Chavez C., J. X. | market/domain/local_price.py · tests/unit/market/test_local_price.py |
 | T36 | It3 | HU12 | Rol administrador, caso de uso RecordLocalPrice y endpoints /admin/local-prices | 1 | Reyes G., L. B. | identity (rol admin, scripts/create_admin.py) · market/application/record_local_price.py · /admin/local-prices · migración 0003 |
 | T37 | It3 | HU12 | Pantalla «Equipo» para anotar precios y tarjeta «Precio estimado en Jaén» con filtro por tipo | 1 | Reyes G., L. B. | features/admin/AdminPage.tsx · features/live/LocalEstimateCard.tsx · features/auth/RequireAdmin.tsx |

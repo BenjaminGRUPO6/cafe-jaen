@@ -1,13 +1,15 @@
 # ☕ Café Jaén
 
 Aplicación web con agentes inteligentes para mejorar la percepción del valor de mercado en los
-caficultores de Jaén (tesis UPAO, 2026).
+caficultores de Jaén. Es el producto de nuestra tesis en la Universidad Privada Antenor Orrego
+(UPAO, 2026).
 
-El caficultor ve **en vivo, como en una pantalla de bolsa, a cuánto se vende el café en el
-mundo** (bolsa de Nueva York, consultada en varias webs a la vez), lo que se paga **en Jaén** por
-su tipo de café, el gráfico del precio, un **pronóstico a 7 días**, la recomendación **«¿Vendo
-ahora o espero?»** y un **asesor** que responde en lenguaje sencillo. Detrás, seis agentes
-coordinados por un supervisor mantienen los datos al día sin intervención humana.
+Desarrollamos una app en la que el caficultor ve **en vivo, como en una pantalla de bolsa, a
+cuánto se vende el café en el mundo** (bolsa de Nueva York, consultada en varias webs a la vez),
+lo que se paga **en Jaén** por su tipo de café, el gráfico del precio, un **pronóstico a 7 días**,
+la recomendación **«¿Vendo ahora o espero?»** y un **asesor** que responde en lenguaje sencillo.
+Detrás, seis agentes coordinados por un supervisor mantienen los datos al día sin intervención
+humana.
 
 > **Versión:** v1.2 (plan XP v4.0) · **Metodología:** Extreme Programming (XP) ·
 > **Arquitectura:** monolito modular hexagonal + sistema multiagente con supervisor
@@ -26,15 +28,16 @@ coordinados por un supervisor mantienen los datos al día sin intervención huma
   <img src="docs/img/capturas/07-asesor.png" width="200" alt="Asesor">
 </p>
 
-## Pruébalo en línea
+## Demo en línea
 
 | | |
 |---|---|
-| **App publicada (Render)** | `https://cafe-jaen.onrender.com` (la URL exacta la muestra Render) · códigos de invitación `DEMO-0001` a `DEMO-0010` |
-| **Editar en el navegador (Codespaces)** | **Code → Codespaces → Create codespace on main**, luego `python dev.py start` |
+| **App publicada (Render)** | `https://cafe-jaen.onrender.com` · códigos de invitación `DEMO-0001` a `DEMO-0010` |
+| **Edición en el navegador (Codespaces)** | **Code → Codespaces → Create codespace on main** y luego `python dev.py start` |
 
-La app publicada usa un precio de demostración y se despierta en ~1 minuto si estuvo sin visitas.
-Cada `git push` a `main` la vuelve a desplegar sola. Paso a paso: [docs/despliegue.md](docs/despliegue.md).
+Publicamos la app en el plan gratuito de Render con un precio de demostración. Si estuvo un rato
+sin visitas, tarda alrededor de un minuto en despertar. Cada `git push` a `main` la vuelve a
+desplegar sola. Cómo lo configuramos: [docs/despliegue.md](docs/despliegue.md).
 
 ---
 
@@ -45,8 +48,8 @@ Cada `git push` a `main` la vuelve a desplegar sola. Paso a paso: [docs/desplieg
 3. [Arquitectura](#arquitectura)
 4. [Estructura del repositorio](#estructura-del-repositorio)
 5. [Tecnologías](#tecnologías)
-6. [Cómo ejecutarlo en tu computadora (paso a paso)](#cómo-ejecutarlo-en-tu-computadora-paso-a-paso)
-7. [Subirlo a GitHub como evidencia](#subirlo-a-github-como-evidencia)
+6. [Cómo lo ejecutamos en local](#cómo-lo-ejecutamos-en-local)
+7. [Cómo trabajamos con Git y GitHub](#cómo-trabajamos-con-git-y-github)
 8. [Calidad, pruebas y criterios de aceptación](#calidad-pruebas-y-criterios-de-aceptación)
 9. [Plan XP y división del trabajo](#plan-xp-y-división-del-trabajo)
 10. [Convenciones de código](#convenciones-de-código)
@@ -56,6 +59,8 @@ Cada `git push` a `main` la vuelve a desplegar sola. Paso a paso: [docs/desplieg
 ---
 
 ## Qué hace la aplicación
+
+Organizamos el producto en historias de usuario (XP). Estas son las que implementamos:
 
 | Historia | Qué ve o hace el caficultor | Agente |
 |---|---|---|
@@ -69,36 +74,36 @@ Cada `git push` a `main` la vuelve a desplegar sola. Paso a paso: [docs/desplieg
 | HU08 | Preguntas en lenguaje natural, sin precios inventados | Asesor |
 | HU09 | Letra grande, se instala en el celular y muestra el último precio sin señal | — |
 | HU10–11 | Producción, manual de usuario e inducción | — |
-| HU12 | **Precio estimado en Jaén**: la bolsa × el porcentaje que pagan las cooperativas (el equipo anota sus precios en «Equipo») | Analista |
+| HU12 | **Precio estimado en Jaén**: la bolsa × el porcentaje que pagan las cooperativas (los precios los anotamos nosotros en la pantalla «Equipo») | Analista |
 | HU15 | Interfaz dinámica: colores vivos, precio que rueda al cambiar, animaciones que responden al toque | — |
-| HU16 | Ejecución local en un paso (Windows, macOS, Linux) y dependencias que se actualizan solas | — |
+| HU16 | Ejecución local en un paso (Windows, macOS, Linux), despliegue en línea y dependencias que se actualizan solas | — |
 
-> **Sobre el «tiempo real»:** los datos de la bolsa ICE al segundo requieren licencia; las webs
-> gratuitas publican con algunos minutos de retraso. La app muestra siempre la **hora de la
-> cotización** ([decisión 0006](docs/decisiones/0006-varias-fuentes-y-sse.md)).
+> **Sobre el «tiempo real»:** los datos de la bolsa ICE al segundo requieren licencia, y las webs
+> gratuitas publican con algunos minutos de retraso. Por eso decidimos mostrar siempre la **hora
+> de la cotización** ([decisión 0006](docs/decisiones/0006-varias-fuentes-y-sse.md)).
 
 ## Cómo se relaciona con los indicadores de la tesis
 
-Los indicadores se miden **fuera de la app**, con los mismos instrumentos para el grupo
+Medimos los indicadores **fuera de la app**, con los mismos instrumentos para el grupo
 experimental (GE) y el grupo control (GC) ([decisión 0003](docs/decisiones/0003-medicion-fuera-de-la-app.md)).
 La app es la intervención que recibe solo el GE.
 
-| Indicador | Cómo se mide | Qué hace la app para mejorarlo |
+| Indicador | Cómo lo medimos | Qué hace la app para mejorarlo |
 |---|---|---|
 | **TAI** = tf − ti (minutos) | Ficha de observación con cronómetro | El precio aparece al abrir la app y se actualiza solo cada minuto |
 | **NCP**ᵢ = aciertos / preguntas × 100 | Cuestionario de conocimiento del precio | Precio de la bolsa, variación y precio estimado en Jaén por tipo de café |
 | **TPP** = [1 − \|Pp − Pr\| / Pr] × 100 | Ficha: precio predicho vs. precio real (S/ por quintal de pergamino) | Pronóstico a 7 días **en Jaén**, en la misma unidad que se predice ([decisión 0009](docs/decisiones/0009-pronostico-en-jaen.md)) |
 | Usabilidad (SUS) | Cuestionario SUS, solo al GE | — |
 
-El acceso es solo con código de invitación (uno por participante del GE), así el GC no puede
-entrar a la app.
+El acceso es solo con código de invitación (uno por participante del GE); así nos aseguramos de
+que el GC no pueda entrar a la app.
 
 ## Arquitectura
 
 ### Monolito modular hexagonal
 
-Una sola aplicación y una sola base de datos, dividida en **módulos independientes**. Cada
-módulo tiene tres capas y las dependencias apuntan siempre hacia adentro:
+Elegimos una sola aplicación y una sola base de datos, dividida en **módulos independientes**.
+Cada módulo tiene tres capas y las dependencias apuntan siempre hacia adentro:
 
 ```
 infrastructure  ──▶  application  ──▶  domain
@@ -109,7 +114,8 @@ infrastructure  ──▶  application  ──▶  domain
 
 ![Arquitectura hexagonal](docs/img/arquitectura-hexagonal.png)
 
-Tres contratos de [`import-linter`](backend/.importlinter) lo vigilan en cada commit y en la CI:
+Para no romper esta regla sin darnos cuenta, definimos tres contratos de
+[`import-linter`](backend/.importlinter) que se revisan en cada commit y en la CI:
 
 | Contrato | Qué obliga |
 |---|---|
@@ -167,13 +173,13 @@ flowchart LR
 3. **Consulta del caficultor:** pantalla → API → Supervisor → Estratega o Asesor → respuesta
    `INFORM` (o `FAILURE` controlado, nunca un error 500).
 
-Detalle completo, diagramas y propiedades de agente inteligente en
+El detalle completo, los diagramas y las propiedades de agente inteligente están en
 [docs/arquitectura.md](docs/arquitectura.md).
 
 ## Estructura del repositorio
 
 ```
-cafe-jaen/
+cafe-jaen-sistema/
 ├── dev.py                         ← tareas en un comando (Windows, macOS y Linux)
 ├── backend/                       ← MONOLITO (FastAPI + Python)
 │   ├── src/
@@ -186,7 +192,7 @@ cafe-jaen/
 │   │   ├── advisor/               ← asesor (Asesor)
 │   │   └── orchestration/         ← supervisor (LangGraph) y planificador
 │   ├── migrations/                ← Alembic 0001–0003
-│   ├── scripts/                   ← demo, admin, ciclo diario, spike, backtest, carga
+│   ├── scripts/                   ← demo, admin, ciclo diario, arranque en producción, carga
 │   ├── tests/                     ← unit/ · integration/ · acceptance/ · load/
 │   └── .importlinter              ← contratos de arquitectura
 ├── frontend/                      ← PWA (React + Vite + Framer Motion)
@@ -203,11 +209,13 @@ cafe-jaen/
 │           └── styles.css         ← paleta «Cosecha» y diseño
 ├── docs/                          ← arquitectura, decisiones (ADR), XP, paleta, manual
 ├── .github/                       ← CI y Dependabot
+├── .devcontainer/                 ← entorno de GitHub Codespaces
+├── Dockerfile · render.yaml       ← despliegue en Render (app + API en un solo servicio)
 ├── docker-compose.yml             ← opcional: PostgreSQL + API como en producción
 └── Makefile                       ← atajos opcionales (llaman a dev.py)
 ```
 
-Cada módulo del backend repite las mismas capas. Ejemplo, `market`:
+Cada módulo del backend repite las mismas capas. Por ejemplo, `market`:
 
 ```
 market/
@@ -224,83 +232,53 @@ market/
 
 ## Tecnologías
 
-| Capa | Herramienta | Por qué |
+| Capa | Herramienta | Por qué la elegimos |
 |---|---|---|
-| Backend | Python 3.12, FastAPI, Pydantic | API tipada y documentada sola en `/docs` |
+| Backend | Python 3.12, FastAPI, Pydantic | API tipada que se documenta sola en `/docs` |
 | Agentes | LangGraph | Grafo del supervisor: un nodo por agente |
-| Datos | SQLAlchemy + Alembic; **SQLite** en local, **PostgreSQL** en producción | Sin instalar nada para desarrollar |
+| Datos | SQLAlchemy + Alembic; **SQLite** en local, **PostgreSQL** en producción | Para desarrollar no hace falta instalar una base de datos |
 | Pronóstico | NumPy (ELM y modelo base) | Liviano y explicable |
 | Planificador | APScheduler | Cada minuto y ciclo diario |
-| Frontend | React 19, Vite 6, TypeScript, Recharts, Framer Motion | PWA instalable y rápida en 3G; Vite 6 corre desde Node 20 |
+| Frontend | React 19, Vite 6, TypeScript, Recharts | PWA instalable y rápida en 3G; Vite 6 corre desde Node 20 |
 | Diseño | Framer Motion, Bricolage Grotesque, Atkinson Hyperlegible Next | Interfaz viva y legible al sol ([paleta](docs/paleta.md)) |
 | Calidad | pytest, Vitest, ruff, mypy, import-linter, ESLint, Prettier | Las mismas revisiones en local y en la CI |
+| Despliegue | Docker, Render, GitHub Codespaces | App pública gratuita y edición en el navegador |
 | Mantenimiento | `dev.py`, GitHub Actions, Dependabot | Un comando para todo y actualizaciones semanales validadas |
 
-**Simplificado en v1.1** ([decisión 0008](docs/decisiones/0008-herramientas-simples.md)):
-- **Sin Docker en local:** SQLite por defecto.
+**Qué simplificamos en la v1.1** ([decisión 0008](docs/decisiones/0008-herramientas-simples.md)):
+- **Sin Docker en local:** usamos SQLite por defecto.
 - **Sin `make` obligatorio:** `dev.py` funciona también en Windows.
 - **Sin secretos escritos a mano:** el `setup` los genera.
 - **Dependencias al día:** Dependabot abre los PR de actualización.
 
-## Cómo ejecutarlo en tu computadora (paso a paso)
+## Cómo lo ejecutamos en local
 
-### 1. Instala los requisitos (una sola vez)
+### Requisitos
 
 | Programa | Versión | Descarga |
 |---|---|---|
-| Python | 3.11 o más nuevo (recomendado 3.12) | https://www.python.org/downloads/ (en Windows marca «Add python.exe to PATH») |
-| Node.js | 20 o 22 (probado con 22.11 y 22.22) | https://nodejs.org |
+| Python | 3.11 o más nuevo (usamos 3.12 y 3.13) | https://www.python.org/downloads/ (en Windows, con «Add python.exe to PATH») |
+| Node.js | 20 o 22 (lo probamos con 22.11 y 22.22) | https://nodejs.org |
 | Git | cualquiera reciente | https://git-scm.com |
 
-Comprueba en una terminal (PowerShell, Terminal o la de VS Code):
-
-```bash
-python --version     # en macOS/Linux puede ser: python3 --version
-node --version
-git --version
-```
-
-### 2. Descarga el proyecto
+### Pasos
 
 ```bash
 git clone https://github.com/jhon1212-beep/cafe-jaen-sistema.git
-cd cafe-jaen
+cd cafe-jaen-sistema
+python dev.py setup     # instala backend y frontend, y crea backend/.env con un secreto aleatorio
+python dev.py demo      # datos de demostración, primer pronóstico y códigos DEMO-0001 a DEMO-0010
+python dev.py start     # levanta la API (puerto 8000) y la app (puerto 5173)
 ```
 
-(O descomprime el `.zip` y abre una terminal dentro de la carpeta `cafe-jaen`.)
+Con eso, la app queda en **http://localhost:5173** y la documentación de la API en
+http://localhost:8000/docs. Para registrarse usamos un código `DEMO-0001` … `DEMO-0010` y
+cualquier celular de 9 dígitos. En modo demostración el precio cambia cada minuto aunque no haya
+internet ni la bolsa esté abierta. `Ctrl+C` detiene todo.
 
-### 3. Instala las dependencias
+En macOS o Linux el comando puede ser `python3`; en Windows también funciona `py dev.py …`.
 
-```bash
-python dev.py setup
-```
-
-- **Qué hace:** crea el entorno de Python (`backend/.venv`), instala el backend y el frontend, y crea `backend/.env` con un secreto aleatorio.
-- **Tiempo:** tarda unos minutos la primera vez.
-- **Atajos:** en macOS/Linux usa `python3` si `python` no existe; en Windows también funciona `py dev.py setup`.
-
-### 4. Carga los datos de demostración
-
-```bash
-python dev.py demo
-```
-
-Carga 2 años de precios sintéticos, precios de cooperativas de ejemplo, el primer pronóstico y la
-recomendación. Crea el código de invitación **DEMO-0001**.
-
-### 5. Levanta la aplicación
-
-```bash
-python dev.py start
-```
-
-- Abre **http://localhost:5173** en el navegador; para verla como en el celular, usa el modo dispositivo con F12.
-- Toca «¿Primera vez? Crea tu cuenta», usa el código **DEMO-0001** y cualquier celular de 9 dígitos.
-- En modo demostración el precio cambia cada minuto, aunque no haya internet ni la bolsa esté abierta.
-- La documentación de la API está en http://localhost:8000/docs.
-- Para detener todo, presiona **Ctrl+C**.
-
-### Comandos disponibles
+### Comandos de `dev.py`
 
 | Comando | Qué hace |
 |---|---|
@@ -313,46 +291,36 @@ python dev.py start
 | `python dev.py check` | Todo lo que revisa la CI (estilo, tipos, arquitectura, pruebas, build) |
 | `python dev.py reset` | Borra la base de datos local para empezar de cero |
 
-En macOS/Linux también existen atajos con `make` (`make start`, `make check`, `make backtest`…).
-
-### Problemas frecuentes
+### Problemas que encontramos y cómo los resolvimos
 
 | Problema | Solución |
 |---|---|
-| `python` no se reconoce (Windows) | Reinstala Python marcando «Add python.exe to PATH» o usa `py dev.py …` |
-| `npm` no se reconoce | Instala Node.js 22 LTS y abre una terminal nueva |
-| `Cannot find native binding` | Instalación incompleta de `node_modules`: vuelve a ejecutar `python dev.py setup` (la borra y la reinstala) |
+| `python` no se reconoce (Windows) | Reinstalar Python con «Add python.exe to PATH» o usar `py dev.py …` |
+| `npm` no se reconoce | Instalar Node.js 22 LTS y abrir una terminal nueva |
+| `Cannot find native binding` | Con Vite 8 y Node 22.11 npm omitía un binario de Windows. Bajamos a Vite 6 y `setup` reinstala `node_modules` desde cero |
 | Aviso `npm warn EBADENGINE eslint-visitor-keys` | Es solo un aviso de una herramienta de revisión de código; no afecta a la app |
-| El puerto 8000 o 5173 está ocupado | Cierra la otra app que lo usa, o reinicia la computadora |
-| «Código no válido» al registrarte | Cada código sirve una sola vez: ejecuta `python dev.py reset` y `python dev.py demo` |
-| No aparece el «Precio estimado en Jaén» | Ejecuta `python dev.py demo` (carga cooperativas de ejemplo) o anótalas con una cuenta del equipo |
+| El puerto 8000 o 5173 está ocupado | Cerrar la otra app que lo usa (o una terminal anterior que quedó abierta) |
+| «Código no válido» al registrarse | Cada código sirve una sola vez: `python dev.py reset` y luego `python dev.py demo` |
+| No aparece el «Precio estimado en Jaén» | Ejecutar `python dev.py demo` (carga cooperativas de ejemplo) o anotarlas con una cuenta del equipo |
 
 ### Datos reales y producción
 
-- **Precios reales:** `python dev.py start --real` consulta Yahoo Finance y Stooq cuando la bolsa de Nueva York está abierta (04:15–13:30, hora de Nueva York).
-- **Histórico real:** carga el histórico con `scripts/load_price_history.py --years 5`.
-- **Publicada gratis:** `render.yaml` + `Dockerfile` despliegan la app y la API en un solo servicio de Render ([docs/despliegue.md](docs/despliegue.md)).
+- **Precios reales:** con `python dev.py start --real` la app consulta Yahoo Finance y Stooq cuando la bolsa de Nueva York está abierta (04:15–13:30, hora de Nueva York).
+- **Histórico real:** lo cargamos con `scripts/load_price_history.py --years 5`.
+- **App publicada:** `render.yaml` + `Dockerfile` despliegan la app y la API en un solo servicio de Render ([docs/despliegue.md](docs/despliegue.md)).
 - **Producción con PostgreSQL:** `docker-compose.yml` levanta PostgreSQL y la API, y `DATABASE_URL` apunta a PostgreSQL.
-- **Más detalle:** [docs/operacion.md](docs/operacion.md) explica la carga de datos, los respaldos y el despliegue.
+- **Operación:** en [docs/operacion.md](docs/operacion.md) documentamos la carga de datos y los respaldos.
 
-## Subirlo a GitHub como evidencia
+## Cómo trabajamos con Git y GitHub
 
-El historial de Git ya trae **un commit por tarea de ingeniería (T01–T42)** y las etiquetas de
-cada iteración (`v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1`).
-
-1. En GitHub, crea un repositorio vacío llamado `cafe-jaen`, sin README ni licencia.
-2. Desde la carpeta del proyecto:
-
-   ```bash
-   git remote add origin https://github.com/jhon1212-beep/cafe-jaen-sistema.git
-   git push -u origin main
-   git push origin --tags
-   ```
-
-3. En **Settings → Collaborators**, invita al compañero ([jhon1212-beep](https://github.com/jhon1212-beep)
-   o [BenjaminGRUPO6](https://github.com/BenjaminGRUPO6)).
-4. En la pestaña **Actions** verás la CI en verde. Desde la siguiente semana, Dependabot abrirá
-   sus PR de actualización.
+- El historial tiene **un commit por tarea de ingeniería (T01–T42)** y una etiqueta por cada
+  iteración o entrega: `v0.0`, `v0.1`, `v0.2`, `v1.0`, `v1.1` y `v1.2`.
+- Cada tarea la trabajamos en una rama `feature/huXX-descripcion` y la integramos con un PR que
+  revisa el compañero. La CI tiene que quedar en verde antes de unir el PR.
+- Integramos a `main` al menos una vez al día (integración continua).
+- La pestaña **Actions** muestra la CI de cada commit, y Dependabot abre cada semana los PR de
+  actualización de dependencias.
+- Cada `git push` a `main` vuelve a desplegar la app publicada en Render.
 
 ## Calidad, pruebas y criterios de aceptación
 
@@ -361,10 +329,10 @@ python dev.py check
 ```
 
 - **Qué revisa:** ruff, mypy, import-linter, pytest con cobertura ≥ 80 %, ESLint, Prettier, Vitest y el build de Vite.
-- **Resultado actual:** 185 pruebas del backend (cobertura 97,6 %) y 17 del frontend.
-- **TDD:** las reglas del dominio se escribieron con la prueba primero.
-- **Criterios de aceptación:** cada historia los tiene, y cada uno corresponde a una prueba de aceptación (PA-xx-x). El estado de cada PA, automatizada o manual, está en el README de cada iteración ([docs/xp/iteraciones.md](docs/xp/iteraciones.md)).
-- **Trazabilidad:** [docs/xp/trazabilidad.md](docs/xp/trazabilidad.md) relaciona cada historia con sus archivos y sus pruebas.
+- **Resultado actual:** 191 pruebas del backend (cobertura 97,6 %) y 17 del frontend.
+- **TDD:** escribimos las reglas del dominio con la prueba primero.
+- **Criterios de aceptación:** cada historia tiene los suyos, y cada uno corresponde a una prueba de aceptación (PA-xx-x). El estado de cada PA, automatizada o manual, está en el README de cada iteración ([docs/xp/iteraciones.md](docs/xp/iteraciones.md)).
+- **Trazabilidad:** en [docs/xp/trazabilidad.md](docs/xp/trazabilidad.md) relacionamos cada historia con sus archivos y sus pruebas.
 - **Requisitos no funcionales:**
   - Texto ≥ 16 px y contraste AA ([docs/paleta.md](docs/paleta.md)).
   - Precio en vivo < 3 s en 3G.
@@ -373,39 +341,36 @@ python dev.py check
 
 ## Plan XP y división del trabajo
 
-Una iteración 0 de exploración y tres iteraciones de dos semanas. Son 42,5 puntos (≈ 170 h, con 1
-punto = 4 h ideales), repartidos en partes iguales:
+Planificamos una iteración 0 de exploración y tres iteraciones de dos semanas. En total son 42,5
+puntos (≈ 170 h, con 1 punto = 4 h ideales), repartidos en partes iguales:
 
 | Integrante | Historias que lidera | Puntos | Horas |
 |---|---|---|---|
 | [jhon1212-beep](https://github.com/jhon1212-beep) — Chavez C., J. X. | HU02, HU03, HU05, HU06, HU12 (+ T40, T42) | 23 | 92 |
 | [BenjaminGRUPO6](https://github.com/BenjaminGRUPO6) — Reyes G., L. B. | HU01, HU04, HU07, HU08, HU09, HU10, HU11, HU15, HU16 | 23 | 92 |
 
-Las tareas en pareja (T02, T14, T34) cuentan para ambos. El detalle por tarea está en
-[docs/xp/tareas.md](docs/xp/tareas.md); por iteración, en [docs/xp/iteraciones.md](docs/xp/iteraciones.md).
-
-**Flujo de trabajo en pareja:**
-- Cada tarea se trabaja en una rama `feature/huXX-descripcion` y se integra con un PR que revisa el compañero.
-- La CI debe quedar en verde antes de unir el PR.
-- Se integra a `main` al menos una vez al día (integración continua).
+Las tareas que hicimos en pareja (T02, T14, T34) cuentan para ambos. El detalle por tarea está en
+[docs/xp/tareas.md](docs/xp/tareas.md), y por iteración en [docs/xp/iteraciones.md](docs/xp/iteraciones.md).
 
 ## Convenciones de código
+
+Acordamos estas reglas al inicio del proyecto:
 
 - **Código en inglés; comentarios y docstrings en español.** Los textos que ve el caficultor
   están en `frontend/src/shared/texts/es.ts`.
 - Commits `tipo(módulo): descripción en español`, por ejemplo
   `feat(market): consolida el precio de varias webs por mediana`. Los tipos son `feat`, `fix`,
   `test`, `docs`, `refactor`, `build` y `chore`.
-- Reglas del negocio solo en `domain/`; nada de lógica en los routers ni en los componentes.
-- Detalle completo en [docs/estandar-de-codigo.md](docs/estandar-de-codigo.md).
+- Las reglas del negocio van solo en `domain/`; nada de lógica en los routers ni en los componentes.
+- El detalle completo está en [docs/estandar-de-codigo.md](docs/estandar-de-codigo.md).
 
 ## Trabajo futuro
 
-| Idea | Por qué no está en esta versión |
+| Idea | Por qué no la incluimos en esta versión |
 |---|---|
 | Alertas de precio por notificación (HU13) | Opcional si la velocidad del equipo lo permite |
 | Bolsa de Londres (robusta) como referencia (HU14) | Opcional |
-| Estimado en Jaén con porcentajes que cambien en el tiempo, calculado en el backend | Hoy basta con la mediana de 30 días ([decisión 0009](docs/decisiones/0009-pronostico-en-jaen.md)) |
+| Estimado en Jaén con porcentajes que cambien en el tiempo, calculado en el backend | Por ahora basta con la mediana de 30 días ([decisión 0009](docs/decisiones/0009-pronostico-en-jaen.md)) |
 | Datos de la bolsa al segundo | ICE cobra licencia por datos en tiempo real |
 | Pronóstico a 30 días con reentrenamiento automático | Requiere más datos y seguimiento |
 | Consultas por voz, WhatsApp o SMS | Costo y complejidad de terceros |
@@ -418,11 +383,11 @@ Las tareas en pareja (T02, T14, T34) cuentan para ambos. El detalle por tarea es
 |---|---|
 | [docs/arquitectura.md](docs/arquitectura.md) | Capas, módulos, agentes y flujos |
 | [docs/paleta.md](docs/paleta.md) | Paleta «Cosecha», tipografías, contraste y animaciones |
-| [docs/decisiones/](docs/decisiones/) | Registro de decisiones de arquitectura (ADR 0001–0009) |
+| [docs/decisiones/](docs/decisiones/) | Nuestras decisiones de arquitectura (ADR 0001–0009) |
 | [docs/xp/](docs/xp/) | Iteraciones, tareas T01–T42, trazabilidad y pruebas de aceptación |
 | [docs/metafora.md](docs/metafora.md) · [docs/tarjetas-crc.md](docs/tarjetas-crc.md) | Metáfora del sistema y tarjetas CRC (XP) |
 | [docs/estandar-de-codigo.md](docs/estandar-de-codigo.md) | Idioma, nombres, buenas prácticas y Git |
-| [docs/despliegue.md](docs/despliegue.md) | Publicar gratis en Render y editar en línea con Codespaces |
+| [docs/despliegue.md](docs/despliegue.md) | Cómo publicamos la app en Render y la editamos en Codespaces |
 | [docs/operacion.md](docs/operacion.md) | Carga de datos, respaldos y operación |
 | [docs/manual/](docs/manual/) | Manual de usuario y guía de inducción (Word) |
 | [CHANGELOG.md](CHANGELOG.md) | Cambios de cada versión |
