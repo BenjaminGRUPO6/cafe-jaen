@@ -10,10 +10,12 @@ import {
 } from "recharts";
 import type { HistoryPeriod, HistoryPoint, PriceHistory } from "../../shared/api/types";
 import { StatusMessage } from "../../shared/components/StatusMessage";
-import { formatDate, formatPercent, formatSoles, formatTime } from "../../shared/format";
+import { formatPercent, formatSoles } from "../../shared/format";
 import { useApi } from "../../shared/hooks/useApi";
+import { useNow } from "../../shared/hooks/useNow";
 import { Segmented } from "../../shared/motion/Segmented";
 import { texts } from "../../shared/texts/es";
+import { delayMinutes, tickDay, tickTime, timeTicks, toTimed, tooltipLabel } from "./chartAxis";
 
 const PERIODS: HistoryPeriod[] = ["today", "30", "90"];
 const INK = "#1a1208";
@@ -25,9 +27,13 @@ export function ChartPage() {
   const [period, setPeriod] = useState<HistoryPeriod>("today");
   const { data, error, loading, reload } = useApi<PriceHistory>(`/prices/history?period=${period}`);
   const intraday = period === "today";
-  const label = (point: HistoryPoint) =>
-    intraday && point.time ? formatTime(point.time) : formatDate(point.date);
+  const now = useNow();
   const points = data?.points ?? [];
+  // Cada punto en su instante real: el eje respeta los fines de semana y los minutos sin datos
+  const timed = toTimed(points, intraday);
+  const first = timed[0]?.at ?? 0;
+  const last = timed[timed.length - 1]?.at ?? 0;
+  const tickFormatter = intraday ? tickTime : tickDay;
 
   return (
     <section>
@@ -45,7 +51,7 @@ export function ChartPage() {
           <Summary points={points} />
           <div className="card chart-card">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={points.map((point) => ({ ...point, label: label(point) }))}>
+              <AreaChart data={timed}>
                 <defs>
                   <linearGradient id="priceFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor={GRANO} stopOpacity={0.9} />
@@ -54,12 +60,16 @@ export function ChartPage() {
                 </defs>
                 <CartesianGrid vertical={false} stroke="#e3e1d8" />
                 <XAxis
-                  dataKey="label"
+                  dataKey="at"
+                  type="number"
+                  scale="time"
+                  domain={[first, last]}
+                  ticks={timeTicks(first, last, intraday)}
+                  interval={0}
+                  tickFormatter={tickFormatter}
                   stroke={MUTED}
                   tickLine={false}
                   axisLine={false}
-                  tickFormatter={(text: string) => (intraday ? text : text.slice(0, 5))}
-                  minTickGap={24}
                 />
                 <YAxis
                   domain={["auto", "auto"]}
@@ -73,6 +83,7 @@ export function ChartPage() {
                   }
                 />
                 <Tooltip
+                  labelFormatter={(value) => tooltipLabel(Number(value), intraday)}
                   formatter={(value) => [formatSoles(Number(value)), texts.common.perQuintal]}
                 />
                 <Area
@@ -86,6 +97,11 @@ export function ChartPage() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          <p className="footnote">
+            {intraday
+              ? texts.chart.intradayNote(tickTime(last), delayMinutes(last, now))
+              : texts.chart.dailyNote(tickDay(first), tickDay(last))}
+          </p>
         </>
       )}
     </section>

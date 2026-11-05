@@ -264,6 +264,10 @@ export const texts = {
     high: "Máximo",
     low: "Mínimo",
     change: "Variación",
+    intradayNote: (time: string, minutes: number) =>
+      `Hora de Lima. Última cotización de la bolsa: ${time} (hace ${minutes} min). Las webs gratuitas publican la bolsa de Nueva York con unos 10 minutos de retraso; entre consultas sin cambios no se agregan puntos.`,
+    dailyNote: (from: string, to: string) =>
+      `Precio de cierre de cada día hábil, del ${from} al ${to}. Sábados, domingos y feriados de la bolsa no tienen precio: por eso hay saltos entre algunas fechas.`,
   },
   forecast: {
     title: "Pronóstico a 7 días",

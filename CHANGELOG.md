@@ -4,6 +4,15 @@ Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). C
 corresponde a la entrega de una iteración XP del plan v3.0/v4.0 (precio mundial en vivo y
 recomendación de venta).
 
+## [v1.9.1] — Gráfico con eje de tiempo real
+
+### Corregido
+- «Gráfico»: el eje usa el tiempo real. En 30 y 90 días las fechas quedan a intervalos parejos
+  (cada lunes o cada 4 semanas) aunque los fines de semana no tengan precio; en «Hoy» las horas
+  son redondas (cada 15, 30 o 60 minutos) aunque haya minutos sin consultas.
+- «Hoy» dice la hora de la última cotización y cuántos minutos tiene de retraso (las webs
+  gratuitas publican la bolsa con unos 10 minutos de retraso).
+
 ## [v1.9] — Dólar en vivo, gráfica de Jaén y contraseña visible
 
 ### Agregado
