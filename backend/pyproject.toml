@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "API y sistema multiagente de la aplicación web para caficultores de Jaén (tesis UPAO 2026)"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi==0.156.4",
+    "fastapi==0.162.2",
     "uvicorn[standard]==0.54.0",
     "sqlalchemy==2.1.5",
     "alembic==1.20.0",
