@@ -26,7 +26,7 @@ dev = [
     "pytest-cov==7.1.0",
     "ruff==0.17.1",
     "mypy==2.4.0",
-    "import-linter==2.15",
+    "import-linter==2.16",
     "locust==2.46.7",
 ]
 
