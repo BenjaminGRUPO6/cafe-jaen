@@ -11,7 +11,7 @@ dependencies = [
     "psycopg2-binary==2.9.13",
     "pydantic-settings==2.16.1",
     "apscheduler==3.11.3",
-    "langgraph==1.2.16",
+    "langgraph==1.2.20",
     "httpx==0.28.1",
     "yfinance==1.7.0",
     "numpy==2.5.4",
